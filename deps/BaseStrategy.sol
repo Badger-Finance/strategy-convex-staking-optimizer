@@ -2,16 +2,16 @@
 
 pragma solidity ^0.6.11;
 
-import "./@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import "./@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
-import "./@openzeppelin/contracts-upgradeable/math/MathUpgradeable.sol";
-import "./@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
-import "./@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
-import "./@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol";
-import "./@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
-import "../interfaces/uniswap/IUniswapRouterV2.sol";
-import "../interfaces/badger/IController.sol";
-import "../interfaces/badger/IStrategy.sol";
+import "deps/@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import "deps/@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
+import "deps/@openzeppelin/contracts-upgradeable/math/MathUpgradeable.sol";
+import "deps/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
+import "deps/@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
+import "deps/@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol";
+import "deps/@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
+import "interfaces/uniswap/IUniswapRouterV2.sol";
+import "interfaces/badger/IController.sol";
+import "interfaces/badger/IStrategy.sol";
 
 import "./SettAccessControl.sol";
 
@@ -51,8 +51,6 @@ abstract contract BaseStrategy is PausableUpgradeable, SettAccessControl {
     uint256 public withdrawalFee;
 
     uint256 public constant MAX_FEE = 10000;
-    address public constant uniswap =
-        0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D; // Uniswap Dex
 
     address public controller;
     address public guardian;
@@ -82,19 +80,11 @@ abstract contract BaseStrategy is PausableUpgradeable, SettAccessControl {
     }
 
     function _onlyAuthorizedActorsOrController() internal view {
-        require(
-            msg.sender == keeper ||
-                msg.sender == governance ||
-                msg.sender == controller,
-            "onlyAuthorizedActorsOrController"
-        );
+        require(msg.sender == keeper || msg.sender == governance || msg.sender == controller, "onlyAuthorizedActorsOrController");
     }
 
     function _onlyAuthorizedPausers() internal view {
-        require(
-            msg.sender == guardian || msg.sender == governance,
-            "onlyPausers"
-        );
+        require(msg.sender == guardian || msg.sender == governance, "onlyPausers");
     }
 
     /// ===== View Functions =====
@@ -108,11 +98,21 @@ abstract contract BaseStrategy is PausableUpgradeable, SettAccessControl {
     }
 
     /// @notice Get the total balance of want realized in the strategy, whether idle or active in Strategy positions.
-    function balanceOf() public view virtual returns (uint256) {
+    function balanceOf() public virtual view returns (uint256) {
         return balanceOfWant().add(balanceOfPool());
     }
 
-    function isTendable() public view virtual returns (bool) {
+    function isTendable() public virtual view returns (bool) {
+        return false;
+    }
+
+    function isProtectedToken(address token) public view returns (bool) {
+        address[] memory protectedTokens = getProtectedTokens();
+        for (uint256 i = 0; i < protectedTokens.length; i++) {
+            if (token == protectedTokens[i]) {
+                return true;
+            }
+        }
         return false;
     }
 
@@ -125,32 +125,19 @@ abstract contract BaseStrategy is PausableUpgradeable, SettAccessControl {
 
     function setWithdrawalFee(uint256 _withdrawalFee) external {
         _onlyGovernance();
-        require(
-            _withdrawalFee <= MAX_FEE,
-            "base-strategy/excessive-withdrawal-fee"
-        );
+        require(_withdrawalFee <= MAX_FEE, "base-strategy/excessive-withdrawal-fee");
         withdrawalFee = _withdrawalFee;
     }
 
-    function setPerformanceFeeStrategist(uint256 _performanceFeeStrategist)
-        external
-    {
+    function setPerformanceFeeStrategist(uint256 _performanceFeeStrategist) external {
         _onlyGovernance();
-        require(
-            _performanceFeeStrategist <= MAX_FEE,
-            "base-strategy/excessive-strategist-performance-fee"
-        );
+        require(_performanceFeeStrategist <= MAX_FEE, "base-strategy/excessive-strategist-performance-fee");
         performanceFeeStrategist = _performanceFeeStrategist;
     }
 
-    function setPerformanceFeeGovernance(uint256 _performanceFeeGovernance)
-        external
-    {
+    function setPerformanceFeeGovernance(uint256 _performanceFeeGovernance) external {
         _onlyGovernance();
-        require(
-            _performanceFeeGovernance <= MAX_FEE,
-            "base-strategy/excessive-governance-performance-fee"
-        );
+        require(_performanceFeeGovernance <= MAX_FEE, "base-strategy/excessive-governance-performance-fee");
         performanceFeeGovernance = _performanceFeeGovernance;
     }
 
@@ -161,10 +148,7 @@ abstract contract BaseStrategy is PausableUpgradeable, SettAccessControl {
 
     function setWithdrawalMaxDeviationThreshold(uint256 _threshold) external {
         _onlyGovernance();
-        require(
-            _threshold <= MAX_FEE,
-            "base-strategy/excessive-max-deviation-threshold"
-        );
+        require(_threshold <= MAX_FEE, "base-strategy/excessive-max-deviation-threshold");
         withdrawalMaxDeviationThreshold = _threshold;
     }
 
@@ -180,12 +164,7 @@ abstract contract BaseStrategy is PausableUpgradeable, SettAccessControl {
     // ===== Permissioned Actions: Controller =====
 
     /// @notice Controller-only function to Withdraw partial funds, normally used with a vault withdrawal
-    function withdrawAll()
-        external
-        virtual
-        whenNotPaused
-        returns (uint256 balance)
-    {
+    function withdrawAll() external virtual whenNotPaused returns (uint256 balance) {
         _onlyController();
 
         _withdrawAll();
@@ -201,8 +180,7 @@ abstract contract BaseStrategy is PausableUpgradeable, SettAccessControl {
 
         // Withdraw from strategy positions, typically taking from any idle want first.
         _withdrawSome(_amount);
-        uint256 _postWithdraw =
-            IERC20Upgradeable(want).balanceOf(address(this));
+        uint256 _postWithdraw = IERC20Upgradeable(want).balanceOf(address(this));
 
         // Sanity check: Ensure we were able to retrieve sufficent want from strategy positions
         // If we end up with less than the amount requested, make sure it does not deviate beyond a maximum threshold
@@ -210,11 +188,7 @@ abstract contract BaseStrategy is PausableUpgradeable, SettAccessControl {
             uint256 diff = _diff(_amount, _postWithdraw);
 
             // Require that difference between expected and actual values is less than the deviation threshold percentage
-            require(
-                diff <=
-                    _amount.mul(withdrawalMaxDeviationThreshold).div(MAX_FEE),
-                "base-strategy/withdraw-exceed-max-deviation-threshold"
-            );
+            require(diff <= _amount.mul(withdrawalMaxDeviationThreshold).div(MAX_FEE), "base-strategy/withdraw-exceed-max-deviation-threshold");
         }
 
         // Return the amount actually withdrawn if less than amount requested
@@ -229,12 +203,7 @@ abstract contract BaseStrategy is PausableUpgradeable, SettAccessControl {
 
     // NOTE: must exclude any tokens used in the yield
     // Controller role - withdraw should return to Controller
-    function withdrawOther(address _asset)
-        external
-        virtual
-        whenNotPaused
-        returns (uint256 balance)
-    {
+    function withdrawOther(address _asset) external virtual whenNotPaused returns (uint256 balance) {
         _onlyController();
         _onlyNotProtectedTokens(_asset);
 
@@ -264,10 +233,7 @@ abstract contract BaseStrategy is PausableUpgradeable, SettAccessControl {
         }
 
         uint256 fee = _amount.mul(withdrawalFee).div(MAX_FEE);
-        IERC20Upgradeable(want).safeTransfer(
-            IController(controller).rewards(),
-            fee
-        );
+        IERC20Upgradeable(want).safeTransfer(IController(controller).rewards(), fee);
         return fee;
     }
 
@@ -288,85 +254,10 @@ abstract contract BaseStrategy is PausableUpgradeable, SettAccessControl {
         return fee;
     }
 
-    /// @dev Reset approval and approve exact amount
-    function _safeApproveHelper(
-        address token,
-        address recipient,
-        uint256 amount
-    ) internal {
-        IERC20Upgradeable(token).safeApprove(recipient, 0);
-        IERC20Upgradeable(token).safeApprove(recipient, amount);
-    }
-
     function _transferToVault(uint256 _amount) internal {
         address _vault = IController(controller).vaults(address(want));
         require(_vault != address(0), "!vault"); // additional protection so we don't burn the funds
         IERC20Upgradeable(want).safeTransfer(_vault, _amount);
-    }
-
-    /// @notice Swap specified balance of given token on Uniswap with given path
-    function _swap(
-        address startToken,
-        uint256 balance,
-        address[] memory path
-    ) internal {
-        _safeApproveHelper(startToken, uniswap, balance);
-        IUniswapRouterV2(uniswap).swapExactTokensForTokens(
-            balance,
-            0,
-            path,
-            address(this),
-            now
-        );
-    }
-
-    function _swapEthIn(uint256 balance, address[] memory path) internal {
-        IUniswapRouterV2(uniswap).swapExactETHForTokens{value: balance}(
-            0,
-            path,
-            address(this),
-            now
-        );
-    }
-
-    function _swapEthOut(
-        address startToken,
-        uint256 balance,
-        address[] memory path
-    ) internal {
-        _safeApproveHelper(startToken, uniswap, balance);
-        IUniswapRouterV2(uniswap).swapExactTokensForETH(
-            balance,
-            0,
-            path,
-            address(this),
-            now
-        );
-    }
-
-    /// @notice Add liquidity to uniswap for specified token pair, utilizing the maximum balance possible
-    function _add_max_liquidity_uniswap(address token0, address token1)
-        internal
-        virtual
-    {
-        uint256 _token0Balance =
-            IERC20Upgradeable(token0).balanceOf(address(this));
-        uint256 _token1Balance =
-            IERC20Upgradeable(token1).balanceOf(address(this));
-
-        _safeApproveHelper(token0, uniswap, _token0Balance);
-        _safeApproveHelper(token1, uniswap, _token1Balance);
-
-        IUniswapRouterV2(uniswap).addLiquidity(
-            token0,
-            token1,
-            _token0Balance,
-            _token1Balance,
-            0,
-            0,
-            address(this),
-            block.timestamp
-        );
     }
 
     /// @notice Utility function to diff two numbers, expects higher value in first position
@@ -378,7 +269,7 @@ abstract contract BaseStrategy is PausableUpgradeable, SettAccessControl {
     // ===== Abstract Functions: To be implemented by specific Strategies =====
 
     /// @dev Internal deposit logic to be implemented by Stratgies
-    function _deposit(uint256 _amount) internal virtual;
+    function _deposit(uint256 _want) internal virtual;
 
     function _postDeposit() internal virtual {
         //no-op by default
@@ -387,11 +278,9 @@ abstract contract BaseStrategy is PausableUpgradeable, SettAccessControl {
     /// @notice Specify tokens used in yield process, should not be available to withdraw via withdrawOther()
     function _onlyNotProtectedTokens(address _asset) internal virtual;
 
-    function getProtectedTokens()
-        external
-        view
-        virtual
-        returns (address[] memory);
+    function getProtectedTokens() public virtual view returns (address[] memory) {
+        return new address[](0);
+    }
 
     /// @dev Internal logic for strategy migration. Should exit positions as efficiently as possible
     function _withdrawAll() internal virtual;
@@ -407,10 +296,10 @@ abstract contract BaseStrategy is PausableUpgradeable, SettAccessControl {
     // function harvest() external virtual;
 
     /// @dev User-friendly name for this strategy for purposes of convenient reading
-    function getName() external pure virtual returns (string memory);
+    function getName() external virtual pure returns (string memory);
 
     /// @dev Balance of want currently held in strategy positions
-    function balanceOfPool() public view virtual returns (uint256);
+    function balanceOfPool() public virtual view returns (uint256);
 
     uint256[49] private __gap;
 }
