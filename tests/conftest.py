@@ -7,11 +7,11 @@ from brownie import (
 )
 from config import (
     BADGER_DEV_MULTISIG,
+    CURVE_POOL_CONFIG,
+    PID,
     WANT,
-    LP_COMPONENT,
-    REWARD_TOKEN,
-    PROTECTED_TOKENS,
     FEES,
+    WANT_CONFIG,
 )
 from dotmap import DotMap
 import pytest
@@ -58,36 +58,32 @@ def deployed():
     ## Start up Strategy
     strategy = MyStrategy.deploy({"from": deployer})
     strategy.initialize(
-        BADGER_DEV_MULTISIG,
+        governance,
         strategist,
         controller,
         keeper,
         guardian,
-        PROTECTED_TOKENS,
+        WANT_CONFIG,
+        PID,
         FEES,
+        CURVE_POOL_CONFIG,
     )
 
     ## Tool that verifies bytecode (run independently) <- Webapp for anyone to verify
 
     ## Set up tokens
     want = interface.IERC20(WANT)
-    lpComponent = interface.IERC20(LP_COMPONENT)
-    rewardToken = interface.IERC20(REWARD_TOKEN)
 
     ## Wire up Controller to Strart
     ## In testing will pass, but on live it will fail
     controller.approveStrategy(WANT, strategy, {"from": governance})
     controller.setStrategy(WANT, strategy, {"from": deployer})
 
-    ## Uniswap some tokens here
-    router = interface.IUniswapRouterV2("0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D")
-    router.swapExactETHForTokens(
-        0,  ## Mint out
-        ["0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2", WANT],
-        deployer,
-        9999999999999999,
-        {"from": deployer, "value": 5000000000000000000},
-    )
+    # Transfer test assets to deployer
+    whale = accounts.at("0x647481c033A4A2E816175cE115a0804adf793891", force=True) # RenCRV whale
+    want.transfer(deployer.address, want.balanceOf(whale.address), {"from": whale}) # Transfer 80% of whale's want balance
+
+    assert want.balanceOf(deployer.address) > 0
 
     return DotMap(
         deployer=deployer,
@@ -97,8 +93,6 @@ def deployed():
         strategy=strategy,
         # guestList=guestList,
         want=want,
-        lpComponent=lpComponent,
-        rewardToken=rewardToken,
     )
 
 
@@ -135,7 +129,7 @@ def want(deployed):
 
 @pytest.fixture
 def tokens():
-    return [WANT, LP_COMPONENT, REWARD_TOKEN]
+    return [WANT]
 
 
 ## Accounts ##
