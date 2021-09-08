@@ -10,7 +10,7 @@ from brownie import (
     BadgerRegistry,
 )
 
-from config import WANT, PROTECTED_TOKENS, FEES, REGISTRY
+from config import WANT, PROTECTED_TOKENS, FEES, REGISTRY, CONTROLLER, SETTV3
 
 from helpers.constants import AddressZero
 
@@ -40,7 +40,7 @@ def main():
     strategist = registry.get("governance")
     guardian = registry.get("guardian")
     keeper = registry.get("keeper")
-    proxyAdmin = registry.get("proxyAdmin")
+    proxyAdmin = registry.get("proxyAdminDev")
 
     assert strategist != AddressZero
     assert guardian != AddressZero
@@ -77,9 +77,8 @@ def main():
 
 def deploy_controller(dev, proxyAdmin):
 
-    controller_logic = Controller.at(
-        "0x01d10fdc6b484BE380144dF12EB6C75387EfC49B"
-    )  # Controller Logic
+    # Controller Logic
+    controller_logic = Controller.at(CONTROLLER)
 
     # Deployer address will be used for all actors as controller will only be used for testing
     args = [
@@ -122,10 +121,9 @@ def deploy_vault(controller, governance, keeper, guardian, dev, proxyAdmin):
     ]
 
     print("Vault Arguments: ", args)
-
-    vault_logic = SettV3.at(
-        "0xAF0B504BD20626d1fd57F8903898168FCE7ecbc8"
-    )  # SettV3 Logic
+    
+    # SettV3 Logic
+    vault_logic = SettV3.at(SETTV3)
 
     vault_proxy = AdminUpgradeabilityProxy.deploy(
         vault_logic,
@@ -153,6 +151,18 @@ def deploy_vault(controller, governance, keeper, guardian, dev, proxyAdmin):
 def deploy_strategy(
     controller, governance, strategist, keeper, guardian, dev, proxyAdmin
 ):
+    # https://github.com/Badger-Finance/badger-system/blob/137904a27bb08ccd6f31e2a41b880e8cb7506edc/config/badger_config.py#L87
+    # swap=registry.curve.pools.renCrv.swap,
+    # wbtcPosition=1,
+    # numElements=2,
+    curvePoolConfig = [
+        #address swap;
+        #uint256 wbtcPosition;
+        #uint256 numElements;
+        "0x93054188d876f558f4a66B2EF1d97d16eDf0895B",
+        1,
+        2,
+    ]
 
     args = [
         governance,
@@ -161,7 +171,9 @@ def deploy_strategy(
         keeper,
         guardian,
         PROTECTED_TOKENS,
+        6,
         FEES,
+        curvePoolConfig,
     ]
 
     print("Strategy Arguments: ", args)

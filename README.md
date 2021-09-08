@@ -47,26 +47,22 @@ pip install -r requirements.txt
 ## Basic Use
 
 To deploy the demo Badger Strategy in a development environment:
+1. Create a keystore for yourself.
+brownie accounts new devAcct
+```
+Enter the private key you wish to add: 0xca751356c37a98109fd969d8e79b42d768587efc6ba35e878bc8c093ed95d8a9
+Enter the password to encrypt this account with:
+```
 
-1. Open the Brownie console. This automatically launches Ganache on a forked mainnet.
+2. Open the Brownie console. This automatically launches Ganache on a forked mainnet.
 
 ```bash
   brownie console
 ```
 
-2. Run Scripts for Deployment
-
-```
-  brownie run deploy
-```
-
-Deployment will set up a Vault, Controller and deploy your strategy
-
-3. Run the test deployment in the console and interact with it
-
+3. Deployment will set up a Vault, Controller and deploy your strategy
 ```python
-  brownie console
-  deployed = run("deploy")
+  deployed = run("1_production_deploy")
 
   ## Takes a minute or so
   Transaction sent: 0xa0009814d5bcd05130ad0a07a894a1add8aa3967658296303ea1f8eceac374a9
