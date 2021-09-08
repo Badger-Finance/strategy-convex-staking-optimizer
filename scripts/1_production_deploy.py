@@ -10,7 +10,7 @@ from brownie import (
     BadgerRegistry,
 )
 
-from config import WANT, PROTECTED_TOKENS, FEES, REGISTRY
+from config import WANT, FEES, REGISTRY, PID, CURVE_POOL_CONFIG, WANT_CONFIG
 
 from helpers.constants import AddressZero
 
@@ -40,7 +40,7 @@ def main():
     strategist = registry.get("governance")
     guardian = registry.get("guardian")
     keeper = registry.get("keeper")
-    proxyAdmin = registry.get("proxyAdmin")
+    proxyAdmin = registry.get("proxyAdminDev")
 
     assert strategist != AddressZero
     assert guardian != AddressZero
@@ -78,8 +78,8 @@ def main():
 def deploy_controller(dev, proxyAdmin):
 
     controller_logic = Controller.at(
-        "0x01d10fdc6b484BE380144dF12EB6C75387EfC49B"
-    )  # Controller Logic
+        "0x6354E79F21B56C11f48bcD7c451BE456D7102A36"
+    )  # Controller Logic on Ethereum
 
     # Deployer address will be used for all actors as controller will only be used for testing
     args = [
@@ -124,7 +124,7 @@ def deploy_vault(controller, governance, keeper, guardian, dev, proxyAdmin):
     print("Vault Arguments: ", args)
 
     vault_logic = SettV3.at(
-        "0xAF0B504BD20626d1fd57F8903898168FCE7ecbc8"
+        "0x889d5036f2EA5784161090082F3327bb3e433102"
     )  # SettV3 Logic
 
     vault_proxy = AdminUpgradeabilityProxy.deploy(
@@ -160,8 +160,10 @@ def deploy_strategy(
         controller,
         keeper,
         guardian,
-        PROTECTED_TOKENS,
+        WANT_CONFIG,
+        PID,
         FEES,
+        CURVE_POOL_CONFIG,
     ]
 
     print("Strategy Arguments: ", args)

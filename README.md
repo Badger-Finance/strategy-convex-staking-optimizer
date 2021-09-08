@@ -57,41 +57,11 @@ To deploy the demo Badger Strategy in a development environment:
 2. Run Scripts for Deployment
 
 ```
-  brownie run deploy
+  brownie run scripts/1_production_deploy.py
 ```
 
 Deployment will set up a Vault, Controller and deploy your strategy
 
-3. Run the test deployment in the console and interact with it
-
-```python
-  brownie console
-  deployed = run("deploy")
-
-  ## Takes a minute or so
-  Transaction sent: 0xa0009814d5bcd05130ad0a07a894a1add8aa3967658296303ea1f8eceac374a9
-  Gas price: 0.0 gwei   Gas limit: 12000000   Nonce: 9
-  UniswapV2Router02.swapExactETHForTokens confirmed - Block: 12614073   Gas used: 88626 (0.74%)
-
-  ## Now you can interact with the contracts via the console
-  >>> deployed
-  {
-      'controller': 0x602C71e4DAC47a042Ee7f46E0aee17F94A3bA0B6,
-      'deployer': 0x66aB6D9362d4F35596279692F0251Db635165871,
-      'lpComponent': 0x028171bCA77440897B824Ca71D1c56caC55b68A3,
-      'rewardToken': 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9,
-      'sett': 0x6951b5Bd815043E3F842c1b026b0Fa888Cc2DD85,
-      'strategy': 0x9E4c14403d7d9A8A782044E86a93CAE09D7B2ac9,
-      'vault': 0x6951b5Bd815043E3F842c1b026b0Fa888Cc2DD85,
-      'want': 0x6B175474E89094C44Da98b954EedeAC495271d0F
-  }
-  >>>
-
-  ## Deploy also uniswaps want to the deployer (accounts[0]), so you have funds to play with!
-  >>> deployed.want.balanceOf(a[0])
-  240545908911436022026
-
-```
 
 ## Adding Configuration
 
