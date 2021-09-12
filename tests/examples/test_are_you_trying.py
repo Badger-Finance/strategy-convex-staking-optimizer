@@ -78,12 +78,10 @@ def test_are_you_trying(deployer, sett, strategy, want):
         strategy.tend({"from": deployer})
 
     harvest3 = strategy.harvest({"from": deployer})
-    #harvest3ct = harvest3.call_trace()
     # oops mistake in calling harvest (on purpose)
     harvest4 = strategy.harvest({"from": deployer})
-    #harvest4ct = harvest4.call_trace()
 
     chain.sleep(days(1))
     chain.mine()
 
-    assert False
+    # assert False

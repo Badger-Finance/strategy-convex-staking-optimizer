@@ -132,22 +132,22 @@ contract MyStrategy2 is
     /*
     Improvements to harvest functions
     */
-    uint256 public minBaseRewardsPoolBalance = 0; // devtest
-    uint256 public minCvxCrvRewardsPoolBalance = 0; // devtest
-    uint256 public minCvxRewardsPoolBalance = 0; // devtest
-    uint256 public minThreeCrvBalance = 0; // devtest
+    uint256 public minBaseRewardsPoolBalance = 1**18; // changeMe!
+    uint256 public minCvxCrvRewardsPoolBalance = 1**18; // changeMe!
+    uint256 public minCvxRewardsPoolBalance = 1**18; // changeMe!
+    uint256 public minThreeCrvBalance = 1**18; // changeMe!
     uint256 public cvxCrvToGovernanceSaver = 0;
-    uint256 public minCvxCrvToGovernanceSaver = 0; // devtest
+    uint256 public minCvxCrvToGovernanceSaver = 1**18; // changeMe!
     uint256 public cvxCrvToStrategistSaver = 0;
-    uint256 public minCvxCrvToStrategistSaver = 0; // devtest
+    uint256 public minCvxCrvToStrategistSaver = 1**18; // changeMe!
     uint256 public cvxCrvToTreeSaver = 0;
-    uint256 public minCvxCrvToTreeSaver = 0; // devtest
+    uint256 public minCvxCrvToTreeSaver = 1**18; // changeMe!
     uint256 public cvxToGovernanceSaver = 0;
-    uint256 public minCvxToGovernanceSaver = 0; // devtest
+    uint256 public minCvxToGovernanceSaver = 1**18; // changeMe!
     uint256 public cvxToStrategistSaver = 0;
-    uint256 public minCvxToStrategistSaver = 0; // devtest
+    uint256 public minCvxToStrategistSaver = 1**18; // changeMe!
     uint256 public cvxToTreeSaver = 0;
-    uint256 public minCvxToTreeSaver = 0; // devtest
+    uint256 public minCvxToTreeSaver = 1**18; // changeMe!
 
     event TreeDistribution(
         address indexed token,
