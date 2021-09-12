@@ -1,4 +1,4 @@
-MyStrategy2.harvest  0:77435  [66627 / 965486 gas]
+MyStrategy2.harvest  0:92838  [63270 / 1220914 gas]
 ├── SettAccessControl._onlyAuthorizedActors
 ├── IERC20.balanceOf
 ├── BaseStrategy.balanceOf
@@ -8,6 +8,48 @@ MyStrategy2.harvest  0:77435  [66627 / 965486 gas]
 │   │   └── IERC20.balanceOf
 │   └── SafeMathUpgradeable.add
 ├── BaseRewardPool.rewards
+├── BaseRewardPool.getReward
+│   ├── BaseRewardPool.totalSupply
+│   ├── BaseRewardPool.totalSupply
+│   ├── BaseRewardPool.lastTimeRewardApplicable
+│   │   └── MathUtil.min
+│   ├── SafeMath.sub
+│   ├── SafeMath.mul
+│   ├── SafeMath.mul
+│   ├── SafeMath.div
+│   ├── SafeMath.add
+│   ├── MathUtil.min
+│   ├── BaseRewardPool.rewardPerToken
+│   │   ├── BaseRewardPool.totalSupply
+│   │   ├── BaseRewardPool.totalSupply
+│   │   ├── BaseRewardPool.lastTimeRewardApplicable
+│   │   │   └── MathUtil.min
+│   │   ├── SafeMath.sub
+│   │   ├── SafeMath.mul
+│   │   ├── SafeMath.mul
+│   │   ├── SafeMath.div
+│   │   └── SafeMath.add
+│   ├── SafeMath.sub
+│   ├── BaseRewardPool.balanceOf
+│   ├── SafeMath.mul
+│   ├── SafeMath.div
+│   ├── SafeMath.add
+│   └── BaseRewardPool.earned
+│       ├── BaseRewardPool.rewardPerToken
+│       │   ├── BaseRewardPool.totalSupply
+│       │   ├── BaseRewardPool.totalSupply
+│       │   ├── BaseRewardPool.lastTimeRewardApplicable
+│       │   │   └── MathUtil.min
+│       │   ├── SafeMath.sub
+│       │   ├── SafeMath.mul
+│       │   ├── SafeMath.mul
+│       │   ├── SafeMath.div
+│       │   └── SafeMath.add
+│       ├── SafeMath.sub
+│       ├── BaseRewardPool.balanceOf
+│       ├── SafeMath.mul
+│       ├── SafeMath.div
+│       └── SafeMath.add
 ├── BaseRewardPool.balanceOf
 ├── BaseRewardPool.withdraw
 │   ├── BaseRewardPool.totalSupply
@@ -191,27 +233,27 @@ MyStrategy2.harvest  0:77435  [66627 / 965486 gas]
 ├── SafeMathUpgradeable.div
 ├── TokenSwapPathRegistry.getTokenSwapPath
 ├── UniswapSwapper._swapExactTokensForTokens
-│   ├── BaseSwapper._safeApproveHelper
-│   │   └── SafeERC20Upgradeable.safeApprove
-│   │       └── SafeERC20Upgradeable._callOptionalReturn
-│   │           └── AddressUpgradeable.functionCall
-│   │               └── AddressUpgradeable._functionCallWithValue
-│   │                   ├── AddressUpgradeable.isContract
-│   │                   └── cvxCrvToken.approve
-│   │                       └── ERC20.approve
-│   │                           ├── Context._msgSender
-│   │                           └── ERC20._approve
-│   └── SafeERC20Upgradeable.safeApprove
-│       ├── cvxCrvToken.allowance
-│       │   └── ERC20.allowance
-│       └── SafeERC20Upgradeable._callOptionalReturn
-│           └── AddressUpgradeable.functionCall
-│               └── AddressUpgradeable._functionCallWithValue
-│                   ├── AddressUpgradeable.isContract
-│                   └── cvxCrvToken.approve
-│                       └── ERC20.approve
-│                           ├── Context._msgSender
-│                           └── ERC20._approve
+│   └── BaseSwapper._safeApproveHelper
+│       └── SafeERC20Upgradeable.safeApprove
+│           └── SafeERC20Upgradeable._callOptionalReturn
+│               └── AddressUpgradeable.functionCall
+│                   └── AddressUpgradeable._functionCallWithValue
+│                       ├── AddressUpgradeable.isContract
+│                       └── cvxCrvToken.approve
+│                           └── ERC20.approve
+│                               ├── Context._msgSender
+│                               └── ERC20._approve
+├── SafeERC20Upgradeable.safeApprove
+│   ├── cvxCrvToken.allowance
+│   │   └── ERC20.allowance
+│   └── SafeERC20Upgradeable._callOptionalReturn
+│       └── AddressUpgradeable.functionCall
+│           └── AddressUpgradeable._functionCallWithValue
+│               ├── AddressUpgradeable.isContract
+│               └── cvxCrvToken.approve
+│                   └── ERC20.approve
+│                       ├── Context._msgSender
+│                       └── ERC20._approve
 ├── UniswapV2Router02.swapExactTokensForTokens
 │   ├── UniswapV2Pair.getReserves
 │   ├── UniswapV2Pair.getReserves
@@ -273,27 +315,27 @@ MyStrategy2.harvest  0:77435  [66627 / 965486 gas]
 ├── SafeMathUpgradeable.div
 ├── TokenSwapPathRegistry.getTokenSwapPath
 ├── UniswapSwapper._swapExactTokensForTokens
-│   ├── BaseSwapper._safeApproveHelper
-│   │   └── SafeERC20Upgradeable.safeApprove
-│   │       └── SafeERC20Upgradeable._callOptionalReturn
-│   │           └── AddressUpgradeable.functionCall
-│   │               └── AddressUpgradeable._functionCallWithValue
-│   │                   ├── AddressUpgradeable.isContract
-│   │                   └── ConvexToken.approve
-│   │                       └── ERC20.approve
-│   │                           ├── Context._msgSender
-│   │                           └── ERC20._approve
-│   └── SafeERC20Upgradeable.safeApprove
-│       ├── ConvexToken.allowance
-│       │   └── ERC20.allowance
-│       └── SafeERC20Upgradeable._callOptionalReturn
-│           └── AddressUpgradeable.functionCall
-│               └── AddressUpgradeable._functionCallWithValue
-│                   ├── AddressUpgradeable.isContract
-│                   └── ConvexToken.approve
-│                       └── ERC20.approve
-│                           ├── Context._msgSender
-│                           └── ERC20._approve
+│   └── BaseSwapper._safeApproveHelper
+│       └── SafeERC20Upgradeable.safeApprove
+│           └── SafeERC20Upgradeable._callOptionalReturn
+│               └── AddressUpgradeable.functionCall
+│                   └── AddressUpgradeable._functionCallWithValue
+│                       ├── AddressUpgradeable.isContract
+│                       └── ConvexToken.approve
+│                           └── ERC20.approve
+│                               ├── Context._msgSender
+│                               └── ERC20._approve
+├── SafeERC20Upgradeable.safeApprove
+│   ├── ConvexToken.allowance
+│   │   └── ERC20.allowance
+│   └── SafeERC20Upgradeable._callOptionalReturn
+│       └── AddressUpgradeable.functionCall
+│           └── AddressUpgradeable._functionCallWithValue
+│               ├── AddressUpgradeable.isContract
+│               └── ConvexToken.approve
+│                   └── ERC20.approve
+│                       ├── Context._msgSender
+│                       └── ERC20._approve
 ├── UniswapV2Router02.swapExactTokensForTokens
 │   ├── UniswapV2Pair.getReserves
 │   ├── UniswapV2Pair.getReserves
@@ -349,22 +391,22 @@ MyStrategy2.harvest  0:77435  [66627 / 965486 gas]
 │       └── UniswapV2Pair._update
 ├── WBTC.balanceOf
 ├── CurveSwapper._add_liquidity_single_coin
-│   ├── BaseSwapper._safeApproveHelper
-│   │   └── SafeERC20Upgradeable.safeApprove
-│   │       └── SafeERC20Upgradeable._callOptionalReturn
-│   │           └── AddressUpgradeable.functionCall
-│   │               └── AddressUpgradeable._functionCallWithValue
-│   │                   ├── AddressUpgradeable.isContract
-│   │                   └── WBTC.approve
-│   │                       └── StandardToken.approve
-│   └── SafeERC20Upgradeable.safeApprove
-│       ├── WBTC.allowance
-│       └── SafeERC20Upgradeable._callOptionalReturn
-│           └── AddressUpgradeable.functionCall
-│               └── AddressUpgradeable._functionCallWithValue
-│                   ├── AddressUpgradeable.isContract
-│                   └── WBTC.approve
-│                       └── StandardToken.approve
+│   └── BaseSwapper._safeApproveHelper
+│       └── SafeERC20Upgradeable.safeApprove
+│           └── SafeERC20Upgradeable._callOptionalReturn
+│               └── AddressUpgradeable.functionCall
+│                   └── AddressUpgradeable._functionCallWithValue
+│                       ├── AddressUpgradeable.isContract
+│                       └── WBTC.approve
+│                           └── StandardToken.approve
+├── SafeERC20Upgradeable.safeApprove
+│   ├── WBTC.allowance
+│   └── SafeERC20Upgradeable._callOptionalReturn
+│       └── AddressUpgradeable.functionCall
+│           └── AddressUpgradeable._functionCallWithValue
+│               ├── AddressUpgradeable.isContract
+│               └── WBTC.approve
+│                   └── StandardToken.approve
 ├── Vyper_contract.add_liquidity
 │   ├── Vyper_contract._A
 │   ├── IERC20.totalSupply
@@ -516,6 +558,132 @@ MyStrategy2.harvest  0:77435  [66627 / 965486 gas]
 ├── SafeMathUpgradeable.mul
 ├── SafeMathUpgradeable.div
 ├── SafeMathUpgradeable.add
+├── Controller.rewards
+├── ISettAccessControlDefended  [CALL
+│   └── SettV4.depositFor
+│       ├── SettAccessControlDefended._defend
+│       ├── SettV4._blockLocked
+│       ├── SettV4._lockForBlock
+│       ├── SettV4._depositForWithAuthorization
+│       │   ├── SettV4._depositFor
+│       │   │   ├── SettV4.balance
+│       │   │   │   ├── AdminUpgradeabilityProxy.balanceOf
+│       │   │   │   │   └── Proxy._fallback
+│       │   │   │   │       ├── AdminUpgradeabilityProxy._willFallback
+│       │   │   │   │       │   ├── AdminUpgradeabilityProxy._admin
+│       │   │   │   │       │   └── Proxy._fallback
+│       │   │   │   │       ├── UpgradeabilityProxy._implementation
+│       │   │   │   │       └── Proxy._delegate
+│       │   │   │   │           └── Controller.balanceOf
+│       │   │   │   │               └── AdminUpgradeabilityProxy.balanceOf
+│       │   │   │   │                   └── Proxy._fallback
+│       │   │   │   │                       ├── AdminUpgradeabilityProxy._willFallback
+│       │   │   │   │                       │   ├── AdminUpgradeabilityProxy._admin
+│       │   │   │   │                       │   └── Proxy._fallback
+│       │   │   │   │                       ├── UpgradeabilityProxy._implementation
+│       │   │   │   │                       └── Proxy._delegate
+│       │   │   │   │                           └── StrategyCvxCrvHelper.balanceOf
+│       │   │   │   │                               └── BaseStrategy.balanceOf
+│       │   │   │   │                                   ├── StrategyCvxCrvHelper.balanceOfPool
+│       │   │   │   │                                   │   └── BaseRewardPool.balanceOf
+│       │   │   │   │                                   ├── BaseStrategy.balanceOfWant
+│       │   │   │   │                                   │   └── cvxCrvToken.balanceOf
+│       │   │   │   │                                   │       └── ERC20.balanceOf
+│       │   │   │   │                                   └── SafeMathUpgradeable.add
+│       │   │   │   ├── cvxCrvToken.balanceOf
+│       │   │   │   │   └── ERC20.balanceOf
+│       │   │   │   └── SafeMathUpgradeable.add
+│       │   │   ├── cvxCrvToken.balanceOf
+│       │   │   │   └── ERC20.balanceOf
+│       │   │   ├── SafeERC20Upgradeable.safeTransferFrom
+│       │   │   │   └── SafeERC20Upgradeable._callOptionalReturn
+│       │   │   │       └── AddressUpgradeable.functionCall
+│       │   │   │           └── AddressUpgradeable._functionCallWithValue
+│       │   │   │               ├── AddressUpgradeable.isContract
+│       │   │   │               └── cvxCrvToken.transferFrom
+│       │   │   │                   └── ERC20.transferFrom
+│       │   │   │                       ├── ERC20._transfer
+│       │   │   │                       │   ├── ERC20._beforeTokenTransfer
+│       │   │   │                       │   ├── SafeMath.sub
+│       │   │   │                       │   └── SafeMath.add
+│       │   │   │                       ├── Context._msgSender
+│       │   │   │                       ├── Context._msgSender
+│       │   │   │                       ├── SafeMath.sub
+│       │   │   │                       └── ERC20._approve
+│       │   │   ├── cvxCrvToken.balanceOf
+│       │   │   │   └── ERC20.balanceOf
+│       │   │   └── SafeMathUpgradeable.sub
+│       │   ├── ERC20Upgradeable.totalSupply
+│       │   ├── ERC20Upgradeable.totalSupply
+│       │   ├── SafeMathUpgradeable.mul
+│       │   └── SafeMathUpgradeable.div
+│       └── ERC20Upgradeable._mint
+│           ├── SettV4.depositFor
+│           ├── SafeMathUpgradeable.add
+│           └── SafeMathUpgradeable.add
+├── Controller.rewards
+├── ISettAccessControlDefended  [CALL
+│   └── SettV4.depositFor
+│       ├── SettAccessControlDefended._defend
+│       ├── SettV4._blockLocked
+│       ├── SettV4._lockForBlock
+│       ├── SettV4._depositForWithAuthorization
+│       │   ├── SettV4._depositFor
+│       │   │   ├── SettV4.balance
+│       │   │   │   ├── AdminUpgradeabilityProxy.balanceOf
+│       │   │   │   │   └── Proxy._fallback
+│       │   │   │   │       ├── AdminUpgradeabilityProxy._willFallback
+│       │   │   │   │       │   ├── AdminUpgradeabilityProxy._admin
+│       │   │   │   │       │   └── Proxy._fallback
+│       │   │   │   │       ├── UpgradeabilityProxy._implementation
+│       │   │   │   │       └── Proxy._delegate
+│       │   │   │   │           └── Controller.balanceOf
+│       │   │   │   │               └── AdminUpgradeabilityProxy.balanceOf
+│       │   │   │   │                   └── Proxy._fallback
+│       │   │   │   │                       ├── AdminUpgradeabilityProxy._willFallback
+│       │   │   │   │                       │   ├── AdminUpgradeabilityProxy._admin
+│       │   │   │   │                       │   └── Proxy._fallback
+│       │   │   │   │                       ├── UpgradeabilityProxy._implementation
+│       │   │   │   │                       └── Proxy._delegate
+│       │   │   │   │                           └── StrategyCvxCrvHelper.balanceOf
+│       │   │   │   │                               └── BaseStrategy.balanceOf
+│       │   │   │   │                                   ├── StrategyCvxCrvHelper.balanceOfPool
+│       │   │   │   │                                   │   └── BaseRewardPool.balanceOf
+│       │   │   │   │                                   ├── BaseStrategy.balanceOfWant
+│       │   │   │   │                                   │   └── cvxCrvToken.balanceOf
+│       │   │   │   │                                   │       └── ERC20.balanceOf
+│       │   │   │   │                                   └── SafeMathUpgradeable.add
+│       │   │   │   ├── cvxCrvToken.balanceOf
+│       │   │   │   │   └── ERC20.balanceOf
+│       │   │   │   └── SafeMathUpgradeable.add
+│       │   │   ├── cvxCrvToken.balanceOf
+│       │   │   │   └── ERC20.balanceOf
+│       │   │   ├── SafeERC20Upgradeable.safeTransferFrom
+│       │   │   │   └── SafeERC20Upgradeable._callOptionalReturn
+│       │   │   │       └── AddressUpgradeable.functionCall
+│       │   │   │           └── AddressUpgradeable._functionCallWithValue
+│       │   │   │               ├── AddressUpgradeable.isContract
+│       │   │   │               └── cvxCrvToken.transferFrom
+│       │   │   │                   └── ERC20.transferFrom
+│       │   │   │                       ├── ERC20._transfer
+│       │   │   │                       │   ├── ERC20._beforeTokenTransfer
+│       │   │   │                       │   ├── SafeMath.sub
+│       │   │   │                       │   └── SafeMath.add
+│       │   │   │                       ├── Context._msgSender
+│       │   │   │                       ├── Context._msgSender
+│       │   │   │                       ├── SafeMath.sub
+│       │   │   │                       └── ERC20._approve
+│       │   │   ├── cvxCrvToken.balanceOf
+│       │   │   │   └── ERC20.balanceOf
+│       │   │   └── SafeMathUpgradeable.sub
+│       │   ├── ERC20Upgradeable.totalSupply
+│       │   ├── ERC20Upgradeable.totalSupply
+│       │   ├── SafeMathUpgradeable.mul
+│       │   └── SafeMathUpgradeable.div
+│       └── ERC20Upgradeable._mint
+│           ├── SettV4.depositFor
+│           ├── SafeMathUpgradeable.add
+│           └── SafeMathUpgradeable.add
 ├── cvxCrvToken.balanceOf
 │   └── ERC20.balanceOf
 ├── SafeMathUpgradeable.sub
@@ -590,6 +758,132 @@ MyStrategy2.harvest  0:77435  [66627 / 965486 gas]
 ├── SafeMathUpgradeable.mul
 ├── SafeMathUpgradeable.div
 ├── SafeMathUpgradeable.add
+├── Controller.rewards
+├── ISettAccessControlDefended  [CALL
+│   └── SettV4.depositFor
+│       ├── SettAccessControlDefended._defend
+│       ├── SettV4._blockLocked
+│       ├── SettV4._lockForBlock
+│       ├── SettV4._depositForWithAuthorization
+│       │   ├── SettV4._depositFor
+│       │   │   ├── SettV4.balance
+│       │   │   │   ├── AdminUpgradeabilityProxy.balanceOf
+│       │   │   │   │   └── Proxy._fallback
+│       │   │   │   │       ├── AdminUpgradeabilityProxy._willFallback
+│       │   │   │   │       │   ├── AdminUpgradeabilityProxy._admin
+│       │   │   │   │       │   └── Proxy._fallback
+│       │   │   │   │       ├── UpgradeabilityProxy._implementation
+│       │   │   │   │       └── Proxy._delegate
+│       │   │   │   │           └── Controller.balanceOf
+│       │   │   │   │               └── AdminUpgradeabilityProxy.balanceOf
+│       │   │   │   │                   └── Proxy._fallback
+│       │   │   │   │                       ├── AdminUpgradeabilityProxy._willFallback
+│       │   │   │   │                       │   ├── AdminUpgradeabilityProxy._admin
+│       │   │   │   │                       │   └── Proxy._fallback
+│       │   │   │   │                       ├── UpgradeabilityProxy._implementation
+│       │   │   │   │                       └── Proxy._delegate
+│       │   │   │   │                           └── StrategyCvxHelper.balanceOf
+│       │   │   │   │                               └── BaseStrategy.balanceOf
+│       │   │   │   │                                   ├── StrategyCvxHelper.balanceOfPool
+│       │   │   │   │                                   │   └── cvxRewardPool.balanceOf
+│       │   │   │   │                                   ├── BaseStrategy.balanceOfWant
+│       │   │   │   │                                   │   └── ConvexToken.balanceOf
+│       │   │   │   │                                   │       └── ERC20.balanceOf
+│       │   │   │   │                                   └── SafeMathUpgradeable.add
+│       │   │   │   ├── ConvexToken.balanceOf
+│       │   │   │   │   └── ERC20.balanceOf
+│       │   │   │   └── SafeMathUpgradeable.add
+│       │   │   ├── ConvexToken.balanceOf
+│       │   │   │   └── ERC20.balanceOf
+│       │   │   ├── SafeERC20Upgradeable.safeTransferFrom
+│       │   │   │   └── SafeERC20Upgradeable._callOptionalReturn
+│       │   │   │       └── AddressUpgradeable.functionCall
+│       │   │   │           └── AddressUpgradeable._functionCallWithValue
+│       │   │   │               ├── AddressUpgradeable.isContract
+│       │   │   │               └── ConvexToken.transferFrom
+│       │   │   │                   └── ERC20.transferFrom
+│       │   │   │                       ├── ERC20._transfer
+│       │   │   │                       │   ├── ERC20._beforeTokenTransfer
+│       │   │   │                       │   ├── SafeMath.sub
+│       │   │   │                       │   └── SafeMath.add
+│       │   │   │                       ├── Context._msgSender
+│       │   │   │                       ├── Context._msgSender
+│       │   │   │                       ├── SafeMath.sub
+│       │   │   │                       └── ERC20._approve
+│       │   │   ├── ConvexToken.balanceOf
+│       │   │   │   └── ERC20.balanceOf
+│       │   │   └── SafeMathUpgradeable.sub
+│       │   ├── ERC20Upgradeable.totalSupply
+│       │   ├── ERC20Upgradeable.totalSupply
+│       │   ├── SafeMathUpgradeable.mul
+│       │   └── SafeMathUpgradeable.div
+│       └── ERC20Upgradeable._mint
+│           ├── SettV4.depositFor
+│           ├── SafeMathUpgradeable.add
+│           └── SafeMathUpgradeable.add
+├── Controller.rewards
+├── ISettAccessControlDefended  [CALL
+│   └── SettV4.depositFor
+│       ├── SettAccessControlDefended._defend
+│       ├── SettV4._blockLocked
+│       ├── SettV4._lockForBlock
+│       ├── SettV4._depositForWithAuthorization
+│       │   ├── SettV4._depositFor
+│       │   │   ├── SettV4.balance
+│       │   │   │   ├── AdminUpgradeabilityProxy.balanceOf
+│       │   │   │   │   └── Proxy._fallback
+│       │   │   │   │       ├── AdminUpgradeabilityProxy._willFallback
+│       │   │   │   │       │   ├── AdminUpgradeabilityProxy._admin
+│       │   │   │   │       │   └── Proxy._fallback
+│       │   │   │   │       ├── UpgradeabilityProxy._implementation
+│       │   │   │   │       └── Proxy._delegate
+│       │   │   │   │           └── Controller.balanceOf
+│       │   │   │   │               └── AdminUpgradeabilityProxy.balanceOf
+│       │   │   │   │                   └── Proxy._fallback
+│       │   │   │   │                       ├── AdminUpgradeabilityProxy._willFallback
+│       │   │   │   │                       │   ├── AdminUpgradeabilityProxy._admin
+│       │   │   │   │                       │   └── Proxy._fallback
+│       │   │   │   │                       ├── UpgradeabilityProxy._implementation
+│       │   │   │   │                       └── Proxy._delegate
+│       │   │   │   │                           └── StrategyCvxHelper.balanceOf
+│       │   │   │   │                               └── BaseStrategy.balanceOf
+│       │   │   │   │                                   ├── StrategyCvxHelper.balanceOfPool
+│       │   │   │   │                                   │   └── cvxRewardPool.balanceOf
+│       │   │   │   │                                   ├── BaseStrategy.balanceOfWant
+│       │   │   │   │                                   │   └── ConvexToken.balanceOf
+│       │   │   │   │                                   │       └── ERC20.balanceOf
+│       │   │   │   │                                   └── SafeMathUpgradeable.add
+│       │   │   │   ├── ConvexToken.balanceOf
+│       │   │   │   │   └── ERC20.balanceOf
+│       │   │   │   └── SafeMathUpgradeable.add
+│       │   │   ├── ConvexToken.balanceOf
+│       │   │   │   └── ERC20.balanceOf
+│       │   │   ├── SafeERC20Upgradeable.safeTransferFrom
+│       │   │   │   └── SafeERC20Upgradeable._callOptionalReturn
+│       │   │   │       └── AddressUpgradeable.functionCall
+│       │   │   │           └── AddressUpgradeable._functionCallWithValue
+│       │   │   │               ├── AddressUpgradeable.isContract
+│       │   │   │               └── ConvexToken.transferFrom
+│       │   │   │                   └── ERC20.transferFrom
+│       │   │   │                       ├── ERC20._transfer
+│       │   │   │                       │   ├── ERC20._beforeTokenTransfer
+│       │   │   │                       │   ├── SafeMath.sub
+│       │   │   │                       │   └── SafeMath.add
+│       │   │   │                       ├── Context._msgSender
+│       │   │   │                       ├── Context._msgSender
+│       │   │   │                       ├── SafeMath.sub
+│       │   │   │                       └── ERC20._approve
+│       │   │   ├── ConvexToken.balanceOf
+│       │   │   │   └── ERC20.balanceOf
+│       │   │   └── SafeMathUpgradeable.sub
+│       │   ├── ERC20Upgradeable.totalSupply
+│       │   ├── ERC20Upgradeable.totalSupply
+│       │   ├── SafeMathUpgradeable.mul
+│       │   └── SafeMathUpgradeable.div
+│       └── ERC20Upgradeable._mint
+│           ├── SettV4.depositFor
+│           ├── SafeMathUpgradeable.add
+│           └── SafeMathUpgradeable.add
 ├── ConvexToken.balanceOf
 │   └── ERC20.balanceOf
 ├── SafeMathUpgradeable.sub
