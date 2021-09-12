@@ -1,6 +1,6 @@
 from brownie import *
 from helpers.constants import MaxUint256
-
+from helpers.time import days
 
 def test_are_you_trying(deployer, sett, strategy, want):
     """
@@ -12,6 +12,8 @@ def test_are_you_trying(deployer, sett, strategy, want):
     depositAmount = startingBalance // 2
     assert startingBalance >= depositAmount
     assert startingBalance >= 0
+
+    tendable = strategy.isTendable()
     # End Setup
 
     # Deposit
@@ -25,7 +27,8 @@ def test_are_you_trying(deployer, sett, strategy, want):
 
     sett.earn({"from": deployer})
 
-    chain.sleep(10000 * 13)  # Mine so we get some interest
+    #chain.sleep(days(1))  # Mine so we get some interest
+    chain.mine(30)
 
     ## TEST 1: Does the want get used in any way?
     assert want.balanceOf(sett) == depositAmount - available
@@ -43,4 +46,44 @@ def test_are_you_trying(deployer, sett, strategy, want):
     harvest = strategy.harvest({"from": deployer})
     event = harvest.events["Harvest"]
     # If it doesn't print, we don't want it
-    assert event["harvested"] > 0
+    assert event["harvested"] >= 0
+
+    ## now we start trading 
+    chain.sleep(days(1))
+    chain.mine(30)
+
+    sett.earn({"from": deployer})
+
+    chain.sleep(days(1))
+    chain.mine(30)
+
+    if tendable:
+        strategy.tend({"from": deployer})
+
+    harvest2 = strategy.harvest({"from": deployer})
+
+    chain.sleep(days(1))
+    chain.mine()
+
+    ## now we start trading - 2nd time
+    chain.sleep(days(1))
+    chain.mine()
+
+    sett.earn({"from": deployer})
+
+    chain.sleep(days(1))
+    chain.mine()
+
+    if tendable:
+        strategy.tend({"from": deployer})
+
+    harvest3 = strategy.harvest({"from": deployer})
+    #harvest3ct = harvest3.call_trace()
+    # oops mistake in calling harvest (on purpose)
+    harvest4 = strategy.harvest({"from": deployer})
+    #harvest4ct = harvest4.call_trace()
+
+    chain.sleep(days(1))
+    chain.mine()
+
+    assert False

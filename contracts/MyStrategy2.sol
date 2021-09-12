@@ -23,7 +23,7 @@ import "interfaces/sushi/ISushiChef.sol";
 
 import {BaseStrategy} from "../deps/BaseStrategy.sol";
 
-contract MyStrategy is
+contract MyStrategy2 is
     BaseStrategy,
     CurveSwapper,
     UniswapSwapper,
@@ -41,8 +41,7 @@ contract MyStrategy is
     address public constant cvx = 0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B;
     address public constant cvxCrv = 0x62B9c7356A2Dc64a1969e19C23e4f579F9810Aa7;
     address public constant usdc = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
-    address public constant threeCrv =
-        0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490;
+    //address public constant threeCrv = 0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490;
 
     IERC20Upgradeable public constant wbtcToken =
         IERC20Upgradeable(0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599);
@@ -62,22 +61,19 @@ contract MyStrategy is
         CrvDepositor(0x8014595F2AB54cD7c604B00E9fb932176fDc86Ae); // Convert CRV -> cvxCRV
     IBooster public constant booster =
         IBooster(0xF403C135812408BFbE8713b5A23a04b3D48AAE31);
-    address public constant cvxCRV_CRV_SLP =
-        0x33F6DDAEa2a8a54062E021873bCaEE006CdF4007; // cvxCRV/CRV SLP
-    address public constant CVX_ETH_SLP =
-        0x05767d9EF41dC40689678fFca0608878fb3dE906; // CVX/ETH SLP
+    //address public constant cvxCRV_CRV_SLP = 0x33F6DDAEa2a8a54062E021873bCaEE006CdF4007; // cvxCRV/CRV SLP
+    //address public constant CVX_ETH_SLP = 0x05767d9EF41dC40689678fFca0608878fb3dE906; // CVX/ETH SLP
     IBaseRewardsPool public baseRewardsPool;
     IBaseRewardsPool public constant cvxCrvRewardsPool =
         IBaseRewardsPool(0x3Fe65692bfCD0e6CF84cB1E7d24108E434A7587e);
     ICvxRewardsPool public constant cvxRewardsPool =
         ICvxRewardsPool(0xCF50b810E57Ac33B91dCF525C6ddd9881B139332);
-    ISushiChef public constant convexMasterChef =
-        ISushiChef(0x5F465e9fcfFc217c5849906216581a657cd60605);
+    //ISushiChef public constant convexMasterChef = ISushiChef(0x5F465e9fcfFc217c5849906216581a657cd60605);
     address public constant threeCrvSwap =
         0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7;
 
-    uint256 public constant cvxCRV_CRV_SLP_Pid = 0;
-    uint256 public constant CVX_ETH_SLP_Pid = 1;
+    //uint256 public constant cvxCRV_CRV_SLP_Pid = 0;
+    //uint256 public constant CVX_ETH_SLP_Pid = 1;
 
     uint256 public constant MAX_UINT_256 = uint256(-1);
 
@@ -132,6 +128,26 @@ contract MyStrategy is
 
     uint256 public constant AUTO_COMPOUNDING_BPS = 2000;
     uint256 public constant AUTO_COMPOUNDING_PERFORMANCE_FEE = 5000; // Proportion of auto-compounded rewards taken as fee
+
+    /*
+    Improvements to harvest functions
+    */
+    uint256 public minBaseRewardsPoolBalance = 0; // devtest
+    uint256 public minCvxCrvRewardsPoolBalance = 0; // devtest
+    uint256 public minCvxRewardsPoolBalance = 0; // devtest
+    uint256 public minThreeCrvBalance = 0; // devtest
+    uint256 public cvxCrvToGovernanceSaver = 0;
+    uint256 public minCvxCrvToGovernanceSaver = 0; // devtest
+    uint256 public cvxCrvToStrategistSaver = 0;
+    uint256 public minCvxCrvToStrategistSaver = 0; // devtest
+    uint256 public cvxCrvToTreeSaver = 0;
+    uint256 public minCvxCrvToTreeSaver = 0; // devtest
+    uint256 public cvxToGovernanceSaver = 0;
+    uint256 public minCvxToGovernanceSaver = 0; // devtest
+    uint256 public cvxToStrategistSaver = 0;
+    uint256 public minCvxToStrategistSaver = 0; // devtest
+    uint256 public cvxToTreeSaver = 0;
+    uint256 public minCvxToTreeSaver = 0; // devtest
 
     event TreeDistribution(
         address indexed token,
@@ -473,16 +489,19 @@ contract MyStrategy is
         // TODO: Harvest details still under constructuion. It's being designed to optimize yield while still allowing on-demand access to profits for users.
 
         // 1. Withdraw accrued rewards from staking positions (claim unclaimed positions as well)
-        baseRewardsPool.getReward(address(this), true);
+        uint256 baseRewardsPoolBalance = baseRewardsPool.rewards(address(this));
+        if (baseRewardsPoolBalance >= minBaseRewardsPoolBalance) {
+            baseRewardsPool.getReward(address(this), true);
+        }
 
         uint256 cvxCrvRewardsPoolBalance =
             cvxCrvRewardsPool.balanceOf(address(this));
-        if (cvxCrvRewardsPoolBalance > 0) {
+        if (cvxCrvRewardsPoolBalance > minCvxCrvRewardsPoolBalance) {
             cvxCrvRewardsPool.withdraw(cvxCrvRewardsPoolBalance, true);
         }
 
         uint256 cvxRewardsPoolBalance = cvxRewardsPool.balanceOf(address(this));
-        if (cvxRewardsPoolBalance > 0) {
+        if (cvxRewardsPoolBalance > minCvxRewardsPoolBalance) {
             cvxRewardsPool.withdraw(cvxRewardsPoolBalance, true);
         }
 
@@ -491,7 +510,7 @@ contract MyStrategy is
 
         // 2. Convert 3CRV -> cvxCRV via USDC
         uint256 threeCrvBalance = threeCrvToken.balanceOf(address(this));
-        if (threeCrvBalance > 0) {
+        if (threeCrvBalance > minThreeCrvBalance) {
             _remove_liquidity_one_coin(threeCrvSwap, threeCrvBalance, 1, 0);
             _swapExactTokensForTokens(
                 sushiswap,
@@ -611,25 +630,37 @@ contract MyStrategy is
         }
 
         // 5. Deposit remaining CVX / cvxCRV rewards into helper vaults and distribute
+
         if (harvestData.cvxCrvHarvested > 0) {
-            uint256 cvxCrvToDistribute = cvxCrvToken.balanceOf(address(this));
+            uint256 cvxCrvToDistribute =
+                cvxCrvToken
+                    .balanceOf(address(this))
+                    .sub(cvxCrvToStrategistSaver)
+                    .sub(cvxCrvToGovernanceSaver)
+                    .sub(cvxCrvToTreeSaver);
 
             if (performanceFeeGovernance > 0) {
                 uint256 cvxCrvToGovernance =
                     cvxCrvToDistribute.mul(performanceFeeGovernance).div(
                         MAX_FEE
                     );
+                cvxCrvToGovernanceSaver.add(cvxCrvToGovernance);
+            }
+
+            // Batch the rewards for Governance
+            if (cvxCrvToGovernanceSaver >= minCvxCrvToGovernanceSaver) {
                 cvxCrvHelperVault.depositFor(
                     IController(controller).rewards(),
-                    cvxCrvToGovernance
+                    cvxCrvToGovernanceSaver
                 );
                 emit PerformanceFeeGovernance(
                     IController(controller).rewards(),
                     cvxCrv,
-                    cvxCrvToGovernance,
+                    cvxCrvToGovernanceSaver,
                     block.number,
                     block.timestamp
                 );
+                cvxCrvToGovernanceSaver = 0;
             }
 
             if (performanceFeeStrategist > 0) {
@@ -637,89 +668,106 @@ contract MyStrategy is
                     cvxCrvToDistribute.mul(performanceFeeStrategist).div(
                         MAX_FEE
                     );
-                cvxCrvHelperVault.depositFor(strategist, cvxCrvToStrategist);
+                cvxCrvToStrategistSaver.add(cvxCrvToStrategist);
+            }
+
+            // Batch the rewards for Strategist
+            if (cvxCrvToStrategistSaver >= minCvxCrvToStrategistSaver) {
+                cvxCrvHelperVault.depositFor(
+                    strategist,
+                    cvxCrvToStrategistSaver
+                );
                 emit PerformanceFeeStrategist(
                     strategist,
                     cvxCrv,
-                    cvxCrvToStrategist,
+                    cvxCrvToStrategistSaver,
                     block.number,
                     block.timestamp
                 );
+                cvxCrvToStrategistSaver = 0;
             }
 
-            // TODO: [Optimization] Allow contract to circumvent blockLock to dedup deposit operations
-
-            uint256 treeHelperVaultBefore =
-                cvxCrvHelperVault.balanceOf(badgerTree);
-
             // Deposit remaining to tree after taking fees.
-            uint256 cvxCrvToTree = cvxCrvToken.balanceOf(address(this));
-            cvxCrvHelperVault.depositFor(badgerTree, cvxCrvToTree);
-
-            uint256 treeHelperVaultAfter =
-                cvxCrvHelperVault.balanceOf(badgerTree);
-            uint256 treeVaultPositionGained =
-                treeHelperVaultAfter.sub(treeHelperVaultBefore);
-
-            emit TreeDistribution(
-                address(cvxCrvHelperVault),
-                treeVaultPositionGained,
-                block.number,
-                block.timestamp
-            );
+            cvxCrvToTreeSaver = cvxCrvToken
+                .balanceOf(address(this))
+                .sub(cvxCrvToGovernanceSaver)
+                .sub(cvxCrvToStrategistSaver);
+            if (cvxCrvToTreeSaver >= minCvxCrvToTreeSaver) {
+                cvxCrvHelperVault.depositFor(badgerTree, cvxCrvToTreeSaver);
+                emit TreeDistribution(
+                    address(cvxCrvHelperVault),
+                    cvxCrvToTreeSaver,
+                    block.number,
+                    block.timestamp
+                );
+                cvxCrvToTreeSaver = 0;
+            }
         }
 
         if (harvestData.cvxHarvsted > 0) {
-            uint256 cvxToDistribute = cvxToken.balanceOf(address(this));
+            uint256 cvxToDistribute =
+                cvxToken
+                    .balanceOf(address(this))
+                    .sub(cvxToGovernanceSaver)
+                    .sub(cvxToStrategistSaver)
+                    .sub(cvxToTreeSaver);
 
             if (performanceFeeGovernance > 0) {
                 uint256 cvxToGovernance =
                     cvxToDistribute.mul(performanceFeeGovernance).div(MAX_FEE);
+                cvxToGovernanceSaver.add(cvxToGovernance);
+            }
+
+            // Batch the rewards for Governance
+            if (cvxToGovernanceSaver >= minCvxToGovernanceSaver) {
                 cvxHelperVault.depositFor(
                     IController(controller).rewards(),
-                    cvxToGovernance
+                    cvxToGovernanceSaver
                 );
                 emit PerformanceFeeGovernance(
                     IController(controller).rewards(),
                     cvx,
-                    cvxToGovernance,
+                    cvxToGovernanceSaver,
                     block.number,
                     block.timestamp
                 );
+                cvxToGovernanceSaver = 0;
             }
 
             if (performanceFeeStrategist > 0) {
                 uint256 cvxToStrategist =
                     cvxToDistribute.mul(performanceFeeStrategist).div(MAX_FEE);
-                cvxHelperVault.depositFor(strategist, cvxToStrategist);
+                cvxToStrategistSaver.add(cvxToStrategist);
+            }
+
+            // Batch the rewards for Governance
+            if (cvxToStrategistSaver >= minCvxToStrategistSaver) {
+                cvxHelperVault.depositFor(strategist, cvxToStrategistSaver);
                 emit PerformanceFeeStrategist(
                     strategist,
                     cvx,
-                    cvxToStrategist,
+                    cvxToStrategistSaver,
                     block.number,
                     block.timestamp
                 );
+                cvxToStrategistSaver = 0;
             }
 
-            // TODO: [Optimization] Allow contract to circumvent blockLock to dedup deposit operations
-
-            uint256 treeHelperVaultBefore =
-                cvxHelperVault.balanceOf(badgerTree);
-
             // Deposit remaining to tree after taking fees.
-            uint256 cvxToTree = cvxToken.balanceOf(address(this));
-            cvxHelperVault.depositFor(badgerTree, cvxToTree);
-
-            uint256 treeHelperVaultAfter = cvxHelperVault.balanceOf(badgerTree);
-            uint256 treeVaultPositionGained =
-                treeHelperVaultAfter.sub(treeHelperVaultBefore);
-
-            emit TreeDistribution(
-                address(cvxHelperVault),
-                treeVaultPositionGained,
-                block.number,
-                block.timestamp
-            );
+            cvxToTreeSaver = cvxToken
+                .balanceOf(address(this))
+                .sub(cvxToGovernanceSaver)
+                .sub(cvxToStrategistSaver);
+            if (cvxToTreeSaver >= minCvxToTreeSaver) {
+                cvxHelperVault.depositFor(badgerTree, cvxToTreeSaver);
+                emit TreeDistribution(
+                    address(cvxHelperVault),
+                    cvxToTreeSaver,
+                    block.number,
+                    block.timestamp
+                );
+                cvxToTreeSaver = 0;
+            }
         }
 
         uint256 totalWantAfter = balanceOf();
@@ -729,5 +777,40 @@ contract MyStrategy is
         );
         emit Harvest(totalWantAfter - totalWantBefore, block.number);
         return harvestData;
+    }
+
+    function setMinBalancesForHarvest(
+        uint256 minBaseRewardsPoolBalance_,
+        uint256 minCvxCrvRewardsPoolBalance_,
+        uint256 minCvxRewardsPoolBalance_,
+        uint256 minThreeCrvBalance_
+    ) external {
+        _onlyAuthorizedActors();
+        minBaseRewardsPoolBalance = minBaseRewardsPoolBalance_;
+        minCvxCrvRewardsPoolBalance = minCvxCrvRewardsPoolBalance_;
+        minCvxRewardsPoolBalance = minCvxRewardsPoolBalance_;
+        minThreeCrvBalance = minThreeCrvBalance_;
+    }
+
+    function setMinBalancesForCvxCrvPayout(
+        uint256 minCvxCrvToGovernanceSaver_,
+        uint256 minCvxCrvToStrategistSaver_,
+        uint256 minCvxCrvToTreeSaver_
+    ) external {
+        _onlyAuthorizedActors();
+        minCvxCrvToGovernanceSaver = minCvxCrvToGovernanceSaver_;
+        minCvxCrvToStrategistSaver = minCvxCrvToStrategistSaver_;
+        minCvxCrvToTreeSaver = minCvxCrvToTreeSaver_;
+    }
+
+    function setMinBalancesForCvxPayout(
+        uint256 minCvxToGovernanceSaver_,
+        uint256 minCvxToStrategistSaver_,
+        uint256 minCvxToTreeSaver_
+    ) external {
+        _onlyAuthorizedActors();
+        minCvxToGovernanceSaver = minCvxToGovernanceSaver_;
+        minCvxToStrategistSaver = minCvxToStrategistSaver_;
+        minCvxToTreeSaver = minCvxToTreeSaver_;
     }
 }

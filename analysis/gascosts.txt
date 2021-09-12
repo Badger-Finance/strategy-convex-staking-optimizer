@@ -1,0 +1,21 @@
+Optimized Contract
+>>> harvest.gas_used
+74154
+>>> harvest2.gas_used
+1039753
+>>> harvest3.gas_used
+1550754
+>>> harvest4.gas_used
+74154
+>>>
+
+
+Old Contract
+>>> harvest.gas_used
+861239
+>>> harvest2.gas_used
+1239452
+>>> harvest3.gas_used
+1748455
+>>> harvest4.gas_used
+806298

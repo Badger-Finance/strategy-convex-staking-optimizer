@@ -4,6 +4,7 @@ from brownie import (
     Controller,
     SettV3,
     MyStrategy,
+    MyStrategy2,
 )
 from config import (
     BADGER_DEV_MULTISIG,
@@ -12,10 +13,12 @@ from config import (
     WANT,
     FEES,
     WANT_CONFIG,
+    CVXHELPER,
+    CVXCRVHELPER
 )
 from dotmap import DotMap
 import pytest
-
+from helpers.constants import MaxUint256
 
 @pytest.fixture
 def deployed():
@@ -31,7 +34,7 @@ def deployed():
     governance = accounts.at(BADGER_DEV_MULTISIG, force=True)
 
     controller = Controller.deploy({"from": deployer})
-    controller.initialize(BADGER_DEV_MULTISIG, strategist, keeper, BADGER_DEV_MULTISIG)
+    controller.initialize(BADGER_DEV_MULTISIG, strategist, keeper, BADGER_DEV_MULTISIG, {'from': governance })
 
     sett = SettV3.deploy({"from": deployer})
     sett.initialize(
@@ -43,6 +46,7 @@ def deployed():
         False,
         "prefix",
         "PREFIX",
+        {'from': governance }
     )
 
     sett.unpause({"from": governance})
@@ -56,7 +60,7 @@ def deployed():
     # sett.setGuestList(guestList, {"from": governance})
 
     ## Start up Strategy
-    strategy = MyStrategy.deploy({"from": deployer})
+    strategy = MyStrategy2.deploy({"from": deployer})
     strategy.initialize(
         governance,
         strategist,
@@ -67,6 +71,7 @@ def deployed():
         PID,
         FEES,
         CURVE_POOL_CONFIG,
+        {'from': governance }
     )
 
     ## Tool that verifies bytecode (run independently) <- Webapp for anyone to verify
@@ -83,7 +88,27 @@ def deployed():
     whale = accounts.at("0x647481c033A4A2E816175cE115a0804adf793891", force=True) # RenCRV whale
     want.transfer(deployer.address, want.balanceOf(whale.address), {"from": whale}) # Transfer 80% of whale's want balance
 
+    # CurveSwapper to generate fees
+    swapper = interface.ICurveExchange("0x73FC48a7144db8Ee6576D99676b63Db458527717")
+
     assert want.balanceOf(deployer.address) > 0
+
+    # Turn on permissions for deployer
+    cvxhelper = interface.IERC20(CVXHELPER)
+    cvxhelper.approve(deployer.address, MaxUint256, {'from': deployer})
+    cvxhelper.approve(controller.rewards(), MaxUint256, {'from': controller.rewards()})
+    cvxcrvhelper = interface.IERC20(CVXCRVHELPER)
+    cvxcrvhelper.approve(deployer.address, MaxUint256, {'from': deployer})
+    cvxcrvhelper.approve(controller.rewards(), MaxUint256, {'from': controller.rewards()})
+
+    sett.approveContractAccess( controller, { 'from': governance } )
+    sett.approveContractAccess( controller.rewards(), { 'from': governance } )
+    sett.approveContractAccess( deployer , { 'from': governance } )
+
+    cvxhelper = interface.ISettAccessControlDefended(CVXHELPER)
+    cvxcrvhelper = interface.ISettAccessControlDefended(CVXCRVHELPER)
+    cvxhelper.approveContractAccess( strategy , { 'from': governance } )
+    cvxcrvhelper.approveContractAccess( strategy , { 'from': governance } )
 
     return DotMap(
         deployer=deployer,
@@ -93,6 +118,7 @@ def deployed():
         strategy=strategy,
         # guestList=guestList,
         want=want,
+        swapper=swapper,
     )
 
 
@@ -118,6 +144,9 @@ def controller(deployed):
 def strategy(deployed):
     return deployed.strategy
 
+@pytest.fixture
+def swapper(deployed):
+    return deployed.swapper
 
 ## Tokens ##
 
@@ -130,7 +159,6 @@ def want(deployed):
 @pytest.fixture
 def tokens():
     return [WANT]
-
 
 ## Accounts ##
 
