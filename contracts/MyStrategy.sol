@@ -223,7 +223,7 @@ contract MyStrategy is BaseStrategy, CurveSwapper, UniswapSwapper, TokenSwapPath
 
         // Set default minimum pool harvests
         minCvxCrvRewardsPoolHarvest = 0;
-        minCvxCrvRewardsPoolHarvest = 0;
+        minCvxRewardsPoolHarvest = 0;
         minThreeCrvHarvest = 0;
         minWantToDeposited = 0;
     }
