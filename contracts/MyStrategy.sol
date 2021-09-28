@@ -458,8 +458,9 @@ contract MyStrategy is BaseStrategy, CurveSwapper, UniswapSwapper, TokenSwapPath
             _swapExactTokensForTokens(sushiswap, usdc, usdcToken.balanceOf(address(this)), getTokenSwapPath(usdc, cvxCrv));
         }
 
-        harvestData.cvxCrvHarvested = cvxCrvToken.balanceOf(address(this));
-        harvestData.cvxHarvsted = cvxToken.balanceOf(address(this));
+        // Initially set these to 0 - if the rewards are not more than the min nothing will get harvested.
+        harvestData.cvxCrvHarvested = 0;
+        harvestData.cvxHarvsted = 0;
 
         // 3. Sell 20% of accured rewards for underlying, then deposit remaining CVX / cvxCRV rewards into helper vaults and distribute
         if (cvxCrvRewardsPoolBalance > minCvxCrvRewardsPoolHarvest) {
@@ -548,7 +549,6 @@ contract MyStrategy is BaseStrategy, CurveSwapper, UniswapSwapper, TokenSwapPath
             _deposit(wantToDeposited);
         }
 
-        // totalWantAfter is the the balance of the pool, since all the want should have just been deposited.
         uint256 totalWantAfter = balanceOf();
         require(totalWantAfter >= totalWantBefore, "harvest-total-want-must-not-decrease");
 
