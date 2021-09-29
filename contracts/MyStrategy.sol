@@ -110,6 +110,11 @@ contract MyStrategy is BaseStrategy, CurveSwapper, UniswapSwapper, TokenSwapPath
     uint256 public autoCompoundingBps;
     uint256 public autoCompoundingPerformanceFeeGovernance;
 
+    uint256 public minCvxCrvRewardsPoolHarvest;
+    uint256 public minCvxRewardsPoolHarvest;
+    uint256 public minThreeCrvHarvest;
+    uint256 public minWantToDeposited;
+
     uint256 public constant AUTO_COMPOUNDING_BPS = 2000;
     uint256 public constant AUTO_COMPOUNDING_PERFORMANCE_FEE = 5000; // Proportion of auto-compounded rewards taken as fee
 
@@ -215,6 +220,12 @@ contract MyStrategy is BaseStrategy, CurveSwapper, UniswapSwapper, TokenSwapPath
         _initializeApprovals();
         autoCompoundingBps = 2000;
         autoCompoundingPerformanceFeeGovernance = 5000;
+
+        // Set default minimum pool harvests
+        minCvxCrvRewardsPoolHarvest = 0;
+        minCvxRewardsPoolHarvest = 0;
+        minThreeCrvHarvest = 0;
+        minWantToDeposited = 0;
     }
 
     /// ===== Permissioned Functions =====
@@ -279,6 +290,19 @@ contract MyStrategy is BaseStrategy, CurveSwapper, UniswapSwapper, TokenSwapPath
     function setCurvePoolSwap(address _swap) external {
         _onlyGovernance();
         curvePool.swap = _swap;
+    }
+
+    function setMinPoolHarvest(
+        uint256 _minCvxCrvRewardsPoolHarvest,
+        uint256 _minCvxRewardsPoolHarvest,
+        uint256 _minThreeCrvHarvest,
+        uint256 _minWantToDeposited
+    ) external {
+        _onlyGovernance();
+        minCvxCrvRewardsPoolHarvest = _minCvxCrvRewardsPoolHarvest;
+        minCvxRewardsPoolHarvest = _minCvxRewardsPoolHarvest;
+        minThreeCrvHarvest = _minThreeCrvHarvest;
+        minWantToDeposited = _minWantToDeposited;
     }
 
     function _initializeApprovals() internal {
@@ -409,7 +433,8 @@ contract MyStrategy is BaseStrategy, CurveSwapper, UniswapSwapper, TokenSwapPath
         HarvestData memory harvestData;
 
         uint256 idleWant = IERC20Upgradeable(want).balanceOf(address(this));
-        uint256 totalWantBefore = balanceOf();
+        // Reuse call in idleWant, instead of calling again in balanceOf()
+        uint256 totalWantBefore = idleWant.add(balanceOfPool());
 
         // TODO: Harvest details still under constructuion. It's being designed to optimize yield while still allowing on-demand access to profits for users.
 
@@ -417,82 +442,95 @@ contract MyStrategy is BaseStrategy, CurveSwapper, UniswapSwapper, TokenSwapPath
         baseRewardsPool.getReward(address(this), true);
 
         uint256 cvxCrvRewardsPoolBalance = cvxCrvRewardsPool.balanceOf(address(this));
-        if (cvxCrvRewardsPoolBalance > 0) {
+        if (cvxCrvRewardsPoolBalance > minCvxCrvRewardsPoolHarvest) {
             cvxCrvRewardsPool.withdraw(cvxCrvRewardsPoolBalance, true);
         }
 
         uint256 cvxRewardsPoolBalance = cvxRewardsPool.balanceOf(address(this));
-        if (cvxRewardsPoolBalance > 0) {
+        if (cvxRewardsPoolBalance > minCvxRewardsPoolHarvest) {
             cvxRewardsPool.withdraw(cvxRewardsPoolBalance, true);
         }
 
-        harvestData.cvxCrvHarvested = cvxCrvToken.balanceOf(address(this));
-        harvestData.cvxHarvsted = cvxToken.balanceOf(address(this));
-
         // 2. Convert 3CRV -> cvxCRV via USDC
         uint256 threeCrvBalance = threeCrvToken.balanceOf(address(this));
-        if (threeCrvBalance > 0) {
+        if (threeCrvBalance > minThreeCrvHarvest) {
             _remove_liquidity_one_coin(threeCrvSwap, threeCrvBalance, 1, 0);
             _swapExactTokensForTokens(sushiswap, usdc, usdcToken.balanceOf(address(this)), getTokenSwapPath(usdc, cvxCrv));
         }
 
-        // 3. Sell 20% of accured rewards for underlying
-        if (harvestData.cvxCrvHarvested > 0) {
+        // Initially set these to 0 - if the rewards are not more than the min nothing will get harvested.
+        harvestData.cvxCrvHarvested = 0;
+        harvestData.cvxHarvsted = 0;
+
+        // 3. Sell 20% of accured rewards for underlying, then deposit remaining CVX / cvxCRV rewards into helper vaults and distribute
+        if (cvxCrvRewardsPoolBalance > minCvxCrvRewardsPoolHarvest) {
+            harvestData.cvxCrvHarvested = cvxCrvToken.balanceOf(address(this));
             uint256 cvxCrvToSell = harvestData.cvxCrvHarvested.mul(autoCompoundingBps).div(MAX_FEE);
+            uint256 cvxCrvToDistribute = harvestData.cvxCrvHarvested.sub(cvxCrvToSell);
+            uint256 cvxCrvToStrategist = 0;
+            uint256 cvxCrvToGovernance = 0;
+
+            if (performanceFeeGovernance > 0) {
+                cvxCrvToGovernance = cvxCrvToDistribute.mul(performanceFeeGovernance).div(MAX_FEE);
+                cvxCrvHelperVault.depositFor(IController(controller).rewards(), cvxCrvToGovernance);
+                emit PerformanceFeeGovernance(IController(controller).rewards(), cvxCrv, cvxCrvToGovernance, block.number, block.timestamp);
+            }
+
+            if (performanceFeeStrategist > 0) {
+                cvxCrvToStrategist = cvxCrvToDistribute.mul(performanceFeeStrategist).div(MAX_FEE);
+                cvxCrvHelperVault.depositFor(strategist, cvxCrvToStrategist);
+                emit PerformanceFeeStrategist(strategist, cvxCrv, cvxCrvToStrategist, block.number, block.timestamp);
+            }
+
+            // TODO: [Optimization] Allow contract to circumvent blockLock to dedup deposit operations
+
+            // Sell 20% accrued rewards for underlying
             _swapExactTokensForTokens(sushiswap, cvxCrv, cvxCrvToSell, getTokenSwapPath(cvxCrv, wbtc));
+
+            // Deposit remaining to tree after taking fees.
+            // treeVaultPositionGained is the current balance, since it is all being deposited.
+            uint256 treeVaultPositionGained = cvxCrvToDistribute.sub(cvxCrvToGovernance).sub(cvxCrvToStrategist);
+            cvxCrvHelperVault.depositFor(badgerTree, treeVaultPositionGained);
+
+            emit TreeDistribution(address(cvxCrvHelperVault), treeVaultPositionGained, block.number, block.timestamp);
         }
 
-        if (harvestData.cvxHarvsted > 0) {
+        if (cvxRewardsPoolBalance > minCvxRewardsPoolHarvest) {
+            harvestData.cvxHarvsted = cvxToken.balanceOf(address(this));
             uint256 cvxToSell = harvestData.cvxHarvsted.mul(autoCompoundingBps).div(MAX_FEE);
+            uint256 cvxToDistribute = harvestData.cvxHarvsted.sub(cvxToSell);
+            uint256 cvxToStrategist = 0;
+            uint256 cvxToGovernance = 0;
+
+            if (performanceFeeGovernance > 0) {
+                cvxToGovernance = cvxToDistribute.mul(performanceFeeGovernance).div(MAX_FEE);
+                cvxHelperVault.depositFor(IController(controller).rewards(), cvxToGovernance);
+                emit PerformanceFeeGovernance(IController(controller).rewards(), cvx, cvxToGovernance, block.number, block.timestamp);
+            }
+
+            if (performanceFeeStrategist > 0) {
+                cvxToStrategist = cvxToDistribute.mul(performanceFeeStrategist).div(MAX_FEE);
+                cvxHelperVault.depositFor(strategist, cvxToStrategist);
+                emit PerformanceFeeStrategist(strategist, cvx, cvxToStrategist, block.number, block.timestamp);
+            }
+
+            // TODO: [Optimization] Allow contract to circumvent blockLock to dedup deposit operations
+
+            // Sell 20% accrued rewards for underlying
             _swapExactTokensForTokens(sushiswap, cvx, cvxToSell, getTokenSwapPath(cvx, wbtc));
+
+            // Deposit remaining to tree after taking fees.
+            // treeVaultPositionGained is the current balance, since it is all being deposited.
+            uint256 treeVaultPositionGained = cvxToDistribute.sub(cvxToGovernance).sub(cvxToStrategist);
+            cvxHelperVault.depositFor(badgerTree, treeVaultPositionGained);
+
+            emit TreeDistribution(address(cvxHelperVault), treeVaultPositionGained, block.number, block.timestamp);
         }
-
-        // Process extra rewards tokens
-        // Note: Assumes asset is ultimately swappable on Uniswap for underlying
-        // {
-        //     for (uint256 i = 0; i < extraRewards.length(); i=i+1) {
-        //         address token = extraRewards.at(i);
-        //         RewardTokenConfig memory rewardsConfig = rewardsTokenConfig[token];
-
-        //         /*
-        //         autoCompoundingBps = 30
-        //         autoCompoundingPerfFee = 10000
-        //         treeDistributionPerfFee = 0
-        //         */
-
-        //         IERC20Upgradeable tokenContract = IERC20Upgradeable(token);
-        //         uint256 tokenBalance = tokenContract.balanceOf(address(this));
-
-        //         // Sell compounding proportion to wbtc
-        //         uint256 amountToSell = tokenBalance.mul(rewardsConfig.autoCompoundingBps).div(MAX_FEE);
-        //         _swapExactTokensForTokens(uniswap, token, amountToSell, getTokenSwapPath(token, wbtc));
-
-        //         uint256 wbtcToDeposit = wbtcToken.balanceOf(address(this));
-
-        //         // TODO: Significant optimization by batching this will other curve deposit
-        //         _add_liquidity_single_coin(curvePool.swap, want, wbtc, wbtcToDeposit, curvePool.wbtcPosition, curvePool.numElements, 0);
-        //         uint256 wantGained = IERC20Upgradeable(want).balanceOf(address(this)).sub(idleWant);
-
-        //         uint256 autoCompoundedPerformanceFee = wantGained.mul(rewardsConfig.autoCompoundingPerfFee).div(MAX_FEE);
-        //         IERC20Upgradeable(want).transfer(IController(controller).rewards(), autoCompoundedPerformanceFee);
-        //         emit PerformanceFeeGovernance(IController(controller).rewards(), want, autoCompoundedPerformanceFee, block.number, block.timestamp);
-
-        //         // Distribute remainder to users
-        //         uint256 treeRewardBalanceBefore = tokenContract.balanceOf(badgerTree);
-
-        //         uint256 remainingRewardBalance = tokenContract.balanceOf(address(this));
-        //         tokenContract.safeTransfer(badgerTree, remainingRewardBalance);
-
-        //         uint256 treeRewardBalanceAfter = tokenContract.balanceOf(badgerTree);
-        //         uint256 treeRewardBalanceGained = treeRewardBalanceAfter.sub(treeRewardBalanceBefore);
-
-        //         emit TreeDistribution(token, treeRewardBalanceGained, block.number, block.timestamp);
-        //     }
-        // }
 
         // 4. Roll WBTC gained into want position
         uint256 wbtcToDeposit = wbtcToken.balanceOf(address(this));
-
+        uint256 wantToDeposited = 0;
+        
         if (wbtcToDeposit > 0) {
             _add_liquidity_single_coin(curvePool.swap, want, wbtc, wbtcToDeposit, curvePool.wbtcPosition, curvePool.numElements, 0);
             uint256 wantGained = IERC20Upgradeable(want).balanceOf(address(this)).sub(idleWant);
@@ -500,72 +538,15 @@ contract MyStrategy is BaseStrategy, CurveSwapper, UniswapSwapper, TokenSwapPath
             uint256 autoCompoundedPerformanceFee = wantGained.mul(autoCompoundingPerformanceFeeGovernance).div(MAX_FEE);
             IERC20Upgradeable(want).transfer(IController(controller).rewards(), autoCompoundedPerformanceFee);
             emit PerformanceFeeGovernance(IController(controller).rewards(), want, autoCompoundedPerformanceFee, block.number, block.timestamp);
+
+            wantToDeposited = idleWant.add(wantGained).sub(autoCompoundedPerformanceFee);
+        } else {
+            wantToDeposited = IERC20Upgradeable(want).balanceOf(address(this));
         }
 
-        // Deposit remaining want (including idle want) into strategy position
-        uint256 wantToDeposited = IERC20Upgradeable(want).balanceOf(address(this));
-
-        if (wantToDeposited > 0) {
+        // Deposit remaining want (including idle want) into strategy position if more than the minimum
+        if (wantToDeposited > minWantToDeposited) {
             _deposit(wantToDeposited);
-        }
-
-        // 5. Deposit remaining CVX / cvxCRV rewards into helper vaults and distribute
-        if (harvestData.cvxCrvHarvested > 0) {
-            uint256 cvxCrvToDistribute = cvxCrvToken.balanceOf(address(this));
-
-            if (performanceFeeGovernance > 0) {
-                uint256 cvxCrvToGovernance = cvxCrvToDistribute.mul(performanceFeeGovernance).div(MAX_FEE);
-                cvxCrvHelperVault.depositFor(IController(controller).rewards(), cvxCrvToGovernance);
-                emit PerformanceFeeGovernance(IController(controller).rewards(), cvxCrv, cvxCrvToGovernance, block.number, block.timestamp);
-            }
-
-            if (performanceFeeStrategist > 0) {
-                uint256 cvxCrvToStrategist = cvxCrvToDistribute.mul(performanceFeeStrategist).div(MAX_FEE);
-                cvxCrvHelperVault.depositFor(strategist, cvxCrvToStrategist);
-                emit PerformanceFeeStrategist(strategist, cvxCrv, cvxCrvToStrategist, block.number, block.timestamp);
-            }
-
-            // TODO: [Optimization] Allow contract to circumvent blockLock to dedup deposit operations
-
-            uint256 treeHelperVaultBefore = cvxCrvHelperVault.balanceOf(badgerTree);
-
-            // Deposit remaining to tree after taking fees.
-            uint256 cvxCrvToTree = cvxCrvToken.balanceOf(address(this));
-            cvxCrvHelperVault.depositFor(badgerTree, cvxCrvToTree);
-
-            uint256 treeHelperVaultAfter = cvxCrvHelperVault.balanceOf(badgerTree);
-            uint256 treeVaultPositionGained = treeHelperVaultAfter.sub(treeHelperVaultBefore);
-
-            emit TreeDistribution(address(cvxCrvHelperVault), treeVaultPositionGained, block.number, block.timestamp);
-        }
-
-        if (harvestData.cvxHarvsted > 0) {
-            uint256 cvxToDistribute = cvxToken.balanceOf(address(this));
-
-            if (performanceFeeGovernance > 0) {
-                uint256 cvxToGovernance = cvxToDistribute.mul(performanceFeeGovernance).div(MAX_FEE);
-                cvxHelperVault.depositFor(IController(controller).rewards(), cvxToGovernance);
-                emit PerformanceFeeGovernance(IController(controller).rewards(), cvx, cvxToGovernance, block.number, block.timestamp);
-            }
-
-            if (performanceFeeStrategist > 0) {
-                uint256 cvxToStrategist = cvxToDistribute.mul(performanceFeeStrategist).div(MAX_FEE);
-                cvxHelperVault.depositFor(strategist, cvxToStrategist);
-                emit PerformanceFeeStrategist(strategist, cvx, cvxToStrategist, block.number, block.timestamp);
-            }
-
-            // TODO: [Optimization] Allow contract to circumvent blockLock to dedup deposit operations
-
-            uint256 treeHelperVaultBefore = cvxHelperVault.balanceOf(badgerTree);
-
-            // Deposit remaining to tree after taking fees.
-            uint256 cvxToTree = cvxToken.balanceOf(address(this));
-            cvxHelperVault.depositFor(badgerTree, cvxToTree);
-
-            uint256 treeHelperVaultAfter = cvxHelperVault.balanceOf(badgerTree);
-            uint256 treeVaultPositionGained = treeHelperVaultAfter.sub(treeHelperVaultBefore);
-
-            emit TreeDistribution(address(cvxHelperVault), treeVaultPositionGained, block.number, block.timestamp);
         }
 
         uint256 totalWantAfter = balanceOf();
@@ -573,4 +554,5 @@ contract MyStrategy is BaseStrategy, CurveSwapper, UniswapSwapper, TokenSwapPath
 
         return harvestData;
     }
+
 }
