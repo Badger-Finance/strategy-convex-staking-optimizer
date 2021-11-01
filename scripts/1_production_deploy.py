@@ -4,7 +4,7 @@ from brownie import (
     accounts,
     network,
     StrategyConvexStakingOptimizer,
-    SettV3,
+    SettV4,
     AdminUpgradeabilityProxy,
     Controller,
     BadgerRegistry,
@@ -25,7 +25,7 @@ sleep_between_tx = 1
 def main():
     """
     FOR STRATEGISTS AND GOVERNANCE
-    Deploys a Controller, a SettV3 and your strategy under upgradable proxies and wires them up.
+    Deploys a Controller, a SettV4 and your strategy under upgradable proxies and wires them up.
     Note that it sets your deployer account as the governance for the three contracts so that
     the setup and production tests are simpler and more efficient. The rest of the permissioned actors
     are set based on the latest entries from the Badger Registry.
@@ -123,9 +123,9 @@ def deploy_vault(controller, governance, keeper, guardian, dev, proxyAdmin):
 
     print("Vault Arguments: ", args)
 
-    vault_logic = SettV3.at(
+    vault_logic = SettV4.at(
         "0x889d5036f2EA5784161090082F3327bb3e433102"
-    )  # SettV3 Logic
+    )  # SettV4 Logic
 
     vault_proxy = AdminUpgradeabilityProxy.deploy(
         vault_logic,
@@ -137,7 +137,7 @@ def deploy_vault(controller, governance, keeper, guardian, dev, proxyAdmin):
 
     ## We delete from deploy and then fetch again so we can interact
     AdminUpgradeabilityProxy.remove(vault_proxy)
-    vault_proxy = SettV3.at(vault_proxy.address)
+    vault_proxy = SettV4.at(vault_proxy.address)
 
     console.print("[green]Vault was deployed at: [/green]", vault_proxy.address)
 
