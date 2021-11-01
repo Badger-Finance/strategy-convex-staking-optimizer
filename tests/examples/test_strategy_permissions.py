@@ -103,8 +103,6 @@ def test_strategy_action_permissions(deployer, sett, controller, strategy, want)
 
 
 def test_strategy_config_permissions(strategy):
-    randomUser = accounts[6]
-
     randomUser = accounts[8]
     # End Setup
 

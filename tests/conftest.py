@@ -2,8 +2,8 @@ from brownie import (
     accounts,
     interface,
     Controller,
-    SettV3,
-    MyStrategy,
+    SettV4,
+    StrategyConvexStakingOptimizer,
 )
 from config import (
     BADGER_DEV_MULTISIG,
@@ -16,6 +16,10 @@ from config import (
 from dotmap import DotMap
 import pytest
 
+
+@pytest.fixture(autouse=True)
+def isolation(fn_isolation):
+    pass
 
 @pytest.fixture
 def deployed():
@@ -33,7 +37,7 @@ def deployed():
     controller = Controller.deploy({"from": deployer})
     controller.initialize(BADGER_DEV_MULTISIG, strategist, keeper, BADGER_DEV_MULTISIG)
 
-    sett = SettV3.deploy({"from": deployer})
+    sett = SettV4.deploy({"from": deployer})
     sett.initialize(
         WANT,
         controller,
@@ -48,15 +52,8 @@ def deployed():
     sett.unpause({"from": governance})
     controller.setVault(WANT, sett)
 
-    ## TODO: Add guest list once we find compatible, tested, contract
-    # guestList = VipCappedGuestListWrapperUpgradeable.deploy({"from": deployer})
-    # guestList.initialize(sett, {"from": deployer})
-    # guestList.setGuests([deployer], [True])
-    # guestList.setUserDepositCap(100000000)
-    # sett.setGuestList(guestList, {"from": governance})
-
     ## Start up Strategy
-    strategy = MyStrategy.deploy({"from": deployer})
+    strategy = StrategyConvexStakingOptimizer.deploy({"from": deployer})
     strategy.initialize(
         governance,
         strategist,
@@ -69,7 +66,19 @@ def deployed():
         CURVE_POOL_CONFIG,
     )
 
-    ## Tool that verifies bytecode (run independently) <- Webapp for anyone to verify
+    ## Grant contract access from strategy to Helper Vaults
+    cvxHelperVault = SettV4.at(strategy.cvxHelperVault())
+    cvxCrvHelperVault = SettV4.at(strategy.cvxCrvHelperVault())
+
+    cvxHelperGov = accounts.at(cvxHelperVault.governance(), force=True)
+    cvxCrvHelperGov = accounts.at(cvxCrvHelperVault.governance(), force=True)
+
+    cvxHelperVault.approveContractAccess(
+        strategy.address, {"from": cvxHelperGov}
+    )
+    cvxCrvHelperVault.approveContractAccess(
+        strategy.address, {"from": cvxCrvHelperGov}
+    )
 
     ## Set up tokens
     want = interface.IERC20(WANT)
@@ -91,7 +100,6 @@ def deployed():
         vault=sett,
         sett=sett,
         strategy=strategy,
-        # guestList=guestList,
         want=want,
     )
 
@@ -153,3 +161,5 @@ def settKeeper(vault):
 @pytest.fixture
 def strategyKeeper(strategy):
     return accounts.at(strategy.keeper(), force=True)
+
+

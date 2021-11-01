@@ -21,6 +21,8 @@ interface ISettV4 {
 
     function totalSupply() external view returns (uint256);
 
+    function balance() external view returns (uint256);
+
     function claimInsurance() external; // NOTE: Only yDelegatedVault implements this
 
     function getPricePerFullShare() external view returns (uint256);

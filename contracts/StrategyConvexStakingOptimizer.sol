@@ -3,27 +3,74 @@
 pragma solidity ^0.6.11;
 pragma experimental ABIEncoderV2;
 
-import "../deps/@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import "../deps/@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
-import "../deps/@openzeppelin/contracts-upgradeable/math/MathUpgradeable.sol";
-import "../deps/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
-import "../deps/@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol";
+import "deps/@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import "deps/@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
+import "deps/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
+import "deps/@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol";
+import "deps/@openzeppelin/contracts-upgradeable/utils/EnumerableSetUpgradeable.sol";
+import "interfaces/uniswap/IUniswapRouterV2.sol";
+import "interfaces/badger/IBadgerGeyser.sol";
 
-import "../deps/libraries/CurveSwapper.sol";
-import "../deps/libraries/UniswapSwapper.sol";
-import "../deps/libraries/TokenSwapPathRegistry.sol";
+import "interfaces/uniswap/IUniswapPair.sol";
+import "interfaces/sushi/IxSushi.sol";
 
 import "interfaces/badger/IController.sol";
+import "interfaces/badger/IMintr.sol";
+import "interfaces/badger/IStrategy.sol";
+
 import "interfaces/badger/ISettV4.sol";
+
 import "interfaces/convex/IBooster.sol";
 import "interfaces/convex/CrvDepositor.sol";
 import "interfaces/convex/IBaseRewardsPool.sol";
 import "interfaces/convex/ICvxRewardsPool.sol";
-import "interfaces/sushi/ISushiChef.sol";
 
-import {BaseStrategy} from "../deps/BaseStrategy.sol";
+import "deps/BaseStrategySwapper.sol";
 
-contract MyStrategy is BaseStrategy, CurveSwapper, UniswapSwapper, TokenSwapPathRegistry {
+import "deps/libraries/CurveSwapper.sol";
+import "deps/libraries/UniswapSwapper.sol";
+import "deps/libraries/TokenSwapPathRegistry.sol";
+
+/*
+    === Deposit ===
+    Deposit & Stake underlying asset into appropriate convex vault (deposit + stake is atomic)
+
+    === Tend ===
+
+    == Stage 1: Realize gains from all positions ==
+    Harvest CRV and CVX from core vault rewards pool
+    Harvest CVX and SUSHI from CVX/ETH LP
+    Harvest CVX and SUSHI from cvxCRV/CRV LP
+
+    Harvested coins:
+    CRV
+    CVX
+    SUSHI
+
+    == Stage 2: Deposit all gains into staked positions ==
+    Zap all CRV -> cvxCRV/CRV
+    Zap all CVX -> CVX/ETH
+    Stake Sushi
+
+    Position coins:
+    cvxCRV/CRV
+    CVX/ETH
+    xSushi
+
+    These position coins will be distributed on harvest
+
+
+    Changelog:
+
+    V1.1
+    * Implemented the _exchange function from the CurveSwapper library to perform the CRV -> cvxCRV and vice versa
+    swaps through curve instead of Sushiswap.
+    * It now swaps 3CRV into CRV instead of cvxCRV. If enough is aquired, it swaps this CRV for wBTC directly and, if not,
+    it swaps some cvxCRV for CRV to compensate.
+    * Removed some unused functions and variables such as the `addExtraRewardsToken` and `removeExtraRewardsToken` functions
+    as well as the obsolete swapping paths.
+*/
+contract StrategyConvexStakingOptimizer is BaseStrategy, CurveSwapper, UniswapSwapper, TokenSwapPathRegistry {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using AddressUpgradeable for address;
     using SafeMathUpgradeable for uint256;
@@ -48,16 +95,10 @@ contract MyStrategy is BaseStrategy, CurveSwapper, UniswapSwapper, TokenSwapPath
     // ===== Convex Registry =====
     CrvDepositor public constant crvDepositor = CrvDepositor(0x8014595F2AB54cD7c604B00E9fb932176fDc86Ae); // Convert CRV -> cvxCRV
     IBooster public constant booster = IBooster(0xF403C135812408BFbE8713b5A23a04b3D48AAE31);
-    address public constant cvxCRV_CRV_SLP = 0x33F6DDAEa2a8a54062E021873bCaEE006CdF4007; // cvxCRV/CRV SLP
-    address public constant CVX_ETH_SLP = 0x05767d9EF41dC40689678fFca0608878fb3dE906; // CVX/ETH SLP
     IBaseRewardsPool public baseRewardsPool;
     IBaseRewardsPool public constant cvxCrvRewardsPool = IBaseRewardsPool(0x3Fe65692bfCD0e6CF84cB1E7d24108E434A7587e);
     ICvxRewardsPool public constant cvxRewardsPool = ICvxRewardsPool(0xCF50b810E57Ac33B91dCF525C6ddd9881B139332);
-    ISushiChef public constant convexMasterChef = ISushiChef(0x5F465e9fcfFc217c5849906216581a657cd60605);
     address public constant threeCrvSwap = 0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7;
-
-    uint256 public constant cvxCRV_CRV_SLP_Pid = 0;
-    uint256 public constant CVX_ETH_SLP_Pid = 1;
 
     uint256 public constant MAX_UINT_256 = uint256(-1);
 
@@ -94,15 +135,6 @@ contract MyStrategy is BaseStrategy, CurveSwapper, UniswapSwapper, TokenSwapPath
         uint256 numElements;
     }
 
-    event ExtraRewardsTokenSet(
-        address indexed token,
-        uint256 autoCompoundingBps,
-        uint256 autoCompoundingPerfFee,
-        uint256 treeDistributionPerfFee,
-        address tendConvertTo,
-        uint256 tendConvertBps
-    );
-
     EnumerableSetUpgradeable.AddressSet internal extraRewards; // Tokens other than CVX and cvxCRV to process as rewards
     mapping(address => RewardTokenConfig) public rewardsTokenConfig;
     CurvePoolConfig public curvePool;
@@ -110,8 +142,8 @@ contract MyStrategy is BaseStrategy, CurveSwapper, UniswapSwapper, TokenSwapPath
     uint256 public autoCompoundingBps;
     uint256 public autoCompoundingPerformanceFeeGovernance;
 
-    uint256 public constant AUTO_COMPOUNDING_BPS = 2000;
-    uint256 public constant AUTO_COMPOUNDING_PERFORMANCE_FEE = 5000; // Proportion of auto-compounded rewards taken as fee
+    uint256 public crvCvxCrvSlippageToleranceBps;
+    uint256 public constant crvCvxCrvPoolIndex = 2;
 
     event TreeDistribution(address indexed token, uint256 amount, uint256 indexed blockNumber, uint256 timestamp);
     event PerformanceFeeGovernance(
@@ -140,12 +172,6 @@ contract MyStrategy is BaseStrategy, CurveSwapper, UniswapSwapper, TokenSwapPath
         uint256 crvTended;
         uint256 cvxTended;
         uint256 cvxCrvTended;
-    }
-
-    struct TokenSwapData {
-        address tokenIn;
-        uint256 totalSold;
-        uint256 wantGained;
     }
 
     event TendState(uint256 crvTended, uint256 cvxTended, uint256 cvxCrvTended);
@@ -190,75 +216,34 @@ contract MyStrategy is BaseStrategy, CurveSwapper, UniswapSwapper, TokenSwapPath
 
         // Set Swap Paths
         address[] memory path = new address[](3);
-        path[0] = usdc;
-        path[1] = weth;
-        path[2] = cvxCrv;
-        _setTokenSwapPath(usdc, cvxCrv, path);
-
-        path = new address[](2);
-        path[0] = crv;
-        path[1] = cvxCrv;
-        _setTokenSwapPath(crv, cvxCrv, path);
-
-        path = new address[](3);
-        path[0] = cvxCrv;
-        path[1] = weth;
-        path[2] = wbtc;
-        _setTokenSwapPath(cvxCrv, wbtc, path);
-
-        path = new address[](3);
         path[0] = cvx;
         path[1] = weth;
         path[2] = wbtc;
         _setTokenSwapPath(cvx, wbtc, path);
 
+        path = new address[](3);
+        path[0] = usdc;
+        path[1] = weth;
+        path[2] = crv;
+        _setTokenSwapPath(usdc, crv, path);
+
+        path = new address[](3);
+        path[0] = crv;
+        path[1] = weth;
+        path[2] = wbtc;
+        _setTokenSwapPath(crv, wbtc, path);
+
         _initializeApprovals();
         autoCompoundingBps = 2000;
         autoCompoundingPerformanceFeeGovernance = 5000;
+
+        crvCvxCrvSlippageToleranceBps = 500;
     }
 
     /// ===== Permissioned Functions =====
     function setPid(uint256 _pid) external {
         _onlyGovernance();
         pid = _pid; // LP token pool ID
-    }
-
-    function addExtraRewardsToken(
-        address _extraToken,
-        RewardTokenConfig memory _rewardsConfig,
-        address[] memory _swapPathToWbtc
-    ) external {
-        _onlyGovernance();
-
-        require(!isProtectedToken(_extraToken)); // We can't process tokens that are part of special strategy logic as extra rewards
-        require(isProtectedToken(_rewardsConfig.tendConvertTo)); // We should only convert to tokens the strategy handles natively for security reasons
-
-        /**
-        === tendConvertTo Attack Vector: Rug rewards via swap ===
-            - Set a token as an extra rewards token
-            - Provide liquidity on that pool (disallow swaps from non-admin to avoid others messing with it)
-            - Convert it to a token on tend that can be rugged by an admin    
-            - Admin steals value    
-        */
-
-        extraRewards.add(_extraToken);
-        rewardsTokenConfig[_extraToken] = _rewardsConfig;
-
-        emit ExtraRewardsTokenSet(
-            _extraToken,
-            _rewardsConfig.autoCompoundingBps,
-            _rewardsConfig.autoCompoundingPerfFee,
-            _rewardsConfig.treeDistributionPerfFee,
-            _rewardsConfig.tendConvertTo,
-            _rewardsConfig.tendConvertBps
-        );
-
-        _setTokenSwapPath(_extraToken, wbtc, _swapPathToWbtc);
-    }
-
-    function removeExtraRewardsToken(address _extraToken) external {
-        _onlyGovernance();
-        extraRewards.remove(_extraToken);
     }
 
     function setAutoCompoundingBps(uint256 _bps) external {
@@ -281,6 +266,11 @@ contract MyStrategy is BaseStrategy, CurveSwapper, UniswapSwapper, TokenSwapPath
         curvePool.swap = _swap;
     }
 
+    function setCrvCvxCrvSlippageToleranceBps(uint256 _sl) external {
+        _onlyGovernance();
+        crvCvxCrvSlippageToleranceBps = _sl;
+    }
+
     function _initializeApprovals() internal {
         cvxToken.approve(address(cvxHelperVault), MAX_UINT_256);
         cvxCrvToken.approve(address(cvxCrvHelperVault), MAX_UINT_256);
@@ -288,7 +278,7 @@ contract MyStrategy is BaseStrategy, CurveSwapper, UniswapSwapper, TokenSwapPath
 
     /// ===== View Functions =====
     function version() external pure returns (string memory) {
-        return "1.0";
+        return "1.1";
     }
 
     function getName() external override pure returns (string memory) {
@@ -381,7 +371,8 @@ contract MyStrategy is BaseStrategy, CurveSwapper, UniswapSwapper, TokenSwapPath
 
         // 2. Convert CRV -> cvxCRV
         if (tendData.crvTended > 0) {
-            _swapExactTokensForTokens(sushiswap, crv, tendData.crvTended, getTokenSwapPath(crv, cvxCrv));
+            uint256 minCvxCrvOut = tendData.crvTended.mul(MAX_FEE.sub(crvCvxCrvSlippageToleranceBps)).div(MAX_FEE);
+            _exchange(crv, cvxCrv, tendData.crvTended, minCvxCrvOut, crvCvxCrvPoolIndex, true);
         }
 
         // Track harvested + converted coins
@@ -404,7 +395,7 @@ contract MyStrategy is BaseStrategy, CurveSwapper, UniswapSwapper, TokenSwapPath
     }
 
     // No-op until we optimize harvesting strategy. Auto-compouding is key.
-    function harvest() external whenNotPaused returns (HarvestData memory) {
+    function harvest() external whenNotPaused returns (uint256) {
         _onlyAuthorizedActors();
         HarvestData memory harvestData;
 
@@ -429,17 +420,37 @@ contract MyStrategy is BaseStrategy, CurveSwapper, UniswapSwapper, TokenSwapPath
         harvestData.cvxCrvHarvested = cvxCrvToken.balanceOf(address(this));
         harvestData.cvxHarvsted = cvxToken.balanceOf(address(this));
 
-        // 2. Convert 3CRV -> cvxCRV via USDC
+        // 2. Convert 3CRV -> CRV via USDC
         uint256 threeCrvBalance = threeCrvToken.balanceOf(address(this));
         if (threeCrvBalance > 0) {
             _remove_liquidity_one_coin(threeCrvSwap, threeCrvBalance, 1, 0);
-            _swapExactTokensForTokens(sushiswap, usdc, usdcToken.balanceOf(address(this)), getTokenSwapPath(usdc, cvxCrv));
+            uint256 usdcBalance = usdcToken.balanceOf(address(this));
+            if (usdcBalance > 0) {
+                _swapExactTokensForTokens(sushiswap, usdc, usdcBalance, getTokenSwapPath(usdc, crv));
+            }
         }
 
         // 3. Sell 20% of accured rewards for underlying
         if (harvestData.cvxCrvHarvested > 0) {
-            uint256 cvxCrvToSell = harvestData.cvxCrvHarvested.mul(autoCompoundingBps).div(MAX_FEE);
-            _swapExactTokensForTokens(sushiswap, cvxCrv, cvxCrvToSell, getTokenSwapPath(cvxCrv, wbtc));
+            // NOTE: Assumes 1:1 CRV/cvxCRV
+            uint256 crvToSell = harvestData.cvxCrvHarvested.mul(autoCompoundingBps).div(MAX_FEE);
+            // NOTE: Assuming any CRV accumulted is only from the above swap
+            uint256 crvBalance = crvToken.balanceOf(address(this));
+            if (crvToSell > crvBalance) {
+                // NOTE: Assumes 1:1 CRV/cvxCRV
+                uint256 cvxCrvToSell = crvToSell.sub(crvBalance);
+                uint256 minCrvOut = cvxCrvToSell.mul(MAX_FEE.sub(crvCvxCrvSlippageToleranceBps)).div(MAX_FEE);
+                _exchange(cvxCrv, crv, cvxCrvToSell, minCrvOut, crvCvxCrvPoolIndex, true);
+                crvToSell = crvToken.balanceOf(address(this));
+            }
+            _swapExactTokensForTokens(sushiswap, crv, crvToSell, getTokenSwapPath(crv, wbtc));
+        }
+
+        // 4. Convert CRV -> cvxCRV
+        uint256 crvBalance = crvToken.balanceOf(address(this));
+        if (crvBalance > 0) {
+            uint256 minCvxCrvOut = crvBalance.mul(MAX_FEE.sub(crvCvxCrvSlippageToleranceBps)).div(MAX_FEE);
+            _exchange(crv, cvxCrv, crvBalance, minCvxCrvOut, crvCvxCrvPoolIndex, true);
         }
 
         if (harvestData.cvxHarvsted > 0) {
@@ -492,10 +503,11 @@ contract MyStrategy is BaseStrategy, CurveSwapper, UniswapSwapper, TokenSwapPath
 
         // 4. Roll WBTC gained into want position
         uint256 wbtcToDeposit = wbtcToken.balanceOf(address(this));
+        uint256 wantGained;
 
         if (wbtcToDeposit > 0) {
             _add_liquidity_single_coin(curvePool.swap, want, wbtc, wbtcToDeposit, curvePool.wbtcPosition, curvePool.numElements, 0);
-            uint256 wantGained = IERC20Upgradeable(want).balanceOf(address(this)).sub(idleWant);
+            wantGained = IERC20Upgradeable(want).balanceOf(address(this)).sub(idleWant);
             // Half of gained want (10% of rewards) are auto-compounded, half of gained want is taken as a performance fee
             uint256 autoCompoundedPerformanceFee = wantGained.mul(autoCompoundingPerformanceFeeGovernance).div(MAX_FEE);
             IERC20Upgradeable(want).transfer(IController(controller).rewards(), autoCompoundedPerformanceFee);
@@ -569,8 +581,9 @@ contract MyStrategy is BaseStrategy, CurveSwapper, UniswapSwapper, TokenSwapPath
         }
 
         uint256 totalWantAfter = balanceOf();
-        require(totalWantAfter >= totalWantBefore, "harvest-total-want-must-not-decrease");
+        require(totalWantAfter >= totalWantBefore, "want-decreased");
 
-        return harvestData;
+        emit Harvest(wantGained, block.number);
+        return wantGained;
     }
 }
