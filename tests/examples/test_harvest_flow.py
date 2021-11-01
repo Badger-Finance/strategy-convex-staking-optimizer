@@ -269,7 +269,7 @@ def test_single_user_harvest_flow_remove_fees(
     # Earn
     snap.settEarn({"from": deployer})
 
-    chain.sleep(days(0.5))
+    chain.sleep(days(1))
     chain.mine()
 
     if tendable:
