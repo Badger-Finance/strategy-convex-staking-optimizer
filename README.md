@@ -174,7 +174,7 @@ $ brownie run scripts/production_deploy.py --network mainnet
 
 You will be prompted to enter your desired deployer account and keystore password, and then the contracts will be deployed.
 
-3. This script will deploy a Controller, a SettV3 and your strategy under upgradable proxies. It will also set your deployer account as the governance for the three of them so that you can configure them and control them during testing stage. The script will also set the rest of the permissioned actors based on the latest entries from the Badger Registry.
+3. This script will deploy a Controller, a SettV4 and your strategy under upgradable proxies. It will also set your deployer account as the governance for the three of them so that you can configure them and control them during testing stage. The script will also set the rest of the permissioned actors based on the latest entries from the Badger Registry.
 
 ## Production Parameters Verification
 
