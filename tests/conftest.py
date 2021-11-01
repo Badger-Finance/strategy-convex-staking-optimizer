@@ -3,7 +3,7 @@ from brownie import (
     interface,
     Controller,
     SettV3,
-    MyStrategy,
+    StrategyConvexStakingOptimizer,
 )
 from config import (
     BADGER_DEV_MULTISIG,
@@ -56,7 +56,7 @@ def deployed():
     # sett.setGuestList(guestList, {"from": governance})
 
     ## Start up Strategy
-    strategy = MyStrategy.deploy({"from": deployer})
+    strategy = StrategyConvexStakingOptimizer.deploy({"from": deployer})
     strategy.initialize(
         governance,
         strategist,

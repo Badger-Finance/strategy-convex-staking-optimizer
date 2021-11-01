@@ -8,7 +8,7 @@
 
 ## What you'll find here
 
-- Basic Solidity Smart Contract for creating your own Badger Strategy ([`contracts/MyStrategy.sol`](contracts/MyStrategy.sol))
+- Basic Solidity Smart Contract for creating your own Badger Strategy ([`contracts/StrategyConvexStakingOptimizer.sol`](contracts/StrategyConvexStakingOptimizer.sol))
 
 - Interfaces for some of the most used DeFi protocols on ethereum mainnet. ([`interfaces`](interfaces))
 - Dependencies for OpenZeppelin and other libraries. ([`deps`](deps))
@@ -68,7 +68,7 @@ Deployment will set up a Vault, Controller and deploy your strategy
 To ship a valid strategy, that will be evaluated to deploy on mainnet, with potentially $100M + in TVL, you need to:
 
 1. Add custom config in `/config/__init__.py`
-2. Write the Strategy Code in MyStrategy.sol
+2. Write the Strategy Code in StrategyConvexStakingOptimizer.sol
 3. Customize the StrategyResolver in `/config/StrategyResolver.py` so that snapshot testing can verify that operations happened correctly
 4. Write any extra test to confirm that the strategy is working properly
 
@@ -84,14 +84,14 @@ Set these up in `/config/__init__.py` this mix will automatically be set up for 
 
 ## Implementing Strategy Logic
 
-[`contracts/MyStrategy.sol`](contracts/MyStrategy.sol) is where you implement your own logic for your strategy. In particular:
+[`contracts/StrategyConvexStakingOptimizer.sol`](contracts/StrategyConvexStakingOptimizer.sol) is where you implement your own logic for your strategy. In particular:
 
 - Customize the `initialize` Method
-- Set a name in `MyStrategy.getName()`
-- Set a version in `MyStrategy.version()`
-- Write a way to calculate the want invested in `MyStrategy.balanceOfPool()`
-- Write a method that returns true if the Strategy should be tended in `MyStrategy.isTendable()`
-- Set a version in `MyStrategy.version()`
+- Set a name in `StrategyConvexStakingOptimizer.getName()`
+- Set a version in `StrategyConvexStakingOptimizer.version()`
+- Write a way to calculate the want invested in `StrategyConvexStakingOptimizer.balanceOfPool()`
+- Write a method that returns true if the Strategy should be tended in `StrategyConvexStakingOptimizer.isTendable()`
+- Set a version in `StrategyConvexStakingOptimizer.version()`
 - Invest your want tokens via `Strategy._deposit()`.
 - Take profits and repay debt via `Strategy.harvest()`.
 - Unwind enough of your position to payback withdrawals via `Strategy._withdrawSome()`.
