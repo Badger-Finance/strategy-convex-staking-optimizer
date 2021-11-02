@@ -118,10 +118,10 @@ class StrategyResolver(StrategyCoreResolver):
         super().confirm_harvest(before, after, tx)
 
         # Strategy want should increase
-        assert after.get("strategy.balanceOf") >= before.get("strategy.balanceOf")
+        assert after.get("strategy.balanceOf") > before.get("strategy.balanceOf")
 
         # PPFS should not decrease
-        assert after.get("sett.pricePerFullShare") >= before.get(
+        assert after.get("sett.pricePerFullShare") > before.get(
             "sett.pricePerFullShare"
         )
 
@@ -132,7 +132,7 @@ class StrategyResolver(StrategyCoreResolver):
             "cvx", "cvxRewardsPool"
         )
 
-        assert cvx_helper_vault_delta >= cvx_pool_delta * 0.8
+        assert cvx_helper_vault_delta > cvx_pool_delta * 0.8
 
         # 80% of collected cvxCrv is deposited on helper vaults
         cvx_crv_helper_vault_delta = after.balances(
@@ -143,7 +143,7 @@ class StrategyResolver(StrategyCoreResolver):
         ) - before.balances("cvxCrv", "cvxCrvRewardsPool")
 
         ## We earned at least 80% of the delta (because we get some extra stuff)
-        assert cvx_crv_helper_vault_delta >= cvx_crv_pool_delta * 0.8
+        assert cvx_crv_helper_vault_delta > cvx_crv_pool_delta * 0.8
 
         # Check that helper vault shares were distributed correctly:
         cvxHelperVault = SettV4.at(convex_registry.cvxHelperVault)
@@ -161,7 +161,7 @@ class StrategyResolver(StrategyCoreResolver):
         tree_balance_delta = after.balances("bCvx", "badgerTree") - before.balances(
             "bCvx", "badgerTree"
         )
-        assert actual_tree_rewards >= tree_balance_delta
+        assert actual_tree_rewards > tree_balance_delta
 
         # 20% of cvxHelperVault shares were distributed through the tree
         actual_governance_rewards = (
@@ -176,7 +176,7 @@ class StrategyResolver(StrategyCoreResolver):
             "bCvx", "governanceRewards"
         ) - before.balances("bCvx", "governanceRewards")
 
-        assert actual_governance_rewards >= governance_rewards_delta
+        assert actual_governance_rewards > governance_rewards_delta
 
         # 80% of cvxCrvHelperVault shares were distributed through the tree
         actualy_cvx_crv_helper_tree = (
@@ -191,7 +191,7 @@ class StrategyResolver(StrategyCoreResolver):
             "bCvxCrv", "badgerTree"
         ) - before.balances("bCvxCrv", "badgerTree")
 
-        assert actualy_cvx_crv_helper_tree >= actual_tree_cvx_crv_delta
+        assert actualy_cvx_crv_helper_tree > actual_tree_cvx_crv_delta
 
         # 20% of cvxCrvHelperVault shares were distributed through the tree
         estimated_governance_cvx_crv = (
@@ -206,7 +206,7 @@ class StrategyResolver(StrategyCoreResolver):
         actual_governance_change = after.balances(
             "bCvxCrv", "governanceRewards"
         ) - before.balances("bCvxCrv", "governanceRewards")
-        assert estimated_governance_cvx_crv >= actual_governance_change
+        assert estimated_governance_cvx_crv > actual_governance_change
 
     def confirm_tend(self, before, after, tx):
         self.confirm_tend_events(before, after, tx)
