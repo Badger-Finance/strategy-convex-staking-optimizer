@@ -12,6 +12,8 @@ from config import (
 from dotmap import DotMap
 import pytest
 from rich.console import Console
+import time
+from helpers.time import days
 
 console = Console()
 
@@ -94,6 +96,13 @@ def deploy(sett_config):
 
     cvxHelperVault.approveContractAccess(strategy.address, {"from": cvxHelperGov})
     cvxCrvHelperVault.approveContractAccess(strategy.address, {"from": cvxCrvHelperGov})
+
+    ## Reset rewards if they are set to expire within the next 4 days or are expired already
+    rewardsPool = interface.IBaseRewardsPool(strategy.baseRewardsPool())
+    if rewardsPool.periodFinish() - int(time.time()) < days(4):
+        booster = interface.IBooster(strategy.booster())
+        booster.earmarkRewards(sett_config.params.pid, {"from": deployer})
+        console.print("[green]BaseRewardsPool expired or expiring soon - it was reset![/green]")
 
     ## Set up tokens
     want = interface.IERC20(strategy.want())

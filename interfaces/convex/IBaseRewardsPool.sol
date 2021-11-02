@@ -34,4 +34,6 @@ interface IBaseRewardsPool {
     function earned(address _account) external view returns (uint256);
 
     function stakingToken() external view returns (address);
+
+    function periodFinish() external view returns (uint256);
 }
