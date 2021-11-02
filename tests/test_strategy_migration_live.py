@@ -6,9 +6,11 @@ from brownie import (
     Controller,
     accounts,
     interface,
+    chain
 )
 from config.badger_config import badger_config
 from rich.console import Console
+from helpers.SnapshotManager import SnapshotManager
 
 console = Console()
 
@@ -206,6 +208,13 @@ def test_migrate_staking_optimizer(
     assert vault.getPricePerFullShare() >= ppfs
 
     console.print(f"[green]Strategy migrated successfully![/green]")
+    
+    chain.sleep(1000)
+    chain.mine()
+
+    snap = SnapshotManager(vault, strategy, controller, "StrategySnapshot")
+    keeper = accounts.at(strategy.keeper(), force=True)
+    snap.settHarvest({"from": keeper}) ## Run an harvest cause you never know
 
 
 def migrate_strategy(strategy, newStrategy, controller, governance):
