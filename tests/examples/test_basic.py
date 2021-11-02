@@ -26,5 +26,5 @@ def test_deploy_settings(sett_id):
     assert strategy.governance() == BADGER_DEV_MULTISIG
 
     assert strategy.performanceFeeGovernance() == config.params.performanceFeeGovernance
-    assert strategy.performanceFeeStrategist() == config.params.performanceFeeGovernance
-    assert strategy.withdrawalFee() == config.params.performanceFeeGovernance
+    assert strategy.performanceFeeStrategist() == config.params.performanceFeeStrategist
+    assert strategy.withdrawalFee() == config.params.withdrawalFee
