@@ -10,6 +10,8 @@ console = Console()
 
 class StrategyResolver(StrategyCoreResolver):
 
+    ## TODO: Confirm Deposit / Earn and Withdraw so we verify balances move as expected
+
     # ===== override default =====
     def confirm_harvest_events(self, before, after, tx):
         key = "TreeDistribution"
