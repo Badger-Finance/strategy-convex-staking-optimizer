@@ -3,7 +3,6 @@ from dotmap import DotMap
 import json
 
 
-
 multicall = "0xeefba1e63905ef1d7acba5a8513c70307c1ce441"
 multisend = "0x8D29bE29923b68abfDD21e541b9374737B49cdAD"
 
@@ -151,7 +150,7 @@ whales = DotMap(
     ),
     pbtcCrv=DotMap(
         whale="0x5a87e9a0a765fe5a69fa6492d3c7838dc1511805",
-        token=curve_registry.pools.pbtcCrv.token
+        token=curve_registry.pools.pbtcCrv.token,
     ),
     obtcCrv=DotMap(
         whale="0xe5447efebb597267d6afe9c53e0aeaba7e617fa8",

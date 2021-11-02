@@ -72,7 +72,7 @@ def test_single_user_harvest_flow(
 
         snap.settTend({"from": strategyKeeper})
 
-    chain.sleep(5000) ## Mine a ton so we get interest
+    chain.sleep(5000)  ## Mine a ton so we get interest
     chain.mine()
 
     if tendable:

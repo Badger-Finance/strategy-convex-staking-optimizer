@@ -15,13 +15,13 @@ from helpers.utils import (
 
 
 def test_proper_fees(deployed):
-  """
+    """
     Per the settings, governance takes 20% perf fee
     And strategist 0
     Let's do a check on the events to prove that's the case
-  """
+    """
 
-  ## TODO: Custom Test to check for proper funds distribution during harvest event
+    ## TODO: Custom Test to check for proper funds distribution during harvest event
 
 
 def test_are_you_trying(deployer, sett, strategy, want):
@@ -56,24 +56,27 @@ def test_are_you_trying(deployer, sett, strategy, want):
 
     harvest = strategy.harvest({"from": deployer})
 
-
     event = harvest.events["Harvest"]
     # If it doesn't print, we don't want it
     assert event["harvested"] > 0
-    
+
     ## Assert perFee for governance is exactly 20% // Round because huge numbers
     assert approx(
-      (harvest.events["PerformanceFeeGovernance"][1]["amount"] + harvest.events["TreeDistribution"]["amount"]) * 0.2,
-      harvest.events["PerformanceFeeGovernance"][1]["amount"],
-      1
+        (
+            harvest.events["PerformanceFeeGovernance"][1]["amount"]
+            + harvest.events["TreeDistribution"]["amount"]
+        )
+        * 0.2,
+        harvest.events["PerformanceFeeGovernance"][1]["amount"],
+        1,
     )
 
     ## Fail if PerformanceFeeStrategist is fired
     try:
-      harvest.events["PerformanceFeeStrategist"]
-      assert False
+        harvest.events["PerformanceFeeStrategist"]
+        assert False
     except:
-      assert True
-    
+        assert True
+
     ## The fee is in bveCVX
     assert harvest.events["PerformanceFeeGovernance"][1]["token"] == strategy.bveCVX()

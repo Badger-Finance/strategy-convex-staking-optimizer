@@ -21,6 +21,7 @@ import pytest
 def isolation(fn_isolation):
     pass
 
+
 @pytest.fixture
 def deployed():
     """
@@ -73,12 +74,8 @@ def deployed():
     cvxHelperGov = accounts.at(cvxHelperVault.governance(), force=True)
     cvxCrvHelperGov = accounts.at(cvxCrvHelperVault.governance(), force=True)
 
-    cvxHelperVault.approveContractAccess(
-        strategy.address, {"from": cvxHelperGov}
-    )
-    cvxCrvHelperVault.approveContractAccess(
-        strategy.address, {"from": cvxCrvHelperGov}
-    )
+    cvxHelperVault.approveContractAccess(strategy.address, {"from": cvxHelperGov})
+    cvxCrvHelperVault.approveContractAccess(strategy.address, {"from": cvxCrvHelperGov})
 
     ## Set up tokens
     want = interface.IERC20(WANT)
@@ -89,8 +86,12 @@ def deployed():
     controller.setStrategy(WANT, strategy, {"from": deployer})
 
     # Transfer test assets to deployer
-    whale = accounts.at("0x647481c033A4A2E816175cE115a0804adf793891", force=True) # RenCRV whale
-    want.transfer(deployer.address, want.balanceOf(whale.address), {"from": whale}) # Transfer 80% of whale's want balance
+    whale = accounts.at(
+        "0x647481c033A4A2E816175cE115a0804adf793891", force=True
+    )  # RenCRV whale
+    want.transfer(
+        deployer.address, want.balanceOf(whale.address), {"from": whale}
+    )  # Transfer 80% of whale's want balance
 
     assert want.balanceOf(deployer.address) > 0
 
@@ -161,5 +162,3 @@ def settKeeper(vault):
 @pytest.fixture
 def strategyKeeper(strategy):
     return accounts.at(strategy.keeper(), force=True)
-
-

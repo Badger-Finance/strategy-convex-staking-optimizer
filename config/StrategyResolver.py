@@ -13,15 +13,11 @@ class StrategyResolver(StrategyCoreResolver):
     ## TODO: Confirm Deposit / Earn and Withdraw so we verify balances move as expected
     def hook_after_confirm_withdraw(before, after, params):
         ## Want goes away from the booster
-        assert after.balances(
-            "want", "booster"
-        )  < before.balances("want", "booster")
-    
+        assert after.balances("want", "booster") < before.balances("want", "booster")
+
     def hook_after_earn(self, before, after, params):
         ## Want goes into booster
-        assert after.balances(
-            "want", "booster"
-        )  > before.balances("want", "booster")
+        assert after.balances("want", "booster") > before.balances("want", "booster")
 
     # ===== override default =====
     def confirm_harvest_events(self, before, after, tx):
@@ -166,14 +162,14 @@ class StrategyResolver(StrategyCoreResolver):
         )
 
         ## bveCVX is sent to Governance, just check balanceIncresed
-        assert after.balances(
+        assert after.balances("bveCVX", "governanceRewards") > before.balances(
             "bveCVX", "governanceRewards"
-        ) > before.balances("bveCVX", "governanceRewards")
-        
+        )
+
         ## Strategist Perf fee is set to 0, no funds have moved
-        assert after.balances(
+        assert after.balances("bveCVX", "strategist") == before.balances(
             "bveCVX", "strategist"
-        )  == before.balances("bveCVX", "strategist")
+        )
 
         # 80% of cvxCrvHelperVault shares were distributed through the tree
         actualy_cvx_crv_helper_tree = (
