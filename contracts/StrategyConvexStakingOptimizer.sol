@@ -512,9 +512,9 @@ contract StrategyConvexStakingOptimizer is BaseStrategy, CurveSwapper, UniswapSw
 
         if (harvestData.cvxHarvsted > 0) {
             uint256 cvxToDistribute = cvxToken.balanceOf(address(this));
-
+            uint256 minbveCVXOut = cvxToDistribute.mul(MAX_FEE.sub(crvCvxCrvSlippageToleranceBps)).div(MAX_FEE);
             // Get the bveCVX here
-            _exchange(address(cvxToken), address(bveCVX), cvxToDistribute, 0, 0, true);
+            _exchange(address(cvxToken), address(bveCVX), cvxToDistribute, minbveCVXOut, 0, true);
 
             uint256 bveCVXAmount = bveCVX.balanceOf(address(this));
 
