@@ -1,5 +1,5 @@
 import brownie
-from brownie import *
+from brownie import MockToken, accounts, chain, Wei
 from helpers.constants import MaxUint256
 from helpers.SnapshotManager import SnapshotManager
 from helpers.time import days
@@ -21,7 +21,7 @@ def test_deposit_withdraw_single_user_flow(sett_id):
     want = deployed.want
     strategy = deployed.strategy
     controller = deployed.controller
-    settKeeper = sett.keeper()
+    settKeeper = accounts.at(sett.keeper(), force=True)
 
     snap = SnapshotManager(sett, strategy, controller, "StrategySnapshot")
     randomUser = accounts[6]
@@ -69,8 +69,8 @@ def test_single_user_harvest_flow(sett_id):
     want = deployed.want
     strategy = deployed.strategy
     controller = deployed.controller
-    settKeeper = sett.keeper()
-    strategyKeeper = strategy.keeper()
+    settKeeper = accounts.at(sett.keeper(), force=True)
+    strategyKeeper = accounts.at(strategy.keeper(), force=True)
 
     snap = SnapshotManager(sett, strategy, controller, "StrategySnapshot")
     randomUser = accounts[6]
