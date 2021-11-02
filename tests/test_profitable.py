@@ -2,14 +2,21 @@ import brownie
 from brownie import *
 from helpers.constants import MaxUint256
 from helpers.SnapshotManager import SnapshotManager
-from config import DEFAULT_WITHDRAWAL_FEE
+from config.badger_config import sett_config
+import pytest
+from conftest import deploy
 
 MAX_BASIS = 10000
 
+@pytest.mark.parametrize(
+    "sett_id",
+    sett_config.native,
+)
+def test_is_profitable(sett_id):
+    deployed = deploy(sett_config.native[sett_id])
 
-def test_is_profitable(deployed):
     deployer = deployed.deployer
-    vault = deployed.vault
+    sett = deployed.sett
     controller = deployed.controller
     strategy = deployed.strategy
     want = deployed.want
@@ -17,9 +24,9 @@ def test_is_profitable(deployed):
 
     initial_balance = want.balanceOf(deployer)
 
-    settKeeper = accounts.at(vault.keeper(), force=True)
+    settKeeper = accounts.at(sett.keeper(), force=True)
 
-    snap = SnapshotManager(vault, strategy, controller, "StrategySnapshot")
+    snap = SnapshotManager(sett, strategy, controller, "StrategySnapshot")
 
     # Deposit
     assert want.balanceOf(deployer) > 0
@@ -27,16 +34,16 @@ def test_is_profitable(deployed):
     depositAmount = int(want.balanceOf(deployer) * 0.8)
     assert depositAmount > 0
 
-    want.approve(vault.address, MaxUint256, {"from": deployer})
+    want.approve(sett.address, MaxUint256, {"from": deployer})
 
     snap.settDeposit(depositAmount, {"from": deployer})
 
     # Earn
     with brownie.reverts("onlyAuthorizedActors"):
-        vault.earn({"from": randomUser})
+        sett.earn({"from": randomUser})
 
-    min = vault.min()
-    max = vault.max()
+    min = sett.min()
+    max = sett.max()
     remain = max - min
 
     snap.settEarn({"from": settKeeper})
@@ -49,7 +56,7 @@ def test_is_profitable(deployed):
     ending_balance = want.balanceOf(deployer)
 
     initial_balance_with_fees = initial_balance * (
-        1 - (DEFAULT_WITHDRAWAL_FEE / MAX_BASIS)
+        1 - (strategy.withdrawalFee() / MAX_BASIS)
     )
 
     print("Initial Balance")
