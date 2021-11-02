@@ -1,17 +1,30 @@
 from brownie import *
 from helpers.constants import MaxUint256
+from config.badger_config import sett_config
+import pytest
+from conftest import deploy
 
-
-def test_are_you_trying(deployer, sett, strategy, want):
+@pytest.mark.parametrize(
+    "sett_id",
+    sett_config.native,
+)
+def test_are_you_trying(sett_id):
     """
     Verifies that you set up the Strategy properly
     """
     # Setup
+    deployed = deploy(sett_config.native[sett_id])
+
+    deployer = deployed.deployer
+    sett = deployed.sett
+    want = deployed.want
+    strategy = deployed.strategy
+
     startingBalance = want.balanceOf(deployer)
 
     depositAmount = startingBalance // 2
     assert startingBalance >= depositAmount
-    assert startingBalance >= 0
+    assert startingBalance > 0
     # End Setup
 
     # Deposit

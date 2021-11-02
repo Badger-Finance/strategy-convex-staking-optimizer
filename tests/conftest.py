@@ -7,14 +7,13 @@ from brownie import (
 )
 from config import (
     BADGER_DEV_MULTISIG,
-    CURVE_POOL_CONFIG,
-    PID,
-    WANT,
-    FEES,
-    WANT_CONFIG,
+    BADGER_TREE,
 )
 from dotmap import DotMap
 import pytest
+from rich.console import Console
+
+console = Console()
 
 
 @pytest.fixture(autouse=True)
@@ -22,8 +21,7 @@ def isolation(fn_isolation):
     pass
 
 
-@pytest.fixture
-def deployed():
+def deploy(sett_config):
     """
     Deploys, vault, controller and strats and wires them up for you to test
     """
@@ -38,9 +36,9 @@ def deployed():
     controller = Controller.deploy({"from": deployer})
     controller.initialize(BADGER_DEV_MULTISIG, strategist, keeper, BADGER_DEV_MULTISIG)
 
-    sett = SettV4.deploy({"from": deployer})
-    sett.initialize(
-        WANT,
+    # Get Sett arguments:
+    args = [
+        sett_config.params.want,
         controller,
         BADGER_DEV_MULTISIG,
         keeper,
@@ -48,24 +46,44 @@ def deployed():
         False,
         "prefix",
         "PREFIX",
-    )
+    ]
+
+    sett = SettV4.deploy({"from": deployer})
+    sett.initialize(*args)
 
     sett.unpause({"from": governance})
-    controller.setVault(WANT, sett)
+    controller.setVault(sett.token(), sett)
 
-    ## Start up Strategy
-    strategy = StrategyConvexStakingOptimizer.deploy({"from": deployer})
-    strategy.initialize(
-        governance,
+    # Get Strategy arguments:
+    args = [
+        BADGER_DEV_MULTISIG,
         strategist,
         controller,
         keeper,
         guardian,
-        WANT_CONFIG,
-        PID,
-        FEES,
-        CURVE_POOL_CONFIG,
-    )
+        [
+            sett_config.params.want,
+            BADGER_TREE,
+            sett_config.params.cvxHelperVault,
+            sett_config.params.cvxCrvHelperVault,
+        ],
+        sett_config.params.pid,
+        [
+            sett_config.params.performanceFeeGovernance,
+            sett_config.params.performanceFeeStrategist,
+            sett_config.params.withdrawalFee,
+        ],
+        (
+            sett_config.params.curvePool.swap,
+            sett_config.params.curvePool.wbtcPosition,
+            sett_config.params.curvePool.numElements,
+        ),
+    ]
+
+    ## Start up Strategy
+    strategy = StrategyConvexStakingOptimizer.deploy({"from": deployer})
+    strategy.initialize(*args)
+
 
     ## Grant contract access from strategy to Helper Vaults
     cvxHelperVault = SettV4.at(strategy.cvxHelperVault())
@@ -78,17 +96,17 @@ def deployed():
     cvxCrvHelperVault.approveContractAccess(strategy.address, {"from": cvxCrvHelperGov})
 
     ## Set up tokens
-    want = interface.IERC20(WANT)
+    want = interface.IERC20(strategy.want())
 
     ## Wire up Controller to Strart
     ## In testing will pass, but on live it will fail
-    controller.approveStrategy(WANT, strategy, {"from": governance})
-    controller.setStrategy(WANT, strategy, {"from": deployer})
+    controller.approveStrategy(want, strategy, {"from": governance})
+    controller.setStrategy(want, strategy, {"from": deployer})
 
     # Transfer test assets to deployer
     whale = accounts.at(
-        "0x647481c033A4A2E816175cE115a0804adf793891", force=True
-    )  # RenCRV whale
+        sett_config.whale, force=True
+    )
     want.transfer(
         deployer.address, want.balanceOf(whale.address), {"from": whale}
     )  # Transfer 80% of whale's want balance
@@ -98,67 +116,7 @@ def deployed():
     return DotMap(
         deployer=deployer,
         controller=controller,
-        vault=sett,
         sett=sett,
         strategy=strategy,
         want=want,
     )
-
-
-## Contracts ##
-
-
-@pytest.fixture
-def vault(deployed):
-    return deployed.vault
-
-
-@pytest.fixture
-def sett(deployed):
-    return deployed.sett
-
-
-@pytest.fixture
-def controller(deployed):
-    return deployed.controller
-
-
-@pytest.fixture
-def strategy(deployed):
-    return deployed.strategy
-
-
-## Tokens ##
-
-
-@pytest.fixture
-def want(deployed):
-    return deployed.want
-
-
-@pytest.fixture
-def tokens():
-    return [WANT]
-
-
-## Accounts ##
-
-
-@pytest.fixture
-def deployer(deployed):
-    return deployed.deployer
-
-
-@pytest.fixture
-def strategist(strategy):
-    return accounts.at(strategy.strategist(), force=True)
-
-
-@pytest.fixture
-def settKeeper(vault):
-    return accounts.at(vault.keeper(), force=True)
-
-
-@pytest.fixture
-def strategyKeeper(strategy):
-    return accounts.at(strategy.keeper(), force=True)

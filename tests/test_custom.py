@@ -6,6 +6,9 @@ from helpers.time import days
 from helpers.utils import (
     approx,
 )
+from config.badger_config import sett_config
+import pytest
+from conftest import deploy
 
 """
   TODO: Put your tests here to prove the strat is good!
@@ -13,22 +16,34 @@ from helpers.utils import (
   See test_strategy_permissions, for tests at the permissions level
 """
 
-
-def test_proper_fees(deployed):
+@pytest.mark.skip()
+def test_proper_fees():
     """
     Per the settings, governance takes 20% perf fee
     And strategist 0
     Let's do a check on the events to prove that's the case
     """
+    assert True
 
     ## TODO: Custom Test to check for proper funds distribution during harvest event
 
-
-def test_are_you_trying(deployer, sett, strategy, want):
+@pytest.mark.skip()
+@pytest.mark.parametrize(
+    "sett_id",
+    sett_config.native,
+)
+def test_are_you_trying(sett_id):
     """
     Verifies that you set up the Strategy properly
     """
     # Setup
+    deployed = deploy(sett_config.native[sett_id])
+
+    deployer = deployed.deployer
+    sett = deployed.sett
+    want = deployed.want
+    strategy = deployed.strategy
+
     startingBalance = want.balanceOf(deployer)
 
     depositAmount = startingBalance // 2
