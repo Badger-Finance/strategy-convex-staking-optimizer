@@ -134,7 +134,8 @@ def test_migrate_staking_optimizer(
     assert want == newStrategy.want()
 
     # Check that Slippage tolerance was set on init for new Strategy
-    assert newStrategy.crvCvxCrvSlippageToleranceBps() == 500
+    # Uncomment once new logic is deployed (variable name change)
+    # assert newStrategy.stableSwapSlippageTolerance() == 500
     assert newStrategy.crvCvxCrvPoolIndex() == 2
 
     # Check that strategy's constants remain the same
@@ -212,9 +213,20 @@ def test_migrate_staking_optimizer(
     chain.sleep(1000)
     chain.mine()
 
-    snap = SnapshotManager(vault, strategy, controller, "StrategySnapshot")
-    keeper = accounts.at(strategy.keeper(), force=True)
-    snap.settHarvest({"from": keeper}) ## Run an harvest cause you never know
+    # Uncomment once new strategies are deployed
+    # snap = SnapshotManager(vault, strategy, controller, "StrategySnapshot")
+    # keeper = accounts.at(strategy.keeper(), force=True)
+    # snap.settEarn({"from": keeper})
+
+    # chain.sleep(3600)
+    # chain.mine()
+
+    # snap.settTend({"from": keeper})
+
+    # chain.sleep(3600)
+    # chain.mine()
+
+    # snap.settHarvest({"from": keeper}) ## Run an harvest cause you never know
 
 
 def migrate_strategy(strategy, newStrategy, controller, governance):
