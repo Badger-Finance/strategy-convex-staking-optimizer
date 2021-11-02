@@ -62,7 +62,6 @@ To deploy the demo Badger Strategy in a development environment:
 
 Deployment will set up a Vault, Controller and deploy your strategy
 
-
 ## Adding Configuration
 
 To ship a valid strategy, that will be evaluated to deploy on mainnet, with potentially $100M + in TVL, you need to:

@@ -38,7 +38,13 @@ interface ISushiChef {
 
     function poolInfo(uint256 _pid) external view returns (PoolInfo memory);
 
-    function pendingSushi(uint256 _pid, address _user) external view returns (uint256);
+    function pendingSushi(uint256 _pid, address _user)
+        external
+        view
+        returns (uint256);
 
-    function userInfo(uint256 _pid, address _user) external view returns (uint256, uint256);
+    function userInfo(uint256 _pid, address _user)
+        external
+        view
+        returns (uint256, uint256);
 }
