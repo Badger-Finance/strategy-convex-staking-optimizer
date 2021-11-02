@@ -13,11 +13,15 @@ class StrategyResolver(StrategyCoreResolver):
     ## TODO: Confirm Deposit / Earn and Withdraw so we verify balances move as expected
     def hook_after_confirm_withdraw(self, before, after, params):
         ## Want goes away from the booster as wrapped convexLpToken
-        assert after.balances("convexLpToken", "baseRewardsPool") < before.balances("convexLpToken", "baseRewardsPool")
+        assert after.balances("convexLpToken", "baseRewardsPool") < before.balances(
+            "convexLpToken", "baseRewardsPool"
+        )
 
     def hook_after_earn(self, before, after, params):
         ## Want goes into booster, as wrapped convexLpToken
-        assert after.balances("convexLpToken", "baseRewardsPool") > before.balances("convexLpToken", "baseRewardsPool")
+        assert after.balances("convexLpToken", "baseRewardsPool") > before.balances(
+            "convexLpToken", "baseRewardsPool"
+        )
 
     # ===== override default =====
     def confirm_harvest_events(self, before, after, tx):
@@ -268,7 +272,9 @@ class StrategyResolver(StrategyCoreResolver):
         ## So we can get the lpToken associated
         convexLpToken = interface.IERC20(booster.poolInfo(strategy.pid())["token"])
 
-        calls = self.add_entity_balances_for_tokens(calls, "convexLpToken", convexLpToken, entities)
+        calls = self.add_entity_balances_for_tokens(
+            calls, "convexLpToken", convexLpToken, entities
+        )
         calls = self.add_entity_balances_for_tokens(calls, "crv", crv, entities)
         calls = self.add_entity_balances_for_tokens(calls, "cvx", cvx, entities)
         calls = self.add_entity_balances_for_tokens(calls, "3Crv", _3Crv, entities)
