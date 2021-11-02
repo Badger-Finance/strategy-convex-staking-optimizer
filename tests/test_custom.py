@@ -16,7 +16,6 @@ from conftest import deploy
   See test_strategy_permissions, for tests at the permissions level
 """
 
-@pytest.mark.skip()
 def test_proper_fees():
     """
     Per the settings, governance takes 20% perf fee
@@ -27,7 +26,6 @@ def test_proper_fees():
 
     ## TODO: Custom Test to check for proper funds distribution during harvest event
 
-@pytest.mark.skip()
 @pytest.mark.parametrize(
     "sett_id",
     sett_config.native,
