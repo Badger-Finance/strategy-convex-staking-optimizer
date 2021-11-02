@@ -140,13 +140,6 @@ contract StrategyConvexStakingOptimizer is
     - tendConvertTo: On tend, convert some of this token into another asset. By default with value as address(0), skip this step.
     - tendConvertBps: Convert this portion of balance into another asset.
      */
-    struct RewardTokenConfig {
-        uint256 autoCompoundingBps;
-        uint256 autoCompoundingPerfFee;
-        uint256 treeDistributionPerfFee;
-        address tendConvertTo;
-        uint256 tendConvertBps;
-    }
 
     struct CurvePoolConfig {
         address swap;
@@ -154,8 +147,6 @@ contract StrategyConvexStakingOptimizer is
         uint256 numElements;
     }
 
-    EnumerableSetUpgradeable.AddressSet internal extraRewards; // Tokens other than CVX and cvxCRV to process as rewards
-    mapping(address => RewardTokenConfig) public rewardsTokenConfig;
     CurvePoolConfig public curvePool;
 
     uint256 public autoCompoundingBps;
