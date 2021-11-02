@@ -11,13 +11,13 @@ console = Console()
 class StrategyResolver(StrategyCoreResolver):
 
     ## TODO: Confirm Deposit / Earn and Withdraw so we verify balances move as expected
-    def hook_after_confirm_withdraw(before, after, params):
-        ## Want goes away from the booster
-        assert after.balances("want", "booster") < before.balances("want", "booster")
+    def hook_after_confirm_withdraw(self, before, after, params):
+        ## Want goes away from the booster as wrapped convexLpToken
+        assert after.balances("convexLpToken", "baseRewardsPool") < before.balances("convexLpToken", "baseRewardsPool")
 
     def hook_after_earn(self, before, after, params):
-        ## Want goes into booster
-        assert after.balances("want", "booster") > before.balances("want", "booster")
+        ## Want goes into booster, as wrapped convexLpToken
+        assert after.balances("convexLpToken", "baseRewardsPool") > before.balances("convexLpToken", "baseRewardsPool")
 
     # ===== override default =====
     def confirm_harvest_events(self, before, after, tx):
@@ -238,7 +238,6 @@ class StrategyResolver(StrategyCoreResolver):
 
     def add_entity_balances_for_tokens(self, calls, tokenKey, token, entities):
         entities["badgerTree"] = self.manager.strategy.badgerTree()
-        entities["booster"] = self.manager.strategy.booster()
         entities["strategy"] = self.manager.strategy.address
         entities["cvxCrvRewardsPool"] = self.manager.strategy.cvxCrvRewardsPool()
         entities["cvxRewardsPool"] = self.manager.strategy.cvxRewardsPool()
@@ -264,6 +263,12 @@ class StrategyResolver(StrategyCoreResolver):
         bveCVX = interface.IERC20(strategy.bveCVX())
         bCvxCrv = interface.IERC20(convex_registry.cvxCrvHelperVault)
 
+        ## Get the booster for this strat
+        booster = interface.IBooster(strategy.booster())
+        ## So we can get the lpToken associated
+        convexLpToken = interface.IERC20(booster.poolInfo(strategy.pid())["token"])
+
+        calls = self.add_entity_balances_for_tokens(calls, "convexLpToken", convexLpToken, entities)
         calls = self.add_entity_balances_for_tokens(calls, "crv", crv, entities)
         calls = self.add_entity_balances_for_tokens(calls, "cvx", cvx, entities)
         calls = self.add_entity_balances_for_tokens(calls, "3Crv", _3Crv, entities)
