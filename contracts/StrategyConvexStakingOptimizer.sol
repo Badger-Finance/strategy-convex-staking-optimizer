@@ -152,7 +152,7 @@ contract StrategyConvexStakingOptimizer is
     uint256 public autoCompoundingBps;
     uint256 public autoCompoundingPerformanceFeeGovernance;
 
-    uint256 public crvCvxCrvSlippageToleranceBps;
+    uint256 public stableSwapSlippageTolerence;
     uint256 public constant crvCvxCrvPoolIndex = 2;
 
     event TreeDistribution(
@@ -267,7 +267,7 @@ contract StrategyConvexStakingOptimizer is
         autoCompoundingBps = 2000;
         autoCompoundingPerformanceFeeGovernance = 5000;
 
-        crvCvxCrvSlippageToleranceBps = 500;
+        stableSwapSlippageTolerence = 500;
     }
 
     /// ===== Permissioned Functions =====
@@ -296,9 +296,9 @@ contract StrategyConvexStakingOptimizer is
         curvePool.swap = _swap;
     }
 
-    function setCrvCvxCrvSlippageToleranceBps(uint256 _sl) external {
+    function setStableSwapSlippageTolerence(uint256 _sl) external {
         _onlyGovernance();
-        crvCvxCrvSlippageToleranceBps = _sl;
+        stableSwapSlippageTolerence = _sl;
     }
 
     function _initializeApprovals() internal {
@@ -413,7 +413,7 @@ contract StrategyConvexStakingOptimizer is
             uint256 minCvxCrvOut =
                 tendData
                     .crvTended
-                    .mul(MAX_FEE.sub(crvCvxCrvSlippageToleranceBps))
+                    .mul(MAX_FEE.sub(stableSwapSlippageTolerence))
                     .div(MAX_FEE);
             _exchange(
                 crv,
@@ -504,7 +504,7 @@ contract StrategyConvexStakingOptimizer is
                 uint256 cvxCrvToSell = crvToSell.sub(crvBalance);
                 uint256 minCrvOut =
                     cvxCrvToSell
-                        .mul(MAX_FEE.sub(crvCvxCrvSlippageToleranceBps))
+                        .mul(MAX_FEE.sub(stableSwapSlippageTolerence))
                         .div(MAX_FEE);
                 _exchange(
                     cvxCrv,
@@ -528,7 +528,7 @@ contract StrategyConvexStakingOptimizer is
         uint256 crvBalance = crvToken.balanceOf(address(this));
         if (crvBalance > 0) {
             uint256 minCvxCrvOut =
-                crvBalance.mul(MAX_FEE.sub(crvCvxCrvSlippageToleranceBps)).div(
+                crvBalance.mul(MAX_FEE.sub(stableSwapSlippageTolerence)).div(
                     MAX_FEE
                 );
             _exchange(
@@ -658,7 +658,7 @@ contract StrategyConvexStakingOptimizer is
             uint256 cvxToDistribute = cvxToken.balanceOf(address(this));
             uint256 minbveCVXOut =
                 cvxToDistribute
-                    .mul(MAX_FEE.sub(crvCvxCrvSlippageToleranceBps))
+                    .mul(MAX_FEE.sub(stableSwapSlippageTolerence))
                     .div(MAX_FEE);
             // Get the bveCVX here
             _exchange(
