@@ -11,6 +11,17 @@ console = Console()
 class StrategyResolver(StrategyCoreResolver):
 
     ## TODO: Confirm Deposit / Earn and Withdraw so we verify balances move as expected
+    def hook_after_confirm_withdraw(before, after, params):
+        ## Want goes away from the booster
+        assert after.balances(
+            "want", "booster"
+        )  < before.balances("want", "booster")
+    
+    def hook_after_earn(self, before, after, params):
+        ## Want goes into booster
+        assert after.balances(
+            "want", "booster"
+        )  > before.balances("want", "booster")
 
     # ===== override default =====
     def confirm_harvest_events(self, before, after, tx):
@@ -231,6 +242,7 @@ class StrategyResolver(StrategyCoreResolver):
 
     def add_entity_balances_for_tokens(self, calls, tokenKey, token, entities):
         entities["badgerTree"] = self.manager.strategy.badgerTree()
+        entities["booster"] = self.manager.strategy.booster()
         entities["strategy"] = self.manager.strategy.address
         entities["cvxCrvRewardsPool"] = self.manager.strategy.cvxCrvRewardsPool()
         entities["cvxRewardsPool"] = self.manager.strategy.cvxRewardsPool()
