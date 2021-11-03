@@ -22,7 +22,8 @@ contract CurveSwapper is BaseSwapper {
     using AddressUpgradeable for address;
     using SafeMathUpgradeable for uint256;
 
-    address public constant addressProvider = 0x0000000022D53366457F9d5E68Ec105046FC4383;
+    address public constant addressProvider =
+        0x0000000022D53366457F9d5E68Ec105046FC4383;
 
     uint256 public constant registryId = 0;
     uint256 public constant metaPoolFactoryId = 3;
@@ -35,12 +36,25 @@ contract CurveSwapper is BaseSwapper {
         uint256 _index,
         bool _isFactoryPool
     ) internal {
-        address poolRegistry = ICurveRegistryAddressProvider(addressProvider).get_address(_isFactoryPool ? metaPoolFactoryId : registryId);
-        address poolAddress = ICurveRegistry(poolRegistry).find_pool_for_coins(_from, _to, _index);
+        address poolRegistry =
+            ICurveRegistryAddressProvider(addressProvider).get_address(
+                _isFactoryPool ? metaPoolFactoryId : registryId
+            );
+        address poolAddress =
+            ICurveRegistry(poolRegistry).find_pool_for_coins(
+                _from,
+                _to,
+                _index
+            );
 
         if (poolAddress != address(0)) {
             _safeApproveHelper(_from, poolAddress, _dx);
-            (int128 i, int128 j, ) = ICurveRegistry(poolRegistry).get_coin_indices(poolAddress, _from, _to);
+            (int128 i, int128 j, ) =
+                ICurveRegistry(poolRegistry).get_coin_indices(
+                    poolAddress,
+                    _from,
+                    _to
+                );
             ICurveFi(poolAddress).exchange(i, j, _dx, _min_dy);
         }
     }

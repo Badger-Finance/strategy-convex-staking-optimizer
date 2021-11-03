@@ -6,9 +6,11 @@ from brownie import (
     Controller,
     accounts,
     interface,
+    chain
 )
 from config.badger_config import badger_config
 from rich.console import Console
+from helpers.SnapshotManager import SnapshotManager
 
 console = Console()
 
@@ -23,7 +25,7 @@ STRAT_KEYS = [
     "native.tricrypto2",
 ]
 
-HELPER_STRATS = ["native.cvx","native.cvxCrv"]
+HELPER_STRATS = ["native.cvx", "native.cvxCrv"]
 
 NEW_STRATEGIES = {
     "native.renCrv": "0xe66dB6Eb807e6DAE8BD48793E9ad0140a2DEE22A",
@@ -36,42 +38,52 @@ NEW_STRATEGIES = {
     "native.tricrypto2": "0xf3202Aa2783F3DEE24a35853C6471db065B05D37",
 }
 
+
 @pytest.fixture()
 def badger_deploy():
     with open(badger_config.prod_json) as f:
         return json.load(f)
 
+
 @pytest.fixture()
 def deployer(badger_deploy):
     return accounts.at(badger_deploy["deployer"], force=True)
+
 
 @pytest.fixture()
 def guardian(badger_deploy):
     return accounts.at(badger_deploy["guardian"], force=True)
 
+
 @pytest.fixture()
 def keeper(badger_deploy):
     return accounts.at(badger_deploy["keeper"], force=True)
+
 
 @pytest.fixture()
 def governance_multi(badger_deploy):
     return accounts.at(badger_deploy["devMultisig"], force=True)
 
+
 @pytest.fixture()
 def timelock(badger_deploy):
     return accounts.at(badger_deploy["timelock"], force=True)
+
 
 @pytest.fixture()
 def exp_controller(badger_deploy):
     return Controller.at(badger_deploy["sett_system"]["controllers"]["experimental"])
 
+
 @pytest.fixture()
 def native_controller(badger_deploy):
     return Controller.at(badger_deploy["sett_system"]["controllers"]["native"])
 
+
 @pytest.fixture()
 def strategies(badger_deploy):
     return badger_deploy["sett_system"]["strategies"]
+
 
 @pytest.fixture()
 def vaults(badger_deploy):
@@ -89,7 +101,7 @@ def test_migrate_staking_optimizer(
     native_controller,
     strategies,
     vaults,
-    ):
+):
 
     # Different Setts use different controllers:
     if strategy_key in ["native.renCrv", "native.sbtcCrv", "native.tbtcCrv"]:
@@ -122,7 +134,8 @@ def test_migrate_staking_optimizer(
     assert want == newStrategy.want()
 
     # Check that Slippage tolerance was set on init for new Strategy
-    assert newStrategy.crvCvxCrvSlippageToleranceBps() == 500
+    # Uncomment once new logic is deployed (variable name change)
+    # assert newStrategy.stableSwapSlippageTolerance() == 500
     assert newStrategy.crvCvxCrvPoolIndex() == 2
 
     # Check that strategy's constants remain the same
@@ -143,14 +156,20 @@ def test_migrate_staking_optimizer(
 
     # Check that strategy's parameters remain the same
     assert newStrategy.want() == strategy.want()
-    assert newStrategy.strategist() == "0x86cbD0ce0c087b482782c181dA8d191De18C8275" # Tech Ops Multisig
-    assert newStrategy.keeper() == "0x711A339c002386f9db409cA55b6A35a604aB6cF6" # Keeper ACL
-    assert newStrategy.guardian() == "0x6615e67b8B6b6375D38A0A3f937cd8c1a1e96386" # WarRoom ACL
+    assert (
+        newStrategy.strategist() == "0x86cbD0ce0c087b482782c181dA8d191De18C8275"
+    )  # Tech Ops Multisig
+    assert (
+        newStrategy.keeper() == "0x711A339c002386f9db409cA55b6A35a604aB6cF6"
+    )  # Keeper ACL
+    assert (
+        newStrategy.guardian() == "0x6615e67b8B6b6375D38A0A3f937cd8c1a1e96386"
+    )  # WarRoom ACL
 
     assert newStrategy.performanceFeeGovernance() == strategy.performanceFeeGovernance()
     assert newStrategy.performanceFeeStrategist() == strategy.performanceFeeStrategist()
     assert newStrategy.withdrawalFee() == strategy.withdrawalFee()
-    console.print('\n', f"[green]Fees Match![/green]")
+    console.print("\n", f"[green]Fees Match![/green]")
     console.print(f"GovPerformance: {strategy.performanceFeeGovernance()}")
     console.print(f"StrategistPerformance: {strategy.performanceFeeStrategist()}")
     console.print(f"Withdrawal: {strategy.withdrawalFee()}")
@@ -163,10 +182,7 @@ def test_migrate_staking_optimizer(
     initialSettBalance = vault.balance()
     assert initialSettBalance > 0
     # Balance of vault equals to the Sett's balance minus strategy balance
-    assert (
-        want.balanceOf(vault.address)
-        == initialSettBalance - strategy.balanceOf()
-    )
+    assert want.balanceOf(vault.address) == initialSettBalance - strategy.balanceOf()
     # PPFS before migration
     ppfs = vault.getPricePerFullShare()
 
@@ -193,21 +209,34 @@ def test_migrate_staking_optimizer(
     assert vault.getPricePerFullShare() >= ppfs
 
     console.print(f"[green]Strategy migrated successfully![/green]")
+    
+    chain.sleep(1000)
+    chain.mine()
+
+    # Uncomment once new strategies are deployed
+    # snap = SnapshotManager(vault, strategy, controller, "StrategySnapshot")
+    # keeper = accounts.at(strategy.keeper(), force=True)
+    # snap.settEarn({"from": keeper})
+
+    # chain.sleep(3600)
+    # chain.mine()
+
+    # snap.settTend({"from": keeper})
+
+    # chain.sleep(3600)
+    # chain.mine()
+
+    # snap.settHarvest({"from": keeper}) ## Run an harvest cause you never know
 
 
-def migrate_strategy(
-    strategy,
-    newStrategy,
-    controller,
-    governance
-):
+def migrate_strategy(strategy, newStrategy, controller, governance):
     console.print(f"[blue]Migrating strategy[/blue]")
     # Approve new strategy for want on Controller
-    controller.approveStrategy(strategy.want(), newStrategy.address, {"from": governance})
+    controller.approveStrategy(
+        strategy.want(), newStrategy.address, {"from": governance}
+    )
     assert controller.approvedStrategies(strategy.want(), newStrategy.address)
 
     # Set new strategy for want on Controller
     controller.setStrategy(strategy.want(), newStrategy.address, {"from": governance})
     assert controller.strategies(strategy.want()) == newStrategy.address
-
-

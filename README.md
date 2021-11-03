@@ -27,7 +27,7 @@ This mix is configured for use with [Ganache](https://github.com/trufflesuite/ga
 
 4. Copy the `.env.example` file, and rename it to `.env`
 
-5. Sign up for [Infura](https://infura.io/) and generate an API key. Store it in the `WEB3_INFURA_PROJECT_ID` environment variable.
+5. Sign up for [Alchemy](https://www.alchemy.com/) and generate an API key. Store it in the `ALCHEMYAPI_TOKEN` environment variable.
 
 6. Sign up for [Etherscan](www.etherscan.io) and generate an API key. This is required for fetching source codes of the mainnet contracts we will be interacting with. Store the API key in the `ETHERSCAN_TOKEN` environment variable.
 
@@ -61,7 +61,6 @@ To deploy the demo Badger Strategy in a development environment:
 ```
 
 Deployment will set up a Vault, Controller and deploy your strategy
-
 
 ## Adding Configuration
 

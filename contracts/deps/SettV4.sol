@@ -39,7 +39,11 @@ import "interfaces/yearn/BadgerGuestlistApi.sol";
     * Add depositFor() to deposit on the half of other users. That user will then be blockLocked.
 */
 
-contract SettV4 is ERC20Upgradeable, SettAccessControlDefended, PausableUpgradeable {
+contract SettV4 is
+    ERC20Upgradeable,
+    SettAccessControlDefended,
+    PausableUpgradeable
+{
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using AddressUpgradeable for address;
     using SafeMathUpgradeable for uint256;
@@ -60,7 +64,11 @@ contract SettV4 is ERC20Upgradeable, SettAccessControlDefended, PausableUpgradea
 
     BadgerGuestListAPI public guestList;
 
-    event FullPricePerShareUpdated(uint256 value, uint256 indexed timestamp, uint256 indexed blockNumber);
+    event FullPricePerShareUpdated(
+        uint256 value,
+        uint256 indexed timestamp,
+        uint256 indexed blockNumber
+    );
 
     function initialize(
         address _token,
@@ -98,7 +106,11 @@ contract SettV4 is ERC20Upgradeable, SettAccessControlDefended, PausableUpgradea
 
         min = 9500;
 
-        emit FullPricePerShareUpdated(getPricePerFullShare(), now, block.number);
+        emit FullPricePerShareUpdated(
+            getPricePerFullShare(),
+            now,
+            block.number
+        );
 
         // Paused on launch
         _pause();
@@ -111,7 +123,10 @@ contract SettV4 is ERC20Upgradeable, SettAccessControlDefended, PausableUpgradea
     }
 
     function _onlyAuthorizedPausers() internal view {
-        require(msg.sender == guardian || msg.sender == governance, "onlyPausers");
+        require(
+            msg.sender == guardian || msg.sender == governance,
+            "onlyPausers"
+        );
     }
 
     function _blockLocked() internal view {
@@ -124,7 +139,7 @@ contract SettV4 is ERC20Upgradeable, SettAccessControlDefended, PausableUpgradea
         return "1.4";
     }
 
-    function getPricePerFullShare() public virtual view returns (uint256) {
+    function getPricePerFullShare() public view virtual returns (uint256) {
         if (totalSupply() == 0) {
             return 1e18;
         }
@@ -133,14 +148,17 @@ contract SettV4 is ERC20Upgradeable, SettAccessControlDefended, PausableUpgradea
 
     /// @notice Return the total balance of the underlying token within the system
     /// @notice Sums the balance in the Sett, the Controller, and the Strategy
-    function balance() public virtual view returns (uint256) {
-        return token.balanceOf(address(this)).add(IController(controller).balanceOf(address(token)));
+    function balance() public view virtual returns (uint256) {
+        return
+            token.balanceOf(address(this)).add(
+                IController(controller).balanceOf(address(token))
+            );
     }
 
     /// @notice Defines how much of the Setts' underlying can be borrowed by the Strategy for use
     /// @notice Custom logic in here for how much the vault allows to be borrowed
     /// @notice Sets minimum required on-hand to keep small withdrawals cheap
-    function available() public virtual view returns (uint256) {
+    function available() public view virtual returns (uint256) {
         return token.balanceOf(address(this)).mul(min).div(max);
     }
 
@@ -157,7 +175,10 @@ contract SettV4 is ERC20Upgradeable, SettAccessControlDefended, PausableUpgradea
     }
 
     /// @notice Deposit variant with proof for merkle guest list
-    function deposit(uint256 _amount, bytes32[] memory proof) public whenNotPaused {
+    function deposit(uint256 _amount, bytes32[] memory proof)
+        public
+        whenNotPaused
+    {
         _defend();
         _blockLocked();
 
@@ -172,7 +193,10 @@ contract SettV4 is ERC20Upgradeable, SettAccessControlDefended, PausableUpgradea
         _blockLocked();
 
         _lockForBlock(msg.sender);
-        _depositWithAuthorization(token.balanceOf(msg.sender), new bytes32[](0));
+        _depositWithAuthorization(
+            token.balanceOf(msg.sender),
+            new bytes32[](0)
+        );
     }
 
     /// @notice DepositAll variant with proof for merkle guest list
@@ -186,7 +210,10 @@ contract SettV4 is ERC20Upgradeable, SettAccessControlDefended, PausableUpgradea
 
     /// @notice Deposit assets into the Sett, and return corresponding shares to the user
     /// @notice Only callable by EOA accounts that pass the _defend() check
-    function depositFor(address _recipient, uint256 _amount) public whenNotPaused {
+    function depositFor(address _recipient, uint256 _amount)
+        public
+        whenNotPaused
+    {
         _defend();
         _blockLocked();
 
@@ -280,7 +307,11 @@ contract SettV4 is ERC20Upgradeable, SettAccessControlDefended, PausableUpgradea
     /// @dev Provides a pure on-chain way of approximating APY
     function trackFullPricePerShare() external whenNotPaused {
         _onlyAuthorizedActors();
-        emit FullPricePerShareUpdated(getPricePerFullShare(), now, block.number);
+        emit FullPricePerShareUpdated(
+            getPricePerFullShare(),
+            now,
+            block.number
+        );
     }
 
     function pause() external {
@@ -317,9 +348,15 @@ contract SettV4 is ERC20Upgradeable, SettAccessControlDefended, PausableUpgradea
         _mint(recipient, shares);
     }
 
-    function _depositWithAuthorization(uint256 _amount, bytes32[] memory proof) internal virtual {
+    function _depositWithAuthorization(uint256 _amount, bytes32[] memory proof)
+        internal
+        virtual
+    {
         if (address(guestList) != address(0)) {
-            require(guestList.authorized(msg.sender, _amount, proof), "guest-list-authorization");
+            require(
+                guestList.authorized(msg.sender, _amount, proof),
+                "guest-list-authorization"
+            );
         }
         _deposit(_amount);
     }
@@ -330,7 +367,10 @@ contract SettV4 is ERC20Upgradeable, SettAccessControlDefended, PausableUpgradea
         bytes32[] memory proof
     ) internal virtual {
         if (address(guestList) != address(0)) {
-            require(guestList.authorized(_recipient, _amount, proof), "guest-list-authorization");
+            require(
+                guestList.authorized(_recipient, _amount, proof),
+                "guest-list-authorization"
+            );
         }
         _depositFor(_recipient, _amount);
     }
@@ -362,7 +402,13 @@ contract SettV4 is ERC20Upgradeable, SettAccessControlDefended, PausableUpgradea
     /// ===== ERC20 Overrides =====
 
     /// @dev Add blockLock to transfers, users cannot transfer tokens in the same block as a deposit or withdrawal.
-    function transfer(address recipient, uint256 amount) public virtual override whenNotPaused returns (bool) {
+    function transfer(address recipient, uint256 amount)
+        public
+        virtual
+        override
+        whenNotPaused
+        returns (bool)
+    {
         _blockLocked();
         return super.transfer(recipient, amount);
     }

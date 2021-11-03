@@ -70,15 +70,26 @@ interface ICurveFi {
         uint256[2] calldata min_amounts
     ) external;
 
-    function remove_liquidity_imbalance(uint256[2] calldata amounts, uint256 deadline) external;
+    function remove_liquidity_imbalance(
+        uint256[2] calldata amounts,
+        uint256 deadline
+    ) external;
 
-    function remove_liquidity_imbalance(uint256[3] calldata amounts, uint256 max_burn_amount) external;
+    function remove_liquidity_imbalance(
+        uint256[3] calldata amounts,
+        uint256 max_burn_amount
+    ) external;
 
-    function remove_liquidity(uint256 _amount, uint256[3] calldata amounts) external;
+    function remove_liquidity(uint256 _amount, uint256[3] calldata amounts)
+        external;
 
-    function remove_liquidity_imbalance(uint256[4] calldata amounts, uint256 max_burn_amount) external;
+    function remove_liquidity_imbalance(
+        uint256[4] calldata amounts,
+        uint256 max_burn_amount
+    ) external;
 
-    function remove_liquidity(uint256 _amount, uint256[4] calldata amounts) external;
+    function remove_liquidity(uint256 _amount, uint256[4] calldata amounts)
+        external;
 
     function remove_liquidity_one_coin(
         uint256 _token_amount,
@@ -130,5 +141,8 @@ interface ICurveFi {
 
     function future_owner() external returns (address out);
 
-    function calc_withdraw_one_coin(uint256 _token_amount, int128 _i) external view returns (uint256 out);
+    function calc_withdraw_one_coin(uint256 _token_amount, int128 _i)
+        external
+        view
+        returns (uint256 out);
 }

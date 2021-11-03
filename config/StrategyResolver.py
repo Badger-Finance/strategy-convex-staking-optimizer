@@ -10,6 +10,19 @@ console = Console()
 
 class StrategyResolver(StrategyCoreResolver):
 
+    ## TODO: Confirm Deposit / Earn and Withdraw so we verify balances move as expected
+    def hook_after_confirm_withdraw(self, before, after, params):
+        ## Want goes away from the booster as wrapped convexLpToken
+        assert after.balances("convexLpToken", "baseRewardsPool") < before.balances(
+            "convexLpToken", "baseRewardsPool"
+        )
+
+    def hook_after_earn(self, before, after, params):
+        ## Want goes into booster, as wrapped convexLpToken
+        assert after.balances("convexLpToken", "baseRewardsPool") > before.balances(
+            "convexLpToken", "baseRewardsPool"
+        )
+
     # ===== override default =====
     def confirm_harvest_events(self, before, after, tx):
         key = "TreeDistribution"
@@ -116,10 +129,10 @@ class StrategyResolver(StrategyCoreResolver):
         super().confirm_harvest(before, after, tx)
 
         # Strategy want should increase
-        assert after.get("strategy.balanceOf") >= before.get("strategy.balanceOf")
+        assert after.get("strategy.balanceOf") > before.get("strategy.balanceOf")
 
         # PPFS should not decrease
-        assert after.get("sett.pricePerFullShare") >= before.get(
+        assert after.get("sett.pricePerFullShare") > before.get(
             "sett.pricePerFullShare"
         )
 
@@ -130,7 +143,7 @@ class StrategyResolver(StrategyCoreResolver):
             "cvx", "cvxRewardsPool"
         )
 
-        assert cvx_helper_vault_delta >= cvx_pool_delta * 0.8
+        assert cvx_helper_vault_delta > cvx_pool_delta * 0.8
 
         # 80% of collected cvxCrv is deposited on helper vaults
         cvx_crv_helper_vault_delta = after.balances(
@@ -141,40 +154,26 @@ class StrategyResolver(StrategyCoreResolver):
         ) - before.balances("cvxCrv", "cvxCrvRewardsPool")
 
         ## We earned at least 80% of the delta (because we get some extra stuff)
-        assert cvx_crv_helper_vault_delta >= cvx_crv_pool_delta * 0.8
+        assert cvx_crv_helper_vault_delta > cvx_crv_pool_delta * 0.8
 
         # Check that helper vault shares were distributed correctly:
         cvxHelperVault = SettV4.at(convex_registry.cvxHelperVault)
         cvxCrvHelperVault = SettV4.at(convex_registry.cvxCrvHelperVault)
 
-        # 80% of cvxHelperVault shares were distributed through the tree
-        actual_tree_rewards = (
-            (
-                after.balances("cvx", "cvxHelperVault")
-                - before.balances("cvx", "cvxHelperVault")
-            )
-            * (cvxHelperVault.getPricePerFullShare() / 1e18)
-            * 0.8
+        ## bveCVX is sent to Tree, just check balance increased
+        assert after.balances("bveCVX", "badgerTree") > before.balances(
+            "bveCVX", "badgerTree"
         )
-        tree_balance_delta = after.balances("bCvx", "badgerTree") - before.balances(
-            "bCvx", "badgerTree"
-        )
-        assert actual_tree_rewards >= tree_balance_delta
 
-        # 20% of cvxHelperVault shares were distributed through the tree
-        actual_governance_rewards = (
-            (
-                after.balances("cvx", "cvxHelperVault")
-                - before.balances("cvx", "cvxHelperVault")
-            )
-            * (cvxHelperVault.getPricePerFullShare() / 1e18)
-            * 0.2
+        ## bveCVX is sent to Governance, just check balanceIncresed
+        assert after.balances("bveCVX", "governanceRewards") > before.balances(
+            "bveCVX", "governanceRewards"
         )
-        governance_rewards_delta = after.balances(
-            "bCvx", "governanceRewards"
-        ) - before.balances("bCvx", "governanceRewards")
 
-        assert actual_governance_rewards >= governance_rewards_delta
+        ## Strategist Perf fee is set to 0, no funds have moved
+        assert after.balances("bveCVX", "strategist") == before.balances(
+            "bveCVX", "strategist"
+        )
 
         # 80% of cvxCrvHelperVault shares were distributed through the tree
         actualy_cvx_crv_helper_tree = (
@@ -189,7 +188,7 @@ class StrategyResolver(StrategyCoreResolver):
             "bCvxCrv", "badgerTree"
         ) - before.balances("bCvxCrv", "badgerTree")
 
-        assert actualy_cvx_crv_helper_tree >= actual_tree_cvx_crv_delta
+        assert actualy_cvx_crv_helper_tree > actual_tree_cvx_crv_delta
 
         # 20% of cvxCrvHelperVault shares were distributed through the tree
         estimated_governance_cvx_crv = (
@@ -204,7 +203,7 @@ class StrategyResolver(StrategyCoreResolver):
         actual_governance_change = after.balances(
             "bCvxCrv", "governanceRewards"
         ) - before.balances("bCvxCrv", "governanceRewards")
-        assert estimated_governance_cvx_crv >= actual_governance_change
+        assert estimated_governance_cvx_crv > actual_governance_change
 
     def confirm_tend(self, before, after, tx):
         self.confirm_tend_events(before, after, tx)
@@ -265,9 +264,17 @@ class StrategyResolver(StrategyCoreResolver):
         wbtc = interface.IERC20("0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599")
         usdc = interface.IERC20("0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48")
         cvxCrv = interface.IERC20(strategy.cvxCrv())
-        bCvx = interface.IERC20(convex_registry.cvxHelperVault)
+        bveCVX = interface.IERC20(strategy.bveCVX())
         bCvxCrv = interface.IERC20(convex_registry.cvxCrvHelperVault)
 
+        ## Get the booster for this strat
+        booster = interface.IBooster(strategy.booster())
+        ## So we can get the lpToken associated
+        convexLpToken = interface.IERC20(booster.poolInfo(strategy.pid())["token"])
+
+        calls = self.add_entity_balances_for_tokens(
+            calls, "convexLpToken", convexLpToken, entities
+        )
         calls = self.add_entity_balances_for_tokens(calls, "crv", crv, entities)
         calls = self.add_entity_balances_for_tokens(calls, "cvx", cvx, entities)
         calls = self.add_entity_balances_for_tokens(calls, "3Crv", _3Crv, entities)
@@ -276,7 +283,7 @@ class StrategyResolver(StrategyCoreResolver):
         calls = self.add_entity_balances_for_tokens(calls, "WBTC", wbtc, entities)
         calls = self.add_entity_balances_for_tokens(calls, "USDC", usdc, entities)
         calls = self.add_entity_balances_for_tokens(calls, "cvxCrv", cvxCrv, entities)
-        calls = self.add_entity_balances_for_tokens(calls, "bCvx", bCvx, entities)
+        calls = self.add_entity_balances_for_tokens(calls, "bveCVX", bveCVX, entities)
         calls = self.add_entity_balances_for_tokens(calls, "bCvxCrv", bCvxCrv, entities)
 
         return calls

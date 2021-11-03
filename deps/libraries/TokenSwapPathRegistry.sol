@@ -19,7 +19,11 @@ contract TokenSwapPathRegistry {
 
     event TokenSwapPathSet(address tokenIn, address tokenOut, address[] path);
 
-    function getTokenSwapPath(address tokenIn, address tokenOut) public view returns (address[] memory) {
+    function getTokenSwapPath(address tokenIn, address tokenOut)
+        public
+        view
+        returns (address[] memory)
+    {
         return tokenSwapPaths[tokenIn][tokenOut];
     }
 

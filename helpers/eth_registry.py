@@ -3,7 +3,6 @@ from dotmap import DotMap
 import json
 
 
-
 multicall = "0xeefba1e63905ef1d7acba5a8513c70307c1ce441"
 multisend = "0x8D29bE29923b68abfDD21e541b9374737B49cdAD"
 
@@ -122,7 +121,7 @@ whales = DotMap(
         token="0xe86204c4eddd2f70ee00ead6805f917671f56c52",
     ),
     sbtcCrv=DotMap(
-        whale="0x545946fcae98afb4333b788b8f530046eb8ed997",
+        whale="0x1f08863f246fe456f94579d1a2009108b574f509",
         token=curve_registry.pools.sbtcCrv.token,
     ),
     bSbtcCrv=DotMap(
@@ -151,7 +150,7 @@ whales = DotMap(
     ),
     pbtcCrv=DotMap(
         whale="0x5a87e9a0a765fe5a69fa6492d3c7838dc1511805",
-        token=curve_registry.pools.pbtcCrv.token
+        token=curve_registry.pools.pbtcCrv.token,
     ),
     obtcCrv=DotMap(
         whale="0xe5447efebb597267d6afe9c53e0aeaba7e617fa8",
@@ -210,7 +209,7 @@ whales = DotMap(
         token="0xcA3d75aC011BF5aD07a98d02f18225F9bD9A6BDF",
     ),
     triCrypto2=DotMap(
-        whale="0xc5b0c2ab6e46caab9c01d02f1b486f0681bfc861",
+        whale="0xad2c3faa391930f81212f71b6a8a094fa0346e9d",
         token="0xc4AD29ba4B3c580e6D59105FFf484999997675Ff",
     ),
     cvx=DotMap(
@@ -227,4 +226,5 @@ registry = DotMap(
     curve=curve_registry,
     convex=convex_registry,
     tokens=tokens,
+    whales=whales,
 )
