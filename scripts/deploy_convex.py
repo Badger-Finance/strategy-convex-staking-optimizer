@@ -32,7 +32,7 @@ STAKING_OPTIMIZER_LOGIC = "0xe73e74Fab5e1cfE7545421D7DC63da42fC62b0d3"
 
 def main():
 
-    dev = onnect_account()
+    dev = connect_account()
 
     governance = dev.address  # ops_deployer2
     strategist = "0xB65cef03b9B89f99517643226d76e286ee999e77" # Governance
