@@ -1,11 +1,15 @@
 import brownie
-from brownie import MockToken, accounts, chain, Wei
+from brownie import MockToken, accounts, chain, Wei, interface
 from helpers.constants import MaxUint256
 from helpers.SnapshotManager import SnapshotManager
 from helpers.time import days
 from config.badger_config import sett_config
 import pytest
 from conftest import deploy
+import time
+from rich.console import Console
+
+console = Console()
 
 
 @pytest.mark.parametrize(
@@ -114,6 +118,13 @@ def test_single_user_harvest_flow(sett_id):
 
     chain.sleep(days(1))
     chain.mine()
+
+    ## Reset rewards if they are set to expire within the next 4 days or are expired already
+    rewardsPool = interface.IBaseRewardsPool(strategy.baseRewardsPool())
+    if rewardsPool.periodFinish() - int(time.time()) < days(4):
+        booster = interface.IBooster(strategy.booster())
+        booster.earmarkRewards(sett_config.native[sett_id].params.pid, {"from": deployer})
+        console.print("[green]BaseRewardsPool expired or expiring soon - it was reset![/green]")
 
     if tendable:
         snap.settTend({"from": strategyKeeper})
@@ -344,6 +355,13 @@ def test_single_user_harvest_flow_remove_fees(sett_id):
 
     ## NOTE: Some strats do not do this, change accordingly
     assert want.balanceOf(controller.rewards()) > 0
+
+    ## Reset rewards if they are set to expire within the next 4 days or are expired already
+    rewardsPool = interface.IBaseRewardsPool(strategy.baseRewardsPool())
+    if rewardsPool.periodFinish() - int(time.time()) < days(4):
+        booster = interface.IBooster(strategy.booster())
+        booster.earmarkRewards(sett_config.native[sett_id].params.pid, {"from": deployer})
+        console.print("[green]BaseRewardsPool expired or expiring soon - it was reset![/green]")
 
     chain.sleep(days(1))
     chain.mine()
