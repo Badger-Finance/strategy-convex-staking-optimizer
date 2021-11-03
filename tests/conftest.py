@@ -87,14 +87,9 @@ def deploy(sett_config):
     strategy.initialize(*args)
 
 
-    ## Grant contract access from strategy to Helper Vaults
-    cvxHelperVault = SettV4.at(strategy.cvxHelperVault())
+    ## Grant contract access from strategy to cvxCRV Helper Vault
     cvxCrvHelperVault = SettV4.at(strategy.cvxCrvHelperVault())
-
-    cvxHelperGov = accounts.at(cvxHelperVault.governance(), force=True)
     cvxCrvHelperGov = accounts.at(cvxCrvHelperVault.governance(), force=True)
-
-    cvxHelperVault.approveContractAccess(strategy.address, {"from": cvxHelperGov})
     cvxCrvHelperVault.approveContractAccess(strategy.address, {"from": cvxCrvHelperGov})
 
     ## Reset rewards if they are set to expire within the next 4 days or are expired already
