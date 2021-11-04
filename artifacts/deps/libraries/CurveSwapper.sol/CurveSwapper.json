@@ -1,0 +1,50 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "CurveSwapper",
+  "sourceName": "deps/libraries/CurveSwapper.sol",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "addressProvider",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "metaPoolFactoryId",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "registryId",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x608060405234801561001057600080fd5b5060d58061001f6000396000f3fe6080604052348015600f57600080fd5b5060043610603c5760003560e01c806304ef898d1460415780632954018c14605957806365d950fa14607b575b600080fd5b60476081565b60408051918252519081900360200190f35b605f6086565b604080516001600160a01b039092168252519081900360200190f35b6047609a565b600081565b6f22d53366457f9d5e68ec105046fc438381565b60038156fea2646970667358221220f44b1d7c8a3b0d336e3ac23e45fdc455cd96297b27b8731598b08de73004f85264736f6c634300060c0033",
+  "deployedBytecode": "0x6080604052348015600f57600080fd5b5060043610603c5760003560e01c806304ef898d1460415780632954018c14605957806365d950fa14607b575b600080fd5b60476081565b60408051918252519081900360200190f35b605f6086565b604080516001600160a01b039092168252519081900360200190f35b6047609a565b600081565b6f22d53366457f9d5e68ec105046fc438381565b60038156fea2646970667358221220f44b1d7c8a3b0d336e3ac23e45fdc455cd96297b27b8731598b08de73004f85264736f6c634300060c0033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}
