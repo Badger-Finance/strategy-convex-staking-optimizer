@@ -1,0 +1,1583 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "/home/sajan/badger/strategy-convex-staking-optimizer/contracts/deps/BadgerRegistry.sol": {
+      "lastModificationDate": 1635863754703,
+      "contentHash": "42b33cbca27e27d8ba6a0018dea8a7e2",
+      "sourceName": "contracts/deps/BadgerRegistry.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": ["deps/@openzeppelin/contracts/utils/EnumerableSet.sol"],
+      "versionPragmas": [">=0.6.0 <0.7.0"],
+      "artifacts": ["BadgerRegistry"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/deps/@openzeppelin/contracts/utils/EnumerableSet.sol": {
+      "lastModificationDate": 1635863754914,
+      "contentHash": "dca582d6fbb077994adf19774be0a50f",
+      "sourceName": "deps/@openzeppelin/contracts/utils/EnumerableSet.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": ["^0.6.0"],
+      "artifacts": ["EnumerableSet"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/contracts/deps/Controller.sol": {
+      "lastModificationDate": 1635863754704,
+      "contentHash": "0bbfc1ef7651aa0e1dbf42bf64c536fa",
+      "sourceName": "contracts/deps/Controller.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../deps/@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol",
+        "../../deps/@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol",
+        "../../deps/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol",
+        "../../deps/@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol",
+        "../../deps/@openzeppelin/contracts-upgradeable/proxy/Initializable.sol",
+        "interfaces/badger/IConverter.sol",
+        "interfaces/badger/IOneSplitAudit.sol",
+        "interfaces/badger/IStrategy.sol",
+        "../../deps/SettAccessControl.sol"
+      ],
+      "versionPragmas": ["^0.6.11"],
+      "artifacts": ["Controller"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/deps/@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol": {
+      "lastModificationDate": 1635863754781,
+      "contentHash": "ca6a199b6f33327922447e25c68612eb",
+      "sourceName": "deps/@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": ["^0.6.0"],
+      "artifacts": ["IERC20Upgradeable"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/deps/@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol": {
+      "lastModificationDate": 1635863754743,
+      "contentHash": "e7ff850a9c007698d73a9484dcc757ab",
+      "sourceName": "deps/@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": ["^0.6.0"],
+      "artifacts": ["SafeMathUpgradeable"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/deps/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol": {
+      "lastModificationDate": 1635863754806,
+      "contentHash": "7f62793a953657ee2a2a3dd25459770b",
+      "sourceName": "deps/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": ["^0.6.2"],
+      "artifacts": ["AddressUpgradeable"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/deps/@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol": {
+      "lastModificationDate": 1635863754783,
+      "contentHash": "4c4d8c47bda6b30eb46ab95dcae46bd2",
+      "sourceName": "deps/@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IERC20Upgradeable.sol",
+        "../../math/SafeMathUpgradeable.sol",
+        "../../utils/AddressUpgradeable.sol"
+      ],
+      "versionPragmas": ["^0.6.0"],
+      "artifacts": ["SafeERC20Upgradeable"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/deps/@openzeppelin/contracts-upgradeable/proxy/Initializable.sol": {
+      "lastModificationDate": 1635863754760,
+      "contentHash": "403d170f0f4cd19025e78106f391529b",
+      "sourceName": "deps/@openzeppelin/contracts-upgradeable/proxy/Initializable.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [">=0.4.24 <0.7.0"],
+      "artifacts": ["Initializable"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/interfaces/badger/IConverter.sol": {
+      "lastModificationDate": 1635863754974,
+      "contentHash": "92a46ddc111abc2d2e1c79abb7f40180",
+      "sourceName": "interfaces/badger/IConverter.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [">=0.5.0 <0.8.0"],
+      "artifacts": ["IConverter"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/interfaces/badger/IOneSplitAudit.sol": {
+      "lastModificationDate": 1635863754981,
+      "contentHash": "135d6ba99c03c11da0f674780763e8d1",
+      "sourceName": "interfaces/badger/IOneSplitAudit.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [">=0.5.0 <0.8.0"],
+      "artifacts": ["IOneSplitAudit"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/interfaces/badger/IStrategy.sol": {
+      "lastModificationDate": 1635863754991,
+      "contentHash": "35e643794e8007bdb57d749886bca80c",
+      "sourceName": "interfaces/badger/IStrategy.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [">=0.5.0 <0.8.0"],
+      "artifacts": ["IStrategy"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/deps/SettAccessControl.sol": {
+      "lastModificationDate": 1635863754946,
+      "contentHash": "d1f58b1213a41a91ea3825f06d161f1f",
+      "sourceName": "deps/SettAccessControl.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./@openzeppelin/contracts-upgradeable/proxy/Initializable.sol"
+      ],
+      "versionPragmas": ["^0.6.11"],
+      "artifacts": ["SettAccessControl"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/deps/BaseStrategy.sol": {
+      "lastModificationDate": 1635863989260,
+      "contentHash": "925c6e923cafa52c018a25e5c15a9b9a",
+      "sourceName": "deps/BaseStrategy.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [
+        "deps/@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol",
+        "deps/@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol",
+        "deps/@openzeppelin/contracts-upgradeable/math/MathUpgradeable.sol",
+        "deps/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol",
+        "deps/@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol",
+        "deps/@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol",
+        "deps/@openzeppelin/contracts-upgradeable/proxy/Initializable.sol",
+        "interfaces/uniswap/IUniswapRouterV2.sol",
+        "interfaces/badger/IController.sol",
+        "interfaces/badger/IStrategy.sol",
+        "./SettAccessControl.sol"
+      ],
+      "versionPragmas": ["^0.6.11"],
+      "artifacts": ["BaseStrategy"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/deps/@openzeppelin/contracts-upgradeable/math/MathUpgradeable.sol": {
+      "lastModificationDate": 1635863754741,
+      "contentHash": "77b1339755705262bce14bcf3138ace6",
+      "sourceName": "deps/@openzeppelin/contracts-upgradeable/math/MathUpgradeable.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": ["^0.6.0"],
+      "artifacts": ["MathUpgradeable"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/deps/@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol": {
+      "lastModificationDate": 1635863754815,
+      "contentHash": "d1d5996dc53501f1205d9179c70e0d49",
+      "sourceName": "deps/@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../GSN/ContextUpgradeable.sol",
+        "../proxy/Initializable.sol"
+      ],
+      "versionPragmas": ["^0.6.0"],
+      "artifacts": ["PausableUpgradeable"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/interfaces/uniswap/IUniswapRouterV2.sol": {
+      "lastModificationDate": 1635863755026,
+      "contentHash": "e83197259e1b59326e7124b2a69ab67f",
+      "sourceName": "interfaces/uniswap/IUniswapRouterV2.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [">=0.5.0 <0.8.0"],
+      "artifacts": ["IUniswapRouterV2"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/interfaces/badger/IController.sol": {
+      "lastModificationDate": 1635863754973,
+      "contentHash": "3c7e2b1c52f30763bca0ba3aff1b2c28",
+      "sourceName": "interfaces/badger/IController.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [">=0.5.0 <0.8.0"],
+      "artifacts": ["IController"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/deps/@openzeppelin/contracts-upgradeable/GSN/ContextUpgradeable.sol": {
+      "lastModificationDate": 1635863754714,
+      "contentHash": "6a01740471bee644338a6d9f329575c8",
+      "sourceName": "deps/@openzeppelin/contracts-upgradeable/GSN/ContextUpgradeable.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": ["../proxy/Initializable.sol"],
+      "versionPragmas": ["^0.6.0"],
+      "artifacts": ["ContextUpgradeable"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/deps/BaseStrategySwapper.sol": {
+      "lastModificationDate": 1635863989262,
+      "contentHash": "b5ce3d5a2023f3b60335cb707d7ebc0b",
+      "sourceName": "deps/BaseStrategySwapper.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [
+        "deps/@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol",
+        "deps/@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol",
+        "deps/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol",
+        "deps/@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol",
+        "deps/@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol",
+        "deps/@openzeppelin/contracts-upgradeable/proxy/Initializable.sol",
+        "interfaces/uniswap/IUniswapRouterV2.sol",
+        "interfaces/uniswap/IUniswapV2Factory.sol",
+        "interfaces/badger/IController.sol",
+        "interfaces/badger/IStrategy.sol",
+        "./SettAccessControl.sol",
+        "./BaseStrategy.sol"
+      ],
+      "versionPragmas": ["^0.6.11"],
+      "artifacts": ["BaseStrategyMultiSwapper"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/interfaces/uniswap/IUniswapV2Factory.sol": {
+      "lastModificationDate": 1635863755027,
+      "contentHash": "e1af7a8e2cc370f4402bb15fb750fbfb",
+      "sourceName": "interfaces/uniswap/IUniswapV2Factory.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [">=0.5.0 <0.8.0"],
+      "artifacts": ["IUniswapV2Factory"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/contracts/StrategyConvexStakingOptimizer.sol": {
+      "lastModificationDate": 1635884928041,
+      "contentHash": "50c71e9790e3d9151a610b4bb3ea9ad2",
+      "sourceName": "contracts/StrategyConvexStakingOptimizer.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [
+        "deps/@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol",
+        "deps/@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol",
+        "deps/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol",
+        "deps/@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol",
+        "deps/@openzeppelin/contracts-upgradeable/utils/EnumerableSetUpgradeable.sol",
+        "interfaces/uniswap/IUniswapRouterV2.sol",
+        "interfaces/badger/IBadgerGeyser.sol",
+        "interfaces/uniswap/IUniswapPair.sol",
+        "interfaces/badger/IController.sol",
+        "interfaces/badger/ISettV4.sol",
+        "interfaces/convex/IBooster.sol",
+        "interfaces/convex/CrvDepositor.sol",
+        "interfaces/convex/IBaseRewardsPool.sol",
+        "interfaces/convex/ICvxRewardsPool.sol",
+        "deps/BaseStrategySwapper.sol",
+        "deps/libraries/CurveSwapper.sol",
+        "deps/libraries/UniswapSwapper.sol",
+        "deps/libraries/TokenSwapPathRegistry.sol"
+      ],
+      "versionPragmas": ["^0.6.11"],
+      "artifacts": ["StrategyConvexStakingOptimizer"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/deps/@openzeppelin/contracts-upgradeable/utils/EnumerableSetUpgradeable.sol": {
+      "lastModificationDate": 1635863754814,
+      "contentHash": "61a4cbd82ff498e60f794429d47ed094",
+      "sourceName": "deps/@openzeppelin/contracts-upgradeable/utils/EnumerableSetUpgradeable.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": ["^0.6.0"],
+      "artifacts": ["EnumerableSetUpgradeable"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/interfaces/badger/IBadgerGeyser.sol": {
+      "lastModificationDate": 1635863754971,
+      "contentHash": "bc753b68e12e3e02145af9d5a6476a6b",
+      "sourceName": "interfaces/badger/IBadgerGeyser.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [">=0.5.0 <0.8.0"],
+      "artifacts": ["IBadgerGeyser"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/interfaces/uniswap/IUniswapPair.sol": {
+      "lastModificationDate": 1635863755025,
+      "contentHash": "3f35dd1a8ed3db8159579587f65d3895",
+      "sourceName": "interfaces/uniswap/IUniswapPair.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": ["^0.6.0"],
+      "artifacts": ["IUniswapPair"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/interfaces/badger/ISettV4.sol": {
+      "lastModificationDate": 1635863989270,
+      "contentHash": "0cdca224095760d658563b9f4976a420",
+      "sourceName": "interfaces/badger/ISettV4.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [">=0.5.0 <0.8.0"],
+      "artifacts": ["ISettV4"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/interfaces/convex/IBooster.sol": {
+      "lastModificationDate": 1635885363928,
+      "contentHash": "2f77d97de10ba356d94c76552a0bb49a",
+      "sourceName": "interfaces/convex/IBooster.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [">=0.6.0"],
+      "artifacts": ["IBooster"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/interfaces/convex/CrvDepositor.sol": {
+      "lastModificationDate": 1635863754997,
+      "contentHash": "b18521744819f37809e8978abfc30e27",
+      "sourceName": "interfaces/convex/CrvDepositor.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [">=0.6.0"],
+      "artifacts": ["CrvDepositor"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/interfaces/convex/IBaseRewardsPool.sol": {
+      "lastModificationDate": 1635886003896,
+      "contentHash": "d889cd9ff52b1730beaa9bfe7631c1e9",
+      "sourceName": "interfaces/convex/IBaseRewardsPool.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": ["^0.6.0"],
+      "artifacts": ["IBaseRewardsPool"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/interfaces/convex/ICvxRewardsPool.sol": {
+      "lastModificationDate": 1635863989275,
+      "contentHash": "33efab16676323f5578ee2325fc11935",
+      "sourceName": "interfaces/convex/ICvxRewardsPool.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": ["^0.6.0"],
+      "artifacts": ["ICvxRewardsPool"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/deps/libraries/CurveSwapper.sol": {
+      "lastModificationDate": 1635863989263,
+      "contentHash": "5e1e12164cf15c5bb2f05d448ebaeb4e",
+      "sourceName": "deps/libraries/CurveSwapper.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [
+        "deps/@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol",
+        "deps/@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol",
+        "deps/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol",
+        "deps/@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol",
+        "deps/@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol",
+        "interfaces/curve/ICurveFi.sol",
+        "interfaces/curve/ICurveExchange.sol",
+        "interfaces/curve/ICurveRegistry.sol",
+        "./BaseSwapper.sol"
+      ],
+      "versionPragmas": ["^0.6.11"],
+      "artifacts": ["CurveSwapper"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/deps/libraries/UniswapSwapper.sol": {
+      "lastModificationDate": 1635863989266,
+      "contentHash": "99a41c0670349d634137857f966bfc73",
+      "sourceName": "deps/libraries/UniswapSwapper.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [
+        "deps/@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol",
+        "deps/@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol",
+        "deps/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol",
+        "deps/@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol",
+        "deps/@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol",
+        "deps/@openzeppelin/contracts-upgradeable/proxy/Initializable.sol",
+        "deps/@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol",
+        "./BaseSwapper.sol",
+        "interfaces/uniswap/IUniswapRouterV2.sol",
+        "interfaces/uniswap/IUniswapV2Factory.sol"
+      ],
+      "versionPragmas": ["^0.6.11"],
+      "artifacts": ["UniswapSwapper"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/deps/libraries/TokenSwapPathRegistry.sol": {
+      "lastModificationDate": 1635863989265,
+      "contentHash": "60a9f907d41d6e6e670166302d80cd87",
+      "sourceName": "deps/libraries/TokenSwapPathRegistry.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [
+        "deps/@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol",
+        "deps/@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol",
+        "deps/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol",
+        "deps/@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol",
+        "deps/@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol",
+        "interfaces/curve/ICurveFi.sol"
+      ],
+      "versionPragmas": ["^0.6.11"],
+      "artifacts": ["TokenSwapPathRegistry"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/interfaces/curve/ICurveFi.sol": {
+      "lastModificationDate": 1635863989279,
+      "contentHash": "e3ddd35d05d5d1da0e1b84a84e4908c7",
+      "sourceName": "interfaces/curve/ICurveFi.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [">=0.5.0 <0.8.0"],
+      "artifacts": ["ICurveFi"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/interfaces/curve/ICurveExchange.sol": {
+      "lastModificationDate": 1635863989277,
+      "contentHash": "bb110efc2fe6a69ba754cf6b70871843",
+      "sourceName": "interfaces/curve/ICurveExchange.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [">=0.6.0"],
+      "artifacts": [
+        "ICurveExchange",
+        "ICurveRegistryAddressProvider",
+        "ICurveRegistryExchange"
+      ]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/interfaces/curve/ICurveRegistry.sol": {
+      "lastModificationDate": 1635863755009,
+      "contentHash": "d3ed77468d6b2367b865a7efebae2e7b",
+      "sourceName": "interfaces/curve/ICurveRegistry.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [">=0.5.0 <0.8.0"],
+      "artifacts": ["ICurveRegistry"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/deps/libraries/BaseSwapper.sol": {
+      "lastModificationDate": 1635863754948,
+      "contentHash": "82fe69cbb514e67448c5921e80d8b7ff",
+      "sourceName": "deps/libraries/BaseSwapper.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [
+        "deps/@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol",
+        "deps/@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol",
+        "deps/@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol"
+      ],
+      "versionPragmas": ["^0.6.11"],
+      "artifacts": ["BaseSwapper"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/deps/@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol": {
+      "lastModificationDate": 1635863754724,
+      "contentHash": "5aac07cdc5bf75fb317a463c00e88282",
+      "sourceName": "deps/@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../utils/EnumerableSetUpgradeable.sol",
+        "../utils/AddressUpgradeable.sol",
+        "../GSN/ContextUpgradeable.sol",
+        "../proxy/Initializable.sol"
+      ],
+      "versionPragmas": ["^0.6.0"],
+      "artifacts": ["AccessControlUpgradeable"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/contracts/deps/SettV4.sol": {
+      "lastModificationDate": 1635863989256,
+      "contentHash": "c04b2ae182995d7348b83588c515e988",
+      "sourceName": "contracts/deps/SettV4.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../deps/@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol",
+        "../../deps/@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol",
+        "../../deps/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol",
+        "../../deps/@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol",
+        "../../deps/@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol",
+        "../../deps/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol",
+        "../../deps/@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol",
+        "../../interfaces/badger/IController.sol",
+        "../../interfaces/erc20/IERC20Detailed.sol",
+        "../../deps/SettAccessControlDefended.sol",
+        "interfaces/yearn/BadgerGuestlistApi.sol"
+      ],
+      "versionPragmas": ["^0.6.11"],
+      "artifacts": ["SettV4"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/deps/@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol": {
+      "lastModificationDate": 1635863754779,
+      "contentHash": "7773df7ec10acd33c55e3cdd8e474147",
+      "sourceName": "deps/@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../GSN/ContextUpgradeable.sol",
+        "./IERC20Upgradeable.sol",
+        "../../math/SafeMathUpgradeable.sol",
+        "../../utils/AddressUpgradeable.sol",
+        "../../proxy/Initializable.sol"
+      ],
+      "versionPragmas": ["^0.6.0"],
+      "artifacts": ["ERC20Upgradeable"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/deps/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol": {
+      "lastModificationDate": 1635863754725,
+      "contentHash": "e96381ba8512a98a96df52f8363d9994",
+      "sourceName": "deps/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../GSN/ContextUpgradeable.sol",
+        "../proxy/Initializable.sol"
+      ],
+      "versionPragmas": ["^0.6.0"],
+      "artifacts": ["OwnableUpgradeable"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/interfaces/erc20/IERC20Detailed.sol": {
+      "lastModificationDate": 1635863755014,
+      "contentHash": "5ad6e6b2b4ff46862fe137a8e7700710",
+      "sourceName": "interfaces/erc20/IERC20Detailed.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": ["^0.6.0"],
+      "artifacts": ["IERC20Detailed"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/deps/SettAccessControlDefended.sol": {
+      "lastModificationDate": 1635863754947,
+      "contentHash": "de1e40b5a2a6122cde8ae04251baa188",
+      "sourceName": "deps/SettAccessControlDefended.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": ["./SettAccessControl.sol"],
+      "versionPragmas": ["^0.6.11"],
+      "artifacts": ["SettAccessControlDefended"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/interfaces/yearn/BadgerGuestlistApi.sol": {
+      "lastModificationDate": 1635863755029,
+      "contentHash": "9bacf89f91107c63ff8bce0a0a82924d",
+      "sourceName": "interfaces/yearn/BadgerGuestlistApi.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [">=0.6.0 <0.7.0"],
+      "artifacts": ["BadgerGuestListAPI"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/contracts/deps/SettV3.sol": {
+      "lastModificationDate": 1635863754706,
+      "contentHash": "53a7ad1ce5b568b27c6ae280277b428c",
+      "sourceName": "contracts/deps/SettV3.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../deps/@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol",
+        "../../deps/@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol",
+        "../../deps/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol",
+        "../../deps/@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol",
+        "../../deps/@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol",
+        "../../deps/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol",
+        "../../deps/@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol",
+        "interfaces/badger/IController.sol",
+        "interfaces/erc20/IERC20Detailed.sol",
+        "../../deps/SettAccessControlDefended.sol",
+        "interfaces/yearn/BadgerGuestlistApi.sol"
+      ],
+      "versionPragmas": ["^0.6.11"],
+      "artifacts": ["SettV3"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/contracts/deps/VipCappedGuestListWrapperUpgradeable.sol": {
+      "lastModificationDate": 1635863754709,
+      "contentHash": "97ca3bdbd2071b8880208b4f2ece43cb",
+      "sourceName": "contracts/deps/VipCappedGuestListWrapperUpgradeable.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../deps/@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol",
+        "../../deps/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol",
+        "../../deps/@openzeppelin/contracts-upgradeable/cryptography/MerkleProofUpgradeable.sol",
+        "interfaces/yearn/GuestlistApi.sol",
+        "interfaces/yearn/BadgerWrapperApi.sol"
+      ],
+      "versionPragmas": [">=0.6.0 <0.7.0"],
+      "artifacts": ["VipCappedGuestListWrapperUpgradeable"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/deps/@openzeppelin/contracts-upgradeable/cryptography/MerkleProofUpgradeable.sol": {
+      "lastModificationDate": 1635863754729,
+      "contentHash": "ec138ba3c38023c879873b034b7a8147",
+      "sourceName": "deps/@openzeppelin/contracts-upgradeable/cryptography/MerkleProofUpgradeable.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": ["^0.6.0"],
+      "artifacts": ["MerkleProofUpgradeable"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/interfaces/yearn/GuestlistApi.sol": {
+      "lastModificationDate": 1635863755031,
+      "contentHash": "5657a2f86caa66eaf34fcb9f61b23862",
+      "sourceName": "interfaces/yearn/GuestlistApi.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [">=0.6.0 <0.7.0"],
+      "artifacts": ["GuestListAPI"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/interfaces/yearn/BadgerWrapperApi.sol": {
+      "lastModificationDate": 1635863755030,
+      "contentHash": "cc60359c80ac1a047a7f5d98e2cbb171",
+      "sourceName": "interfaces/yearn/BadgerWrapperApi.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": ["deps/@openzeppelin/contracts/token/ERC20/IERC20.sol"],
+      "versionPragmas": [">=0.6.0 <0.7.0"],
+      "artifacts": ["BadgerWrapperAPI"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/deps/@openzeppelin/contracts/token/ERC20/IERC20.sol": {
+      "lastModificationDate": 1635863754887,
+      "contentHash": "1778795b07186feb029a8456726439c2",
+      "sourceName": "deps/@openzeppelin/contracts/token/ERC20/IERC20.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": ["^0.6.0"],
+      "artifacts": ["IERC20"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/contracts/deps/MockToken.sol": {
+      "lastModificationDate": 1635863754705,
+      "contentHash": "7a7bfada8126a5688b6704576dcdbac9",
+      "sourceName": "contracts/deps/MockToken.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../deps/@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol"
+      ],
+      "versionPragmas": ["^0.6.0"],
+      "artifacts": ["MockToken"]
+    },
+    "/home/sajan/badger/strategy-convex-staking-optimizer/contracts/proxy/AdminUpgradeabilityProxy.sol": {
+      "lastModificationDate": 1635863754710,
+      "contentHash": "a0dac0ce1100d64ee530f486e0f023d9",
+      "sourceName": "contracts/proxy/AdminUpgradeabilityProxy.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": ["ast"]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": ["^0.6.2"],
+      "artifacts": [
+        "Address",
+        "AdminUpgradeabilityProxy",
+        "Proxy",
+        "UpgradeabilityProxy"
+      ]
+    }
+  }
+}
