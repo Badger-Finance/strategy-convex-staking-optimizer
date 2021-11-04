@@ -3,6 +3,7 @@ import pytest
 import json
 from brownie import (
     StrategyConvexStakingOptimizer,
+    SettV4,
     Controller,
     accounts,
     interface,
@@ -11,6 +12,11 @@ from brownie import (
 from config.badger_config import badger_config
 from rich.console import Console
 from helpers.SnapshotManager import SnapshotManager
+from helpers.utils import get_config
+from helpers.constants import MaxUint256
+from helpers.time import days
+import time
+
 
 console = Console()
 
@@ -28,14 +34,14 @@ STRAT_KEYS = [
 HELPER_STRATS = ["native.cvx", "native.cvxCrv"]
 
 NEW_STRATEGIES = {
-    "native.renCrv": "0xe66dB6Eb807e6DAE8BD48793E9ad0140a2DEE22A",
-    "native.sbtcCrv": "0x2f278515425c8eE754300e158116930B8EcCBBE1",
-    "native.tbtcCrv": "0x9e0742EE7BECde52A5494310f09aad639AA4790B",
-    "native.hbtcCrv": "0x7354D5119bD42a77E7162c8Afa8A1D18d5Da9cF8",
-    "native.pbtcCrv": "0x3f98F3a21B125414e4740316bd6Ef14718764a22",
-    "native.obtcCrv": "0x50Dd8A61Bdd11Cf5539DAA83Bc8E0F581eD8110a",
-    "native.bbtcCrv": "0xf92660E0fdAfE945aa13616428c9fB4BE19f4d34",
-    "native.tricrypto2": "0xf3202Aa2783F3DEE24a35853C6471db065B05D37",
+    "native.renCrv": "0x61e16b46F74aEd8f9c2Ec6CB2dCb2258Bdfc7071",
+    "native.sbtcCrv": "0xCce0D2d1Eb2310F7e67e128bcFE3CE870A3D3a3d",
+    "native.tbtcCrv": "0xAB73Ec65a1Ef5a2e5b56D5d6F36Bee4B2A1D3FFb",
+    "native.hbtcCrv": "0x8c26D9B6B80684CC642ED9eb1Ac1729Af3E819eE",
+    "native.pbtcCrv": "0xA9A646668Df5Cec5344941646F5c6b269551e53D",
+    "native.obtcCrv": "0x5dd69c6D81f0a403c03b99C5a44Ef2D49b66d388",
+    "native.bbtcCrv": "0xF2F3AB09E2D8986fBECbBa59aE838a5418a6680c",
+    "native.tricrypto2": "0x647eeb5C5ED5A71621183f09F6CE8fa66b96827d",
 }
 
 
@@ -127,6 +133,9 @@ def test_migrate_staking_optimizer(
     console.print(f"[blue]Vault: [/blue]{vault.address}")
     console.print(f"[blue]Want: [/blue]{want.address}")
 
+    # Run pre-migration setup actions (to be executed IRL)
+    setup_actions(controller, newStrategy)
+
     # ==== Parameter comparison ==== #
 
     # Want matches vault and new Strategy
@@ -134,8 +143,7 @@ def test_migrate_staking_optimizer(
     assert want == newStrategy.want()
 
     # Check that Slippage tolerance was set on init for new Strategy
-    # Uncomment once new logic is deployed (variable name change)
-    # assert newStrategy.stableSwapSlippageTolerance() == 500
+    assert newStrategy.stableSwapSlippageTolerance() == 500
     assert newStrategy.crvCvxCrvPoolIndex() == 2
 
     # Check that strategy's constants remain the same
@@ -169,7 +177,7 @@ def test_migrate_staking_optimizer(
     assert newStrategy.performanceFeeGovernance() == strategy.performanceFeeGovernance()
     assert newStrategy.performanceFeeStrategist() == strategy.performanceFeeStrategist()
     assert newStrategy.withdrawalFee() == strategy.withdrawalFee()
-    console.print("\n", f"[green]Fees Match![/green]")
+    console.print(f"\n[green]Fees Match![/green]")
     console.print(f"GovPerformance: {strategy.performanceFeeGovernance()}")
     console.print(f"StrategistPerformance: {strategy.performanceFeeStrategist()}")
     console.print(f"Withdrawal: {strategy.withdrawalFee()}")
@@ -213,21 +221,12 @@ def test_migrate_staking_optimizer(
     chain.sleep(1000)
     chain.mine()
 
-    # Uncomment once new strategies are deployed
-    # snap = SnapshotManager(vault, strategy, controller, "StrategySnapshot")
-    # keeper = accounts.at(strategy.keeper(), force=True)
-    # snap.settEarn({"from": keeper})
-
-    # chain.sleep(3600)
-    # chain.mine()
-
-    # snap.settTend({"from": keeper})
-
-    # chain.sleep(3600)
-    # chain.mine()
-
-    # snap.settHarvest({"from": keeper}) ## Run an harvest cause you never know
-
+    user_deposit_withdraw_harvest_flow(
+        strategy_key,
+        vault,
+        newStrategy,
+        controller,
+    )
 
 def migrate_strategy(strategy, newStrategy, controller, governance):
     console.print(f"[blue]Migrating strategy[/blue]")
@@ -240,3 +239,109 @@ def migrate_strategy(strategy, newStrategy, controller, governance):
     # Set new strategy for want on Controller
     controller.setStrategy(strategy.want(), newStrategy.address, {"from": governance})
     assert controller.strategies(strategy.want()) == newStrategy.address
+
+# Execute migration setup txs while they get executed IRL
+def setup_actions(controller, newStrategy):
+
+    # Set production controller on strat
+    if newStrategy.controller() != controller.address:
+        stratGov = accounts.at(newStrategy.governance(), force=True)
+        newStrategy.setController(controller.address, {"from": stratGov})
+
+    # Change strategist to Tech Ops
+    if newStrategy.strategist() != "0x86cbD0ce0c087b482782c181dA8d191De18C8275":
+        newStrategy.setStrategist("0x86cbD0ce0c087b482782c181dA8d191De18C8275", {"from": stratGov})
+
+    # Grant contract access from strategy to cvxCRV Helper Vault
+    cvxCrvHelperVault = SettV4.at(newStrategy.cvxCrvHelperVault())
+    cvxCrvHelperGov = accounts.at(cvxCrvHelperVault.governance(), force=True)
+    cvxCrvHelperVault.approveContractAccess(newStrategy.address, {"from": cvxCrvHelperGov})
+
+# User flow deposits, withdraws, earns, tends and harvests to ensure that strategy still works
+def user_deposit_withdraw_harvest_flow(
+    strategy_key,
+    vault,
+    strategy,
+    controller,
+):
+    snap = SnapshotManager(vault, strategy, controller, "StrategySnapshot")
+    keeper = accounts.at(strategy.keeper(), force=True) # Should be the same on the vault
+    randomUser = accounts[0]
+
+    want = interface.IERC20(strategy.want())
+
+    config = get_config(strategy_key)
+    # Transfer test assets to user
+    whale = accounts.at(
+        config.whale, force=True
+    )
+    want.transfer(
+        randomUser.address, want.balanceOf(whale.address), {"from": whale}
+    )  # Transfer 80% of whale's want balance
+
+    startingBalance = want.balanceOf(randomUser)
+    depositAmount = startingBalance // 2
+    assert startingBalance >= depositAmount
+    assert startingBalance >= 0
+    # End Setup
+
+    # Run post migration flow
+    snap.settEarn({"from": keeper})
+
+    # User has no balance on Sett and shouldn't be able to withdraw
+    with brownie.reverts():
+        strategy.withdrawAll({"from": randomUser})
+
+    chain.sleep(3600)
+    chain.mine()
+
+    snap.settTend({"from": keeper})
+
+    chain.sleep(3600)
+    chain.mine()
+
+    snap.settHarvest({"from": keeper})
+
+    chain.sleep(days(3))
+    chain.mine()
+
+    ## Reset rewards if they are set to expire within the next 4 days or are expired already
+    rewardsPool = interface.IBaseRewardsPool(strategy.baseRewardsPool())
+    if rewardsPool.periodFinish() - int(time.time()) < days(4):
+        booster = interface.IBooster(strategy.booster())
+        booster.earmarkRewards(config.params.pid, {"from": randomUser})
+        console.print("[green]BaseRewardsPool expired or expiring soon - it was reset![/green]")
+
+    want.approve(vault, MaxUint256, {"from": randomUser})
+    snap.settDeposit(depositAmount, {"from": randomUser})
+    shares = vault.balanceOf(randomUser)
+
+    chain.sleep(3600)
+    chain.mine()
+
+    snap.settEarn({"from": keeper})
+
+    chain.sleep(3600)
+    chain.mine()
+
+    snap.settTend({"from": keeper})
+
+    chain.sleep(3600)
+    chain.mine()
+
+    snap.settWithdraw(shares // 2, {"from": randomUser})
+
+    chain.sleep(days(3))
+    chain.mine()
+
+    snap.settHarvest({"from": keeper})
+
+    chain.sleep(3600)
+    chain.mine()
+
+    snap.settWithdraw(shares // 2 - 1, {"from": randomUser})
+
+
+
+
+

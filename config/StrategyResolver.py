@@ -12,10 +12,11 @@ class StrategyResolver(StrategyCoreResolver):
 
     ## TODO: Confirm Deposit / Earn and Withdraw so we verify balances move as expected
     def hook_after_confirm_withdraw(self, before, after, params):
+        if before.balances("want", "sett") < params["amount"] / before.get("sett.pricePerFullShare"):
         ## Want goes away from the booster as wrapped convexLpToken
-        assert after.balances("convexLpToken", "baseRewardsPool") < before.balances(
-            "convexLpToken", "baseRewardsPool"
-        )
+            assert after.balances("convexLpToken", "baseRewardsPool") < before.balances(
+                "convexLpToken", "baseRewardsPool"
+            )
 
     def hook_after_earn(self, before, after, params):
         ## Want goes into booster, as wrapped convexLpToken

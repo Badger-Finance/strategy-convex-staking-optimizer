@@ -102,6 +102,8 @@ interface IStrategyConvexStakingOptimizer {
 
     function booster() external view returns (address);
 
+    function bveCVX() external view returns (address);
+
     function controller() external view returns (address);
 
     function convexMasterChef() external view returns (address);
