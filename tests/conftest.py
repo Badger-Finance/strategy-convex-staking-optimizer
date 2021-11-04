@@ -92,6 +92,13 @@ def deploy(sett_config):
     cvxCrvHelperGov = accounts.at(cvxCrvHelperVault.governance(), force=True)
     cvxCrvHelperVault.approveContractAccess(strategy.address, {"from": cvxCrvHelperGov})
 
+    ## Change governance fees to native (Council vote):
+    strategy.setAutoCompoundingPerformanceFeeGovernance(0, {"from": governance})
+    assert strategy.autoCompoundingPerformanceFeeGovernance() == 0
+    strategy.setPerformanceFeeGovernance(2000, {"from": governance})
+    assert strategy.performanceFeeGovernance() == 2000
+    console.print("[green]Autocompunding and governance fees were changed![/green]")
+
     ## Reset rewards if they are set to expire within the next 4 days or are expired already
     rewardsPool = interface.IBaseRewardsPool(strategy.baseRewardsPool())
     if rewardsPool.periodFinish() - int(time.time()) < days(4):

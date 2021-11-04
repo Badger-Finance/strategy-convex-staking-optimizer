@@ -180,6 +180,14 @@ def test_migrate_staking_optimizer(
     console.print(f"StrategistPerformance: {strategy.performanceFeeStrategist()}")
     console.print(f"Withdrawal: {strategy.withdrawalFee()}")
 
+    ## Change governance fees to native (Council vote):
+    stratGov = accounts.at(newStrategy.governance(), force=True)
+    newStrategy.setAutoCompoundingPerformanceFeeGovernance(0, {"from": stratGov})
+    assert newStrategy.autoCompoundingPerformanceFeeGovernance() == 0
+    newStrategy.setPerformanceFeeGovernance(2000, {"from": stratGov})
+    assert newStrategy.performanceFeeGovernance() == 2000
+    console.print("[green]Autocompunding and governance fees were changed![/green]")
+
     # ==== Pre-Migration checks ==== #
 
     # Initial balance on New Strategy - In case there's any
@@ -282,6 +290,13 @@ def user_deposit_withdraw_harvest_flow(
     assert startingBalance >= depositAmount
     assert startingBalance >= 0
     # End Setup
+
+    ## Reset rewards if they are set to expire within the next 4 days or are expired already
+    rewardsPool = interface.IBaseRewardsPool(strategy.baseRewardsPool())
+    if rewardsPool.periodFinish() - int(time.time()) < days(4):
+        booster = interface.IBooster(strategy.booster())
+        booster.earmarkRewards(config.params.pid, {"from": randomUser})
+        console.print("[green]BaseRewardsPool expired or expiring soon - it was reset![/green]")
 
     # Run post migration flow
     snap.settEarn({"from": keeper})
