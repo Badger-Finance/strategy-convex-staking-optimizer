@@ -31,8 +31,6 @@ STRAT_KEYS = [
     "native.tricrypto2",
 ]
 
-HELPER_STRATS = ["native.cvx", "native.cvxCrv"]
-
 NEW_STRATEGIES = {
     "native.renCrv": "0x61e16b46F74aEd8f9c2Ec6CB2dCb2258Bdfc7071",
     "native.sbtcCrv": "0xCce0D2d1Eb2310F7e67e128bcFE3CE870A3D3a3d",
