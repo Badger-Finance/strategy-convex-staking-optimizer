@@ -4,7 +4,9 @@ from config import REGISTRY
 from helpers.constants import AddressZero
 from helpers.utils import get_config
 import click
+import json
 from rich.console import Console
+from config.badger_config import badger_config
 
 console = Console()
 
@@ -34,9 +36,7 @@ def main():
     """
     TO BE RUN BEFORE PROMOTING TO PROD
 
-    Checks and Sets all Keys for Vault and Strategy Against the Registry
-
-    1. Checks all Keys
+    Checks the parameters of all of the strategies listed above.
     """
 
     for key in STRAT_KEYS:
@@ -45,7 +45,7 @@ def main():
 
         assert strategy.paused() == False
 
-        console.print("[blue]Strategy: [/blue]", key)
+        console.print(f"[blue]Checking {key}[/blue]")
         console.print("Strategy:", strategy.address)
         console.print("Want:", strategy.want())
 
@@ -56,14 +56,22 @@ def main():
         devGovernance = registry.get("devGovernance")
         guardian = registry.get("guardian")
         keeper = registry.get("keeper")
-        controller = registry.get("controller")
         badgerTree = registry.get("badgerTree")
+
+        with open(badger_config.prod_json) as f:
+            deploy = json.load(f)
+
+        # Controllers are different for different strategies
+        if key in ["native.renCrv", "native.sbtcCrv", "native.tbtcCrv"]:
+            controller = deploy["sett_system"]["controllers"]["native"]
+        else:
+            controller = deploy["sett_system"]["controllers"]["experimental"]
 
         assert governance != AddressZero
         assert guardian != AddressZero
         assert keeper != AddressZero
-        assert controller != AddressZero
         assert badgerTree != AddressZero
+        assert controller != AddressZero
 
         # Confirm all productions parameters
         check_parameters(
@@ -98,6 +106,7 @@ def check_parameters(
     assert strategy.withdrawalFee() == 10
     assert strategy.autoCompoundingPerformanceFeeGovernance() == 0
     assert strategy.autoCompoundingBps() == 2000
+    assert strategy.stableSwapSlippageTolerance() == 500
 
     assert strategy.keeper() == keeper
     assert strategy.guardian() == guardian
@@ -115,9 +124,6 @@ def check_parameters(
         )
     )
 
-
-
-
     # Not all strategies use the badgerTree
     try:
         if strategy.badgerTree() != AddressZero:
@@ -126,10 +132,3 @@ def check_parameters(
         pass
 
     console.print("[green]All Parameters checked![/green]")
-
-
-def connect_account():
-    click.echo(f"You are using the '{network.show_active()}' network")
-    dev = accounts.load(click.prompt("Account", type=click.Choice(accounts.load())))
-    click.echo(f"You are using: 'dev' [{dev.address}]")
-    return dev
