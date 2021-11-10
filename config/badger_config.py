@@ -161,6 +161,25 @@ sett_config = DotMap(
             ),
             whale=whales.triCrypto2.whale,
         ),
+        convexIbbtcCrv=DotMap(
+            strategyName="StrategyConvexStakingOptimizer",
+            params=DotMap(
+                want=pools.ibbtcCrv.token,
+                pid=curve.pids.ibbtcCrv,
+                lpComponent=registry.tokens.wbtc,
+                performanceFeeStrategist=0,
+                performanceFeeGovernance=1000,
+                withdrawalFee=10,
+                curvePool=DotMap(
+                    swap=registry.curve.pools.ibbtcCrv.swap,
+                    wbtcPosition=1,
+                    numElements=3,
+                ),
+                cvxHelperVault=convex.cvxHelperVault,
+                cvxCrvHelperVault=convex.cvxCrvHelperVault,
+            ),
+            whale=whales.triCrypto2.whale,
+        ),
     ),
     helper=DotMap(
         cvx=DotMap(

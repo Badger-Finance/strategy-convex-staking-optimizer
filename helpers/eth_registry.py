@@ -18,15 +18,15 @@ curve_registry = DotMap(
     crvToken="0xD533a949740bb3306d119CC777fa900bA034cd52",
     symbol="CRV",
     pools=DotMap(
-        sbtcCrv=DotMap(
-            swap="0x7fC77b5c7614E1533320Ea6DDc2Eb61fa00A9714",
-            token="0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3",
-            gauge="0x705350c4BcD35c9441419DdD5d2f097d7a55410F",
-        ),
         renCrv=DotMap(
             swap="0x93054188d876f558f4a66B2EF1d97d16eDf0895B",
             token="0x49849C98ae39Fff122806C06791Fa73784FB3675",
             gauge="0xB1F2cdeC61db658F091671F5f199635aEF202CAC",
+        ),
+        sbtcCrv=DotMap(
+            swap="0x7fC77b5c7614E1533320Ea6DDc2Eb61fa00A9714",
+            token="0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3",
+            gauge="0x705350c4BcD35c9441419DdD5d2f097d7a55410F",
         ),
         tbtcCrv=DotMap(
             swap="0xaa82ca713d94bba7a89ceab55314f9effeddc78c",
@@ -64,6 +64,11 @@ curve_registry = DotMap(
             swap="0xD51a44d3FaE010294C616388b506AcdA1bfAAE46",
             gauge="0x3993d34e7e99Abf6B6f367309975d1360222D446",
         ),
+        ibbtcCrv=DotMap(
+            token="0xFbdCA68601f835b27790D98bbb8eC7f05FDEaA9B",
+            swap="0xbba4b444FD10302251d9F5797E763b0d912286A1",
+            gauge="0x346C7BB1A7a6A30c8e81c14e90FC2f0FBddc54d8",
+        ),
     ),
     pids=DotMap(
         renCrv=6,
@@ -75,6 +80,7 @@ curve_registry = DotMap(
         bbtcCrv=19,
         triCrypto=37,
         triCryptoDos=38,
+        ibbtcCrv=53,
     ),
 )
 
@@ -97,6 +103,7 @@ tokens = DotMap(
     cvxCrv="0x62B9c7356A2Dc64a1969e19C23e4f579F9810Aa7",
     pnt="0x89Ab32156e46F46D02ade3FEcbe5Fc4243B9AAeD",
     bor="0x3c9d6c1C73b31c837832c72E04D3152f051fc1A9",
+    wibBTC="0x8751d4196027d4e6da63716fa7786b5174f04c15",
 )
 
 whales = DotMap(
