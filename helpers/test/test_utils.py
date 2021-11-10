@@ -3,7 +3,6 @@ import time
 from rich.console import Console
 from helpers.constants import SUSHI_ROUTER, MaxUint256
 from helpers.eth_registry import registry
-import numpy
 
 console = Console()
 tokens = registry.tokens
@@ -50,11 +49,3 @@ def generate_curve_LP_assets(account, amount, sett_config):
     )
 
     console.print("[green]Test LP tokens acquired![/green]")
-
-
-
-
-
-
-
-
