@@ -69,18 +69,14 @@ def test_are_you_trying(sett_id):
 
     harvest = strategy.harvest({"from": deployer})
 
-    event = harvest.events["Harvest"]
-    # If it doesn't print, we don't want it
-    assert event["harvested"] > 0
-
     ## Assert perFee for governance is exactly 20% // Round because huge numbers
     assert approx(
         (
-            harvest.events["PerformanceFeeGovernance"][1]["amount"]
-            + harvest.events["TreeDistribution"]["amount"]
+            harvest.events["PerformanceFeeGovernance"][0]["amount"]
+            + harvest.events["TreeDistribution"][0]["amount"]
         )
         * 0.2,
-        harvest.events["PerformanceFeeGovernance"][1]["amount"],
+        harvest.events["PerformanceFeeGovernance"][0]["amount"],
         1,
     )
 
@@ -92,4 +88,4 @@ def test_are_you_trying(sett_id):
         assert True
 
     ## The fee is in bveCVX
-    assert harvest.events["PerformanceFeeGovernance"][1]["token"] == strategy.bveCVX()
+    assert harvest.events["PerformanceFeeGovernance"][0]["token"] == strategy.bveCVX()

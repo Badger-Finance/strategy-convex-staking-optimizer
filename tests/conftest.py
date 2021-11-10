@@ -77,11 +77,6 @@ def deploy(sett_config):
             sett_config.params.performanceFeeStrategist,
             sett_config.params.withdrawalFee,
         ],
-        (
-            sett_config.params.curvePool.swap,
-            sett_config.params.curvePool.wbtcPosition,
-            sett_config.params.curvePool.numElements,
-        ),
     ]
 
     ## Start up Strategy
@@ -93,13 +88,6 @@ def deploy(sett_config):
     cvxCrvHelperVault = SettV4.at(strategy.cvxCrvHelperVault())
     cvxCrvHelperGov = accounts.at(cvxCrvHelperVault.governance(), force=True)
     cvxCrvHelperVault.approveContractAccess(strategy.address, {"from": cvxCrvHelperGov})
-
-    ## Change governance fees to native (Council vote):
-    strategy.setAutoCompoundingPerformanceFeeGovernance(0, {"from": governance})
-    assert strategy.autoCompoundingPerformanceFeeGovernance() == 0
-    strategy.setPerformanceFeeGovernance(2000, {"from": governance})
-    assert strategy.performanceFeeGovernance() == 2000
-    console.print("[green]Autocompunding and governance fees were changed![/green]")
 
     ## Reset rewards if they are set to expire within the next 4 days or are expired already
     rewardsPool = interface.IBaseRewardsPool(strategy.baseRewardsPool())
