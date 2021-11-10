@@ -69,6 +69,8 @@ import "deps/libraries/TokenSwapPathRegistry.sol";
     V1.2 
     * Removed unused Code
     * Changed to purchase bveCVX via Curve Factory Pool
+    V1.3
+    * Remove auto compounding
 */
 contract StrategyConvexStakingOptimizer is
     BaseStrategy,
@@ -141,17 +143,6 @@ contract StrategyConvexStakingOptimizer is
     - tendConvertBps: Convert this portion of balance into another asset.
      */
 
-    struct CurvePoolConfig {
-        address swap;
-        uint256 wbtcPosition;
-        uint256 numElements;
-    }
-
-    CurvePoolConfig public curvePool;
-
-    uint256 public autoCompoundingBps;
-    uint256 public autoCompoundingPerformanceFeeGovernance;
-
     uint256 public stableSwapSlippageTolerance;
     uint256 public constant crvCvxCrvPoolIndex = 2;
 
@@ -205,7 +196,6 @@ contract StrategyConvexStakingOptimizer is
         address[4] memory _wantConfig,
         uint256 _pid,
         uint256[3] memory _feeConfig,
-        CurvePoolConfig memory _curvePool
     ) public initializer whenNotPaused {
         __BaseStrategy_init(
             _governance,
@@ -238,34 +228,14 @@ contract StrategyConvexStakingOptimizer is
         // Approvals: CRV -> cvxCRV converter
         crvToken.approve(address(crvDepositor), MAX_UINT_256);
 
-        curvePool = CurvePoolConfig(
-            _curvePool.swap,
-            _curvePool.wbtcPosition,
-            _curvePool.numElements
-        );
-
         // Set Swap Paths
         address[] memory path = new address[](3);
-        path[0] = cvx;
-        path[1] = weth;
-        path[2] = wbtc;
-        _setTokenSwapPath(cvx, wbtc, path);
-
-        path = new address[](3);
         path[0] = usdc;
         path[1] = weth;
         path[2] = crv;
         _setTokenSwapPath(usdc, crv, path);
 
-        path = new address[](3);
-        path[0] = crv;
-        path[1] = weth;
-        path[2] = wbtc;
-        _setTokenSwapPath(crv, wbtc, path);
-
         _initializeApprovals();
-        autoCompoundingBps = 2000;
-        autoCompoundingPerformanceFeeGovernance = 5000;
 
         stableSwapSlippageTolerance = 500;
     }
@@ -276,24 +246,9 @@ contract StrategyConvexStakingOptimizer is
         pid = _pid; // LP token pool ID
     }
 
-    function setAutoCompoundingBps(uint256 _bps) external {
-        _onlyGovernance();
-        autoCompoundingBps = _bps;
-    }
-
-    function setAutoCompoundingPerformanceFeeGovernance(uint256 _bps) external {
-        _onlyGovernance();
-        autoCompoundingPerformanceFeeGovernance = _bps;
-    }
-
     function initializeApprovals() external {
         _onlyGovernance();
         _initializeApprovals();
-    }
-
-    function setCurvePoolSwap(address _swap) external {
-        _onlyGovernance();
-        curvePool.swap = _swap;
     }
 
     function setstableSwapSlippageTolerance(uint256 _sl) external {
@@ -308,7 +263,7 @@ contract StrategyConvexStakingOptimizer is
 
     /// ===== View Functions =====
     function version() external pure returns (string memory) {
-        return "1.2";
+        return "1.3";
     }
 
     function getName() external pure override returns (string memory) {
@@ -490,41 +445,7 @@ contract StrategyConvexStakingOptimizer is
             }
         }
 
-        // 3. Sell 20% of accured rewards for underlying
-        if (harvestData.cvxCrvHarvested > 0) {
-            // NOTE: Assumes 1:1 CRV/cvxCRV
-            uint256 crvToSell =
-                harvestData.cvxCrvHarvested.mul(autoCompoundingBps).div(
-                    MAX_FEE
-                );
-            // NOTE: Assuming any CRV accumulted is only from the above swap
-            uint256 crvBalance = crvToken.balanceOf(address(this));
-            if (crvToSell > crvBalance) {
-                // NOTE: Assumes 1:1 CRV/cvxCRV
-                uint256 cvxCrvToSell = crvToSell.sub(crvBalance);
-                uint256 minCrvOut =
-                    cvxCrvToSell
-                        .mul(MAX_FEE.sub(stableSwapSlippageTolerance))
-                        .div(MAX_FEE);
-                _exchange(
-                    cvxCrv,
-                    crv,
-                    cvxCrvToSell,
-                    minCrvOut,
-                    crvCvxCrvPoolIndex,
-                    true
-                );
-                crvToSell = crvToken.balanceOf(address(this));
-            }
-            _swapExactTokensForTokens(
-                sushiswap,
-                crv,
-                crvToSell,
-                getTokenSwapPath(crv, wbtc)
-            );
-        }
-
-        // 4. Convert CRV -> cvxCRV
+        // 3. Convert CRV -> cvxCRV
         uint256 crvBalance = crvToken.balanceOf(address(this));
         if (crvBalance > 0) {
             uint256 minCvxCrvOut =
@@ -541,61 +462,8 @@ contract StrategyConvexStakingOptimizer is
             );
         }
 
-        if (harvestData.cvxHarvsted > 0) {
-            uint256 cvxToSell =
-                harvestData.cvxHarvsted.mul(autoCompoundingBps).div(MAX_FEE);
-            _swapExactTokensForTokens(
-                sushiswap,
-                cvx,
-                cvxToSell,
-                getTokenSwapPath(cvx, wbtc)
-            );
-        }
 
-        // 4. Roll WBTC gained into want position
-        uint256 wbtcToDeposit = wbtcToken.balanceOf(address(this));
-        uint256 wantGained;
-
-        if (wbtcToDeposit > 0) {
-            _add_liquidity_single_coin(
-                curvePool.swap,
-                want,
-                wbtc,
-                wbtcToDeposit,
-                curvePool.wbtcPosition,
-                curvePool.numElements,
-                0
-            );
-            wantGained = IERC20Upgradeable(want).balanceOf(address(this)).sub(
-                idleWant
-            );
-            // Half of gained want (10% of rewards) are auto-compounded, half of gained want is taken as a performance fee
-            uint256 autoCompoundedPerformanceFee =
-                wantGained.mul(autoCompoundingPerformanceFeeGovernance).div(
-                    MAX_FEE
-                );
-            IERC20Upgradeable(want).transfer(
-                IController(controller).rewards(),
-                autoCompoundedPerformanceFee
-            );
-            emit PerformanceFeeGovernance(
-                IController(controller).rewards(),
-                want,
-                autoCompoundedPerformanceFee,
-                block.number,
-                block.timestamp
-            );
-        }
-
-        // Deposit remaining want (including idle want) into strategy position
-        uint256 wantToDeposited =
-            IERC20Upgradeable(want).balanceOf(address(this));
-
-        if (wantToDeposited > 0) {
-            _deposit(wantToDeposited);
-        }
-
-        // 5. Deposit remaining CVX / cvxCRV rewards into helper vaults and distribute
+        // 4. Deposit cvxCRV rewards into helper vault and distribute
         if (harvestData.cvxCrvHarvested > 0) {
             uint256 cvxCrvToDistribute = cvxCrvToken.balanceOf(address(this));
 
@@ -654,6 +522,7 @@ contract StrategyConvexStakingOptimizer is
             );
         }
 
+        // 5. Swap CVX for bveCVX and distribute
         if (harvestData.cvxHarvsted > 0) {
             uint256 cvxToDistribute = cvxToken.balanceOf(address(this));
             uint256 minbveCVXOut =
