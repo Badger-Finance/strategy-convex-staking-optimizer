@@ -4,6 +4,7 @@ from brownie import (
     Controller,
     SettV4,
     StrategyConvexStakingOptimizer,
+    Wei,
 )
 from config import (
     BADGER_DEV_MULTISIG,
@@ -14,6 +15,7 @@ import pytest
 from rich.console import Console
 import time
 from helpers.time import days
+from helpers.test.test_utils import generate_curve_LP_assets
 
 console = Console()
 
@@ -114,13 +116,8 @@ def deploy(sett_config):
     controller.approveStrategy(want, strategy, {"from": governance})
     controller.setStrategy(want, strategy, {"from": deployer})
 
-    # Transfer test assets to deployer
-    whale = accounts.at(
-        sett_config.whale, force=True
-    )
-    want.transfer(
-        deployer.address, want.balanceOf(whale.address), {"from": whale}
-    )  # Transfer 80% of whale's want balance
+    # Generate test want for user
+    generate_curve_LP_assets(deployer, Wei("10 ether"), sett_config)
 
     assert want.balanceOf(deployer.address) > 0
 
