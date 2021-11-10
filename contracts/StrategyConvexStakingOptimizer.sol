@@ -195,7 +195,7 @@ contract StrategyConvexStakingOptimizer is
         address _guardian,
         address[4] memory _wantConfig,
         uint256 _pid,
-        uint256[3] memory _feeConfig,
+        uint256[3] memory _feeConfig
     ) public initializer whenNotPaused {
         __BaseStrategy_init(
             _governance,
@@ -590,6 +590,8 @@ contract StrategyConvexStakingOptimizer is
 
         uint256 totalWantAfter = balanceOf();
         require(totalWantAfter >= totalWantBefore, "want-decreased");
+        // Expected to be 0 since there is no auto compounding
+        uint256 wantGained = totalWantAfter - totalWantBefore;
 
         emit Harvest(wantGained, block.number);
         return wantGained;
