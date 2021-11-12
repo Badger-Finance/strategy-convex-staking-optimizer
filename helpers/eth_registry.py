@@ -66,7 +66,7 @@ curve_registry = DotMap(
         ),
         ibbtcCrv=DotMap(
             token="0xFbdCA68601f835b27790D98bbb8eC7f05FDEaA9B",
-            swap="0xbba4b444FD10302251d9F5797E763b0d912286A1",
+            swap="0xbba4b444FD10302251d9F5797E763b0d912286A1", # ibBTC
             gauge="0x346C7BB1A7a6A30c8e81c14e90FC2f0FBddc54d8",
         ),
     ),
@@ -104,6 +104,7 @@ tokens = DotMap(
     pnt="0x89Ab32156e46F46D02ade3FEcbe5Fc4243B9AAeD",
     bor="0x3c9d6c1C73b31c837832c72E04D3152f051fc1A9",
     wibBTC="0x8751d4196027d4e6da63716fa7786b5174f04c15",
+    ibbtcCrv="0xFbdCA68601f835b27790D98bbb8eC7f05FDEaA9B"
 )
 
 whales = DotMap(

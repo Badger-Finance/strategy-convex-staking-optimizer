@@ -35,17 +35,50 @@ def generate_curve_LP_assets(account, amount, sett_config):
     wbtc = interface.IERC20(tokens.wbtc)
     wbtcAmount = wbtc.balanceOf(account.address)
 
-    # Add liquidity for pool in matter through Curve Swap
     poolInfo = sett_config.params.curvePool
-    amounts = [0] * poolInfo.numElements
-    amounts[poolInfo.wbtcPosition] = wbtcAmount
 
-    swap = interface.ICurveFi(poolInfo.swap)
-    wbtc.approve(swap.address, MaxUint256, {"from": account})
-    swap.add_liquidity[f'uint[{poolInfo.numElements}],uint'](
-        amounts,
-        0,
-        {"from": account}
-    )
+    # ibBTC Vault Swap's function signature is differnet since it is actually a Zap
+    if sett_config.params.want == tokens.ibbtcCrv:
+        # Swap wBTC for ibBTC through Sushiswap
+        router = interface.IUniswapRouterV2(SUSHI_ROUTER)
+        path = [tokens.wbtc, tokens.ibbtc]
+        for address in path:
+            asset = interface.IERC20(address)
+            asset.approve(router.address, MaxUint256, {"from": account})
+
+        router.swapExactTokensForTokens(
+            wbtcAmount,
+            0,
+            path,
+            account,
+            int(time.time()) + 1200, # Now + 20mins,
+            {"from": account}
+        )
+
+        zap = interface.ICurveZapIbBTC(poolInfo.swap)
+        ibBTC = interface.IERC20(tokens.ibbtc)
+        ibBTC.approve(zap.address, MaxUint256, {"from": account})
+
+        amounts = [0] * poolInfo.numElements
+        amounts[poolInfo.ibbtcPosition] = ibBTC.balanceOf(account.address)
+        zap.add_liquidity(
+            sett_config.params.want, # ibBTC/sBTC Pool
+            amounts,
+            0,
+            account.address,
+            {"from": account}
+        )
+
+    # Add liquidity for pool in matter through Curve Swap
+    else:
+        swap = interface.ICurveFi(poolInfo.swap)
+        wbtc.approve(poolInfo.swap, MaxUint256, {"from": account})
+        amounts = [0] * poolInfo.numElements
+        amounts[poolInfo.wbtcPosition] = wbtcAmount
+        swap.add_liquidity[f'uint[{poolInfo.numElements}],uint'](
+            amounts,
+            0,
+            {"from": account}
+        )
 
     console.print("[green]Test LP tokens acquired![/green]")
