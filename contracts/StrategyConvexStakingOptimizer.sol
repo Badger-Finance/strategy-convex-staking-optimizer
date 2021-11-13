@@ -176,7 +176,7 @@ contract StrategyConvexStakingOptimizer is
 
     struct HarvestData {
         uint256 cvxCrvHarvested;
-        uint256 cvxHarvsted;
+        uint256 cvxHarvested;
     }
 
     struct TendData {
@@ -428,7 +428,7 @@ contract StrategyConvexStakingOptimizer is
         }
 
         harvestData.cvxCrvHarvested = cvxCrvToken.balanceOf(address(this));
-        harvestData.cvxHarvsted = cvxToken.balanceOf(address(this));
+        harvestData.cvxHarvested = cvxToken.balanceOf(address(this));
 
         // 2. Convert 3CRV -> CRV via USDC
         uint256 threeCrvBalance = threeCrvToken.balanceOf(address(this));
@@ -461,7 +461,6 @@ contract StrategyConvexStakingOptimizer is
                 true
             );
         }
-
 
         // 4. Deposit cvxCRV rewards into helper vault and distribute
         if (harvestData.cvxCrvHarvested > 0) {
@@ -523,7 +522,7 @@ contract StrategyConvexStakingOptimizer is
         }
 
         // 5. Swap CVX for bveCVX and distribute
-        if (harvestData.cvxHarvsted > 0) {
+        if (harvestData.cvxHarvested > 0) {
             uint256 cvxToDistribute = cvxToken.balanceOf(address(this));
             uint256 minbveCVXOut =
                 cvxToDistribute
