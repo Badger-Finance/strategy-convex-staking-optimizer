@@ -145,6 +145,8 @@ contract StrategyConvexStakingOptimizer is
 
     uint256 public stableSwapSlippageTolerance;
     uint256 public constant crvCvxCrvPoolIndex = 2;
+    // Minimum 3Crv harvested to perform a profitable swap on it
+    uint256 public minThreeCrvHarvest;
 
     event TreeDistribution(
         address indexed token,
@@ -237,7 +239,9 @@ contract StrategyConvexStakingOptimizer is
 
         _initializeApprovals();
 
+        // Set default values
         stableSwapSlippageTolerance = 500;
+        minThreeCrvHarvest = 1000e18;
     }
 
     /// ===== Permissioned Functions =====
@@ -254,6 +258,11 @@ contract StrategyConvexStakingOptimizer is
     function setstableSwapSlippageTolerance(uint256 _sl) external {
         _onlyGovernance();
         stableSwapSlippageTolerance = _sl;
+    }
+
+    function setMinThreeCrvHarvest(uint256 _minThreeCrvHarvest) external {
+        _onlyGovernance();
+        minThreeCrvHarvest = _minThreeCrvHarvest;
     }
 
     function _initializeApprovals() internal {
@@ -432,7 +441,7 @@ contract StrategyConvexStakingOptimizer is
 
         // 2. Convert 3CRV -> CRV via USDC
         uint256 threeCrvBalance = threeCrvToken.balanceOf(address(this));
-        if (threeCrvBalance > 0) {
+        if (threeCrvBalance > minThreeCrvHarvest) {
             _remove_liquidity_one_coin(threeCrvSwap, threeCrvBalance, 1, 0);
             uint256 usdcBalance = usdcToken.balanceOf(address(this));
             if (usdcBalance > 0) {
