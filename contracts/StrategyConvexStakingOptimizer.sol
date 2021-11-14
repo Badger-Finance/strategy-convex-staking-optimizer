@@ -71,6 +71,8 @@ import "deps/libraries/TokenSwapPathRegistry.sol";
     * Changed to purchase bveCVX via Curve Factory Pool
     V1.3
     * Remove auto compounding
+    * Added harvest threshold for 3Crv
+    * Removed unused variables
 */
 contract StrategyConvexStakingOptimizer is
     BaseStrategy,
@@ -125,7 +127,6 @@ contract StrategyConvexStakingOptimizer is
 
     uint256 public pid;
     address public badgerTree;
-    ISettV4 public cvxHelperVault;
     ISettV4 public cvxCrvHelperVault;
 
     /**
@@ -195,7 +196,7 @@ contract StrategyConvexStakingOptimizer is
         address _controller,
         address _keeper,
         address _guardian,
-        address[4] memory _wantConfig,
+        address[3] memory _wantConfig,
         uint256 _pid,
         uint256[3] memory _feeConfig
     ) public initializer whenNotPaused {
@@ -210,8 +211,7 @@ contract StrategyConvexStakingOptimizer is
         want = _wantConfig[0];
         badgerTree = _wantConfig[1];
 
-        cvxHelperVault = ISettV4(_wantConfig[2]);
-        cvxCrvHelperVault = ISettV4(_wantConfig[3]);
+        cvxCrvHelperVault = ISettV4(_wantConfig[2]);
 
         pid = _pid; // Core staking pool ID
 
@@ -266,7 +266,6 @@ contract StrategyConvexStakingOptimizer is
     }
 
     function _initializeApprovals() internal {
-        cvxToken.approve(address(cvxHelperVault), MAX_UINT_256);
         cvxCrvToken.approve(address(cvxCrvHelperVault), MAX_UINT_256);
     }
 
@@ -417,7 +416,6 @@ contract StrategyConvexStakingOptimizer is
         _onlyAuthorizedActors();
         HarvestData memory harvestData;
 
-        uint256 idleWant = IERC20Upgradeable(want).balanceOf(address(this));
         uint256 totalWantBefore = balanceOf();
 
         // TODO: Harvest details still under constructuion. It's being designed to optimize yield while still allowing on-demand access to profits for users.

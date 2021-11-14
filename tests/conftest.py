@@ -68,7 +68,6 @@ def deploy(sett_config):
         [
             sett_config.params.want,
             BADGER_TREE,
-            sett_config.params.cvxHelperVault,
             sett_config.params.cvxCrvHelperVault,
         ],
         sett_config.params.pid,
