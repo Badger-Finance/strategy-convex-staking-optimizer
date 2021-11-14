@@ -148,6 +148,12 @@ def test_strategy_config_permissions(sett_id):
     strategy.setController(AddressZero, {"from": governance})
     assert strategy.controller() == AddressZero
 
+    strategy.setstableSwapSlippageTolerance(400, {"from": governance})
+    assert strategy.stableSwapSlippageTolerance() == 400
+
+    strategy.setMinThreeCrvHarvest(500e18, {"from": governance})
+    assert strategy.minThreeCrvHarvest() == 500e18
+
     # Invalid User should fail
     with brownie.reverts("onlyGovernance"):
         strategy.setGuardian(AddressZero, {"from": randomUser})
