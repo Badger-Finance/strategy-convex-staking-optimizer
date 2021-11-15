@@ -6,7 +6,11 @@ interface ISettV4 {
 
     function keeper() external view returns (address);
 
+    function governance() external view returns (address);
+
     function deposit(uint256) external;
+
+    function setController(address) external;
 
     function depositFor(address, uint256) external;
 
