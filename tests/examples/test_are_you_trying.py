@@ -51,9 +51,3 @@ def test_are_you_trying(sett_id):
 
     # Change to this if the strat is supposed to hodl and do nothing
     # assert strategy.balanceOf(want) = depositAmount
-
-    ## TEST 2: Is the Harvest profitable?
-    harvest = strategy.harvest({"from": deployer})
-    event = harvest.events["Harvest"]
-    # If it doesn't print, we don't want it
-    assert event["harvested"] > 0
