@@ -153,10 +153,7 @@ def test_migrate_staking_optimizer(
     assert newStrategy.autoCompoundingBps() == strategy.autoCompoundingBps()
     assert (
         newStrategy.autoCompoundingPerformanceFeeGovernance()
-        == strategy.autoCompoundingPerformanceFeeGovernance()
-    )
-    assert newStrategy.autoCompoundingPerformanceFeeGovernance() == (
-        strategy.autoCompoundingPerformanceFeeGovernance()
+        == 0
     )
 
     # Check that strategy's parameters remain the same
@@ -171,7 +168,7 @@ def test_migrate_staking_optimizer(
         newStrategy.guardian() == "0x6615e67b8B6b6375D38A0A3f937cd8c1a1e96386"
     )  # WarRoom ACL
 
-    assert newStrategy.performanceFeeGovernance() == strategy.performanceFeeGovernance()
+    assert newStrategy.performanceFeeGovernance() == 2000
     assert newStrategy.performanceFeeStrategist() == strategy.performanceFeeStrategist()
     assert newStrategy.withdrawalFee() == strategy.withdrawalFee()
     console.print(f"\n[green]Fees Match![/green]")
