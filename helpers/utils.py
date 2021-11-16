@@ -36,3 +36,5 @@ def get_config(strategy_key):
         return sett_config.native.convexBbtcCrv
     if strategy_key == "native.tricrypto2":
         return sett_config.native.convexTriCryptoDos
+    if strategy_key == "native.ibtcCrv":
+        return sett_config.native.convexIbbtcCrv
