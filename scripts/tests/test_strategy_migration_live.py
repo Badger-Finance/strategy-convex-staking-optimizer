@@ -148,7 +148,6 @@ def test_migrate_staking_optimizer(
     assert newStrategy.baseRewardsPool() == strategy.baseRewardsPool()
     assert newStrategy.pid() == strategy.pid()
     assert newStrategy.badgerTree() == strategy.badgerTree()
-    assert newStrategy.cvxHelperVault() == strategy.cvxHelperVault()
     assert newStrategy.cvxCrvHelperVault() == strategy.cvxCrvHelperVault()
     assert newStrategy.curvePool() == strategy.curvePool()
     assert newStrategy.autoCompoundingBps() == strategy.autoCompoundingBps()

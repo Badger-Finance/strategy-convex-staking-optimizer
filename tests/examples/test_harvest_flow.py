@@ -354,7 +354,6 @@ def test_single_user_harvest_flow_remove_fees(sett_id):
     snap.settHarvest({"from": deployer})
 
     ## NOTE: Some strats do not do this, change accordingly
-    assert want.balanceOf(controller.rewards()) > 0
 
     ## Reset rewards if they are set to expire within the next 4 days or are expired already
     rewardsPool = interface.IBaseRewardsPool(strategy.baseRewardsPool())

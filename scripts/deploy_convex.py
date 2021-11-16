@@ -149,7 +149,6 @@ def deploy_vaults_and_strategies(
         [
             params.want,
             badgerTree,
-            params.cvxHelperVault,
             params.cvxCrvHelperVault,
         ],
         params.pid,
