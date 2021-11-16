@@ -19,7 +19,7 @@ STRAT_KEYS = [
     "native.obtcCrv",
     "native.bbtcCrv",
     "native.tricrypto2",
-    "native.ibtcCrv",
+    "native.ibbtcCrv",
 ]
 
 STRATEGIES = {
@@ -31,7 +31,7 @@ STRATEGIES = {
     "native.obtcCrv": "0x5dd69c6D81f0a403c03b99C5a44Ef2D49b66d388",
     "native.bbtcCrv": "0xF2F3AB09E2D8986fBECbBa59aE838a5418a6680c",
     "native.tricrypto2": "0x647eeb5C5ED5A71621183f09F6CE8fa66b96827d",
-    "native.ibtcCrv": "0x6D4BA00Fd7BB73b5aa5b3D6180c6f1B0c89f70D1",
+    "native.ibbtcCrv": "0x6D4BA00Fd7BB73b5aa5b3D6180c6f1B0c89f70D1",
 }
 
 def main():
@@ -66,7 +66,7 @@ def main():
         # Controllers are different for different strategies
         if key in ["native.renCrv", "native.sbtcCrv", "native.tbtcCrv"]:
             controller = deploy["sett_system"]["controllers"]["native"]
-        elif key in ["native.ibtcCrv"]:
+        elif key in ["native.ibbtcCrv"]:
             controller = "0xe505F7C2FFcce7Ae4b076456BC02A70D8fe8d4d2"
         else:
             controller = deploy["sett_system"]["controllers"]["experimental"]
