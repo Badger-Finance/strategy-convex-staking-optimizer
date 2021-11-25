@@ -7,22 +7,17 @@ from brownie import (
     chain,
     Wei,
     SettV4,
-    Controller
+    Controller,
+    RewardsRecoveryStrategy_distribution,
 )
 from config.badger_config import badger_config
 from rich.console import Console
-from helpers.SnapshotManager import SnapshotManager
-from helpers.utils import get_config
-from helpers.constants import MaxUint256
-from helpers.time import days
-import time
-from helpers.test.test_utils import generate_curve_LP_assets
 
 
 ##### Variables to tweak ######
 
 # V1.1
-new_logic = "0x0bB87f40D4eb6066a2311B7BE3B45A3D15771557"
+# new_logic = "0x0bB87f40D4eb6066a2311B7BE3B45A3D15771557"
 
 # V1.2
 # new_logic = "0xe73e74Fab5e1cfE7545421D7DC63da42fC62b0d3"
@@ -153,17 +148,10 @@ def test_migrate_staking_optimizer(
     crv,
     timelock,
     devProxyAdmin,
-    native_controller,
-    exp_controller,
+    deployer,
 ):
 
     console.print(f"[yellow]Processing {strategy_key}...[/yellow]")
-
-    # Different Setts use different controllers:
-    if strategy_key in ["native.renCrv", "native.sbtcCrv", "native.tbtcCrv"]:
-        controller = native_controller
-    else:
-        controller = exp_controller
 
     # Get current strategy
     strategy = interface.IStrategyConvexStakingOptimizer(OLD_STRATEGIES[strategy_key])
@@ -188,6 +176,9 @@ def test_migrate_staking_optimizer(
     with brownie.reverts("RewardPool : Cannot withdraw 0"):
         strategy.harvest({"from": keeper})
 
+    # Deploy new logic
+    new_logic = RewardsRecoveryStrategy_distribution.deploy({"from": deployer})
+
     # Upgrade logic
     devProxyAdmin.upgrade(strategy.address, new_logic, {"from": timelock})
 
@@ -203,9 +194,9 @@ def test_migrate_staking_optimizer(
     assert strategy.performanceFeeStrategist() == 0
     assert strategy.performanceFeeStrategist() == 0
 
-    # Set auto compounding Bps to 1 on strategy
-    strategy.setAutoCompoundingBps(1, {"from": governance_multi})
-    assert strategy.autoCompoundingBps() == 1
+    # New logic removed auto compounding completely - Set performance fee to 20%
+    strategy.setPerformanceFeeGovernance(2000, {"from": governance_multi})
+    assert strategy.performanceFeeGovernance() == 2000
 
     tree_bcvx_before = bCvx.balanceOf(badgerTree)
     tree_bcvxCrv_before = bcvxCrv.balanceOf(badgerTree)
@@ -246,22 +237,22 @@ def test_migrate_staking_optimizer(
 
     console.print("\nPost Harvest Balances Diff\n")
 
-    console.print("Tree bcvx:", tree_bcvx_after-tree_bcvx_before)
-    console.print("Tree bcvxCrv:", tree_bcvxCrv_after-tree_bcvxCrv_before)
-    console.print("Tree bveCVX:", tree_bveCVX_after-tree_bveCVX_before)
+    console.print("Tree bcvx:", (tree_bcvx_after-tree_bcvx_before)/1e18)
+    console.print("Tree bcvxCrv:", (tree_bcvxCrv_after-tree_bcvxCrv_before)/1e18)
+    console.print("Tree bveCVX:", (tree_bveCVX_after-tree_bveCVX_before)/1e18)
 
-    console.print("\nStrat bcvx:", strat_bcvx_after-strat_bcvx_before)
-    console.print("Strat bcvxCrv:", strat_bcvxCrv_after-strat_bcvxCrv_before)
-    console.print("Strat bveCVX:", strat_bveCVX_after-strat_bveCVX_before)
-    console.print("Strat cvx:", strat_cvx_after-strat_cvx_before)
-    console.print("Strat cvxCrv:", strat_cvxCrv_after-strat_cvxCrv_before)
-    console.print("Strat crv:", strat_crv_after-strat_crv_before)
-    console.print("Strat want:", strat_want_after-strat_want_before)
-    console.print("Strat Position:", postion_after-postion_before)
+    console.print("\nStrat bcvx:", (strat_bcvx_after-strat_bcvx_before)/1e18)
+    console.print("Strat bcvxCrv:", (strat_bcvxCrv_after-strat_bcvxCrv_before)/1e18)
+    console.print("Strat bveCVX:", (strat_bveCVX_after-strat_bveCVX_before)/1e18)
+    console.print("Strat cvx:", (strat_cvx_after-strat_cvx_before)/1e18)
+    console.print("Strat cvxCrv:", (strat_cvxCrv_after-strat_cvxCrv_before)/1e18)
+    console.print("Strat crv:", (strat_crv_after-strat_crv_before)/1e18)
+    console.print("Strat want:", (strat_want_after-strat_want_before)/1e18)
+    console.print("Strat Position:", (postion_after-postion_before)/1e18)
 
-    console.print("\nGovernance bcvx:", gov_bcvx_after-gov_bcvx_before)
-    console.print("Governance bcvxCrv:", gov_bcvxCrv_after-gov_bcvxCrv_before)
-    console.print("Governance bveCVX:", gov_bveCVX_after-gov_bveCVX_before)
-    console.print("Governance want:", gov_want_after-gov_want_before)
+    console.print("\nGovernance bcvx:", (gov_bcvx_after-gov_bcvx_before)/1e18)
+    console.print("Governance bcvxCrv:", (gov_bcvxCrv_after-gov_bcvxCrv_before)/1e18)
+    console.print("Governance bveCVX:", (gov_bveCVX_after-gov_bveCVX_before)/1e18)
+    console.print("Governance want:", (gov_want_after-gov_want_before)/1e18)
 
     console.print("\nbaseRewardsPool earned:", baseRewardsPool.earned(strategy.address))
