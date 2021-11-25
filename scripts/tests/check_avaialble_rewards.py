@@ -9,6 +9,7 @@ from badger_utils.coingecko_utils import fetch_usd_value
 console = Console()
 
 # Prices at 11/24/2021 5PM
+# Change for dynamic fetching once the CG utils support them
 cvx_usd = 24.05
 crv_usd = 5.72
 
@@ -23,6 +24,7 @@ STRAT_KEYS = [
     "native.tricrypto2",
 ]
 
+# Addresses of strategies to check for rewards on baseRewardsPool
 OLD_STRATEGIES = {
     "native.renCrv": "0x6582a5b139fc1c6360846efdc4440d51aad4df7b",
     "native.sbtcCrv": "0xf1ded284e891943b3e9c657d7fc376b86164ffc2",
