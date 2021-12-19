@@ -262,6 +262,7 @@ class StrategyResolver(StrategyCoreResolver):
         entities["baseRewardsPool"] = self.manager.strategy.baseRewardsPool()
         entities["cvxHelperVault"] = convex_registry.cvxHelperVault
         entities["cvxCrvHelperVault"] = convex_registry.cvxCrvHelperVault
+        entities["VirtualBalanceRewardPool"] = convex_registry.VirtualBalanceRewardPool
 
         super().add_entity_balances_for_tokens(calls, tokenKey, token, entities)
         return calls
