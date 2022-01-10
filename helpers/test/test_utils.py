@@ -6,6 +6,7 @@ from helpers.eth_registry import registry
 
 console = Console()
 tokens = registry.tokens
+curve = registry.curve
 
 def generate_test_assets(account, path, amount):
     console.print("[yellow]Swapping for test assets...[/yellow]")
@@ -29,16 +30,18 @@ def generate_test_assets(account, path, amount):
 
 def generate_curve_LP_assets(account, amount, sett_config):
     console.print("[yellow]Depositing for LP tokens...[/yellow]")
-    # Generate wbtc
-    path = [tokens.weth, tokens.wbtc]
-    generate_test_assets(account, path, amount)
-    wbtc = interface.IERC20(tokens.wbtc)
-    wbtcAmount = wbtc.balanceOf(account.address)
+
 
     poolInfo = sett_config.params.curvePool
 
     # ibBTC Vault Swap's function signature is differnet since it is actually a Zap
     if sett_config.params.want == tokens.ibbtcCrv:
+        # Generate wbtc
+        path = [tokens.weth, tokens.wbtc]
+        generate_test_assets(account, path, amount)
+        wbtc = interface.IERC20(tokens.wbtc)
+        wbtcAmount = wbtc.balanceOf(account.address)
+
         # Swap wBTC for ibBTC through Sushiswap
         router = interface.IUniswapRouterV2(SUSHI_ROUTER)
         path = [tokens.wbtc, tokens.ibbtc]
@@ -51,7 +54,7 @@ def generate_curve_LP_assets(account, amount, sett_config):
             0,
             path,
             account,
-            int(time.time()) + 1200, # Now + 20mins,
+            int(time.time()) + 120000000, # Add some time so tests don't fail,
             {"from": account}
         )
 
@@ -69,8 +72,37 @@ def generate_curve_LP_assets(account, amount, sett_config):
             {"from": account}
         )
 
+    elif (
+        sett_config.params.want == tokens.mimCrv) or (
+            sett_config.params.want == tokens.fraxCrv
+        ):
+        # Generate usdc
+        path = [tokens.weth, tokens.usdc]
+        generate_test_assets(account, path, amount)
+        usdc = interface.IERC20(tokens.usdc)
+        usdcAmount = usdc.balanceOf(account.address)
+
+        zap = interface.ICurveZapIbBTC(curve.crvUSDZap) # Function has the same signature
+        usdc.approve(zap.address, MaxUint256, {"from": account})
+
+        amounts = [0] * poolInfo.numElements
+        amounts[poolInfo.usdcPosition] = usdcAmount
+        zap.add_liquidity(
+            sett_config.params.want, # MIM or FRAX Crv pool
+            amounts,
+            0,
+            account.address,
+            {"from": account}
+        )
+
     # Add liquidity for pool in matter through Curve Swap
     else:
+        # Generate wbtc
+        path = [tokens.weth, tokens.wbtc]
+        generate_test_assets(account, path, amount)
+        wbtc = interface.IERC20(tokens.wbtc)
+        wbtcAmount = wbtc.balanceOf(account.address)
+
         swap = interface.ICurveFi(poolInfo.swap)
         wbtc.approve(poolInfo.swap, MaxUint256, {"from": account})
         amounts = [0] * poolInfo.numElements
