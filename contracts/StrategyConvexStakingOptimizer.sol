@@ -177,11 +177,6 @@ contract StrategyConvexStakingOptimizer is
         uint256 withdrawn
     );
 
-    struct HarvestData {
-        uint256 cvxCrvHarvested;
-        uint256 cvxHarvested;
-    }
-
     struct TendData {
         uint256 crvTended;
         uint256 cvxTended;
@@ -414,7 +409,6 @@ contract StrategyConvexStakingOptimizer is
     // No-op until we optimize harvesting strategy. Auto-compouding is key.
     function harvest() external whenNotPaused returns (uint256) {
         _onlyAuthorizedActors();
-        HarvestData memory harvestData;
 
         uint256 totalWantBefore = balanceOf();
 
@@ -433,9 +427,6 @@ contract StrategyConvexStakingOptimizer is
         if (cvxRewardsPoolBalance > 0) {
             cvxRewardsPool.withdraw(cvxRewardsPoolBalance, true);
         }
-
-        harvestData.cvxCrvHarvested = cvxCrvToken.balanceOf(address(this));
-        harvestData.cvxHarvested = cvxToken.balanceOf(address(this));
 
         // 2. Convert 3CRV -> CRV via USDC
         uint256 threeCrvBalance = threeCrvToken.balanceOf(address(this));
@@ -470,9 +461,8 @@ contract StrategyConvexStakingOptimizer is
         }
 
         // 4. Deposit cvxCRV rewards into helper vault and distribute
-        if (harvestData.cvxCrvHarvested > 0) {
-            uint256 cvxCrvToDistribute = cvxCrvToken.balanceOf(address(this));
-
+        uint256 cvxCrvToDistribute = cvxCrvToken.balanceOf(address(this));
+        if (cvxCrvToDistribute > 0) {
             if (performanceFeeGovernance > 0) {
                 uint256 cvxCrvToGovernance =
                     cvxCrvToDistribute.mul(performanceFeeGovernance).div(
@@ -529,8 +519,8 @@ contract StrategyConvexStakingOptimizer is
         }
 
         // 5. Swap CVX for bveCVX and distribute
-        if (harvestData.cvxHarvested > 0) {
-            uint256 cvxToDistribute = cvxToken.balanceOf(address(this));
+        uint256 cvxToDistribute = cvxToken.balanceOf(address(this));
+        if (cvxToDistribute > 0) {
             uint256 minbveCVXOut =
                 cvxToDistribute
                     .mul(MAX_FEE.sub(stableSwapSlippageTolerance))
