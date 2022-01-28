@@ -109,6 +109,7 @@ def deploy(sett_config):
     assert want.balanceOf(deployer.address) > 0
 
     return DotMap(
+        governance=governance,
         deployer=deployer,
         controller=controller,
         sett=sett,
