@@ -468,14 +468,26 @@ contract StrategyConvexStakingOptimizer is
                     cvxCrvToDistribute.mul(performanceFeeGovernance).div(
                         MAX_FEE
                     );
+
+                uint256 govHelperVaultBefore = cvxCrvHelperVault.balanceOf(
+                        IController(controller).rewards()
+                    );
+
                 cvxCrvHelperVault.depositFor(
                     IController(controller).rewards(),
                     cvxCrvToGovernance
                 );
+
+                uint256 govHelperVaultAfter = cvxCrvHelperVault.balanceOf(
+                        IController(controller).rewards()
+                    );
+                uint256 govVaultPositionGained =
+                    govHelperVaultAfter.sub(govHelperVaultBefore);
+
                 emit PerformanceFeeGovernance(
                     IController(controller).rewards(),
-                    cvxCrv,
-                    cvxCrvToGovernance,
+                    address(cvxCrvHelperVault),
+                    govVaultPositionGained,
                     block.number,
                     block.timestamp
                 );
@@ -486,11 +498,23 @@ contract StrategyConvexStakingOptimizer is
                     cvxCrvToDistribute.mul(performanceFeeStrategist).div(
                         MAX_FEE
                     );
+                
+                uint256 strategistHelperVaultBefore = cvxCrvHelperVault.balanceOf(
+                        strategist
+                    );
+
                 cvxCrvHelperVault.depositFor(strategist, cvxCrvToStrategist);
+
+                uint256 strategistHelperVaultAfter = cvxCrvHelperVault.balanceOf(
+                        strategist
+                    );
+                uint256 strategistVaultPositionGained =
+                    strategistHelperVaultAfter.sub(strategistHelperVaultBefore);
+
                 emit PerformanceFeeStrategist(
                     strategist,
-                    cvxCrv,
-                    cvxCrvToStrategist,
+                    address(cvxCrvHelperVault),
+                    strategistVaultPositionGained,
                     block.number,
                     block.timestamp
                 );
