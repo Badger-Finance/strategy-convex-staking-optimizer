@@ -469,7 +469,8 @@ contract StrategyConvexStakingOptimizer is
                         MAX_FEE
                     );
 
-                uint256 govHelperVaultBefore = cvxCrvHelperVault.balanceOf(
+                uint256 govHelperVaultBefore =
+                    cvxCrvHelperVault.balanceOf(
                         IController(controller).rewards()
                     );
 
@@ -478,7 +479,8 @@ contract StrategyConvexStakingOptimizer is
                     cvxCrvToGovernance
                 );
 
-                uint256 govHelperVaultAfter = cvxCrvHelperVault.balanceOf(
+                uint256 govHelperVaultAfter =
+                    cvxCrvHelperVault.balanceOf(
                         IController(controller).rewards()
                     );
                 uint256 govVaultPositionGained =
@@ -498,16 +500,14 @@ contract StrategyConvexStakingOptimizer is
                     cvxCrvToDistribute.mul(performanceFeeStrategist).div(
                         MAX_FEE
                     );
-                
-                uint256 strategistHelperVaultBefore = cvxCrvHelperVault.balanceOf(
-                        strategist
-                    );
+
+                uint256 strategistHelperVaultBefore =
+                    cvxCrvHelperVault.balanceOf(strategist);
 
                 cvxCrvHelperVault.depositFor(strategist, cvxCrvToStrategist);
 
-                uint256 strategistHelperVaultAfter = cvxCrvHelperVault.balanceOf(
-                        strategist
-                    );
+                uint256 strategistHelperVaultAfter =
+                    cvxCrvHelperVault.balanceOf(strategist);
                 uint256 strategistVaultPositionGained =
                     strategistHelperVaultAfter.sub(strategistHelperVaultBefore);
 
