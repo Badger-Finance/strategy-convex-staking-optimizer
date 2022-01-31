@@ -21,7 +21,7 @@ def generate_test_assets(account, path, amount):
         0,
         path,
         account,
-        int(time.time()) + 1200, # Now + 20mins,
+        int(time.time()) + 120000000, # Add some time so tests don't fail,
         {"from": account, "value": amount}
     )
 
@@ -60,7 +60,7 @@ def generate_curve_LP_assets(account, amount, sett_config):
             0,
             path,
             account,
-            int(time.time()) + 1200000, # Now + 20mins,
+            int(time.time()) + 120000000, # Add some time so tests don't fail
             {"from": account}
         )
 
