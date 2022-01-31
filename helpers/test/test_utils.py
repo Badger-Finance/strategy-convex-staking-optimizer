@@ -33,94 +33,60 @@ def generate_curve_LP_assets(account, amount, sett_config):
     # For WETH based LPs
     if sett_config.params.lpComponent == tokens.weth:
         # Generate weth
-        weth = interface.WETH(tokens.weth)
-        weth.deposit({"from": account, "value": amount})
-        wethAmount = weth.balanceOf(account.address)
+        lpComponent = interface.WETH(tokens.weth)
+        lpComponent.deposit({"from": account, "value": amount})
+        depositAmount = lpComponent.balanceOf(account.address)
 
-        poolInfo = sett_config.params.curvePool
-
-        swap = interface.ICurveFi(poolInfo.swap)
-        weth.approve(poolInfo.swap, MaxUint256, {"from": account})
-        amounts = [0] * poolInfo.numElements
-        amounts[poolInfo.wethPosition] = wethAmount
-        swap.add_liquidity[f'uint[{poolInfo.numElements}],uint'](
-            amounts,
-            0,
-            {"from": account}
-        )
-
-    # For CRV based LPs
-    elif sett_config.params.lpComponent == tokens.crv:
-        # Generate crv
-        path = [tokens.weth, tokens.crv]
-        generate_test_assets(account, path, amount)
-        crv = interface.IERC20(tokens.crv)
-        crvAmount = crv.balanceOf(account.address)
-
-        poolInfo = sett_config.params.curvePool
-
-        swap = interface.ICurveFi(poolInfo.swap)
-        crv.approve(poolInfo.swap, MaxUint256, {"from": account})
-        amounts = [0] * poolInfo.numElements
-        amounts[poolInfo.crvPosition] = crvAmount
-        swap.add_liquidity[f'uint[{poolInfo.numElements}],uint'](
-            amounts,
-            0,
-            {"from": account}
-        )
-
-    # For WBTC based LPs
+    # For other token based LPs (WBTC, CRV, etc...)
     else:
-        # Generate wbtc
-        path = [tokens.weth, tokens.wbtc]
+        path = [tokens.weth, sett_config.params.lpComponent]
         generate_test_assets(account, path, amount)
-        wbtc = interface.IERC20(tokens.wbtc)
-        wbtcAmount = wbtc.balanceOf(account.address)
+        lpComponent = interface.IERC20(sett_config.params.lpComponent)
+        depositAmount = lpComponent.balanceOf(account.address)
 
-        poolInfo = sett_config.params.curvePool
+    poolInfo = sett_config.params.curvePool
 
-        # ibBTC Vault Swap's function signature is different since it is actually a Zap
-        if sett_config.params.want == tokens.ibbtcCrv:
-            # Swap wBTC for ibBTC through Sushiswap
-            router = interface.IUniswapRouterV2(SUSHI_ROUTER)
-            path = [tokens.wbtc, tokens.ibbtc]
-            for address in path:
-                asset = interface.IERC20(address)
-                asset.approve(router.address, MaxUint256, {"from": account})
+    # ibBTC Vault Swap's function signature is different since it is actually a Zap
+    if sett_config.params.want == tokens.ibbtcCrv:
+        # Swap wBTC for ibBTC through Sushiswap
+        router = interface.IUniswapRouterV2(SUSHI_ROUTER)
+        path = [tokens.wbtc, tokens.ibbtc]
+        for address in path:
+            asset = interface.IERC20(address)
+            asset.approve(router.address, MaxUint256, {"from": account})
 
-            router.swapExactTokensForTokens(
-                wbtcAmount,
-                0,
-                path,
-                account,
-                int(time.time()) + 1200, # Now + 20mins,
-                {"from": account}
-            )
+        router.swapExactTokensForTokens(
+            depositAmount,
+            0,
+            path,
+            account,
+            int(time.time()) + 1200000, # Now + 20mins,
+            {"from": account}
+        )
 
-            zap = interface.ICurveZapIbBTC(poolInfo.swap)
-            ibBTC = interface.IERC20(tokens.ibbtc)
-            ibBTC.approve(zap.address, MaxUint256, {"from": account})
+        zap = interface.ICurveZapIbBTC(poolInfo.swap)
+        ibBTC = interface.IERC20(tokens.ibbtc)
+        ibBTC.approve(zap.address, MaxUint256, {"from": account})
 
-            amounts = [0] * poolInfo.numElements
-            amounts[poolInfo.ibbtcPosition] = ibBTC.balanceOf(account.address)
-            zap.add_liquidity(
-                sett_config.params.want, # ibBTC/sBTC Pool
-                amounts,
-                0,
-                account.address,
-                {"from": account}
-            )
+        amounts = [0] * poolInfo.numElements
+        amounts[poolInfo.lpComponentPosition] = ibBTC.balanceOf(account.address)
+        zap.add_liquidity(
+            sett_config.params.want, # ibBTC/sBTC Pool
+            amounts,
+            0,
+            account.address,
+            {"from": account}
+        )
 
-        # Add liquidity for pool in matter through Curve Swap
-        else:
-            swap = interface.ICurveFi(poolInfo.swap)
-            wbtc.approve(poolInfo.swap, MaxUint256, {"from": account})
-            amounts = [0] * poolInfo.numElements
-            amounts[poolInfo.wbtcPosition] = wbtcAmount
-            swap.add_liquidity[f'uint[{poolInfo.numElements}],uint'](
-                amounts,
-                0,
-                {"from": account}
-            )
+    else:
+        swap = interface.ICurveFi(poolInfo.swap)
+        lpComponent.approve(poolInfo.swap, MaxUint256, {"from": account})
+        amounts = [0] * poolInfo.numElements
+        amounts[poolInfo.lpComponentPosition] = depositAmount
+        swap.add_liquidity[f'uint[{poolInfo.numElements}],uint'](
+            amounts,
+            0,
+            {"from": account}
+        )
 
     console.print("[green]Test LP tokens acquired![/green]")
