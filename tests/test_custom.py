@@ -88,7 +88,7 @@ def test_are_you_trying(sett_id):
         assert True
 
     ## The fee is in bveCVX
-    assert harvest.events["PerformanceFeeGovernance"][0]["token"] == strategy.bveCVX()
+    assert harvest.events["PerformanceFeeGovernance"][0]["token"] == strategy.cvxCrvHelperVault()
 
 
 @pytest.mark.parametrize(
