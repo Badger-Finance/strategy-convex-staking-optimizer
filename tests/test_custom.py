@@ -75,7 +75,7 @@ def test_are_you_trying(sett_id):
             harvest.events["PerformanceFeeGovernance"][0]["amount"]
             + harvest.events["TreeDistribution"][0]["amount"]
         )
-        * 0.2,
+        * (sett_config.native[sett_id].params.performanceFeeGovernance / 10000),
         harvest.events["PerformanceFeeGovernance"][0]["amount"],
         1,
     )

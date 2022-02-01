@@ -124,10 +124,18 @@ class StrategyResolver(StrategyCoreResolver):
     def confirm_harvest(self, before, after, tx):
         console.print("=== Compare Convex Harvest() ===")
 
+        strategy = self.manager.strategy
+        govPerformanceFee = strategy.performanceFeeGovernance() / 10000
+        stratPerformanceFee = strategy.performanceFeeStrategist() / 10000
+
+        totalPerformanceFee = govPerformanceFee + stratPerformanceFee
+
         # Harvest event emission not yet implemented
         self.confirm_harvest_events(before, after, tx)
 
         super().confirm_harvest(before, after, tx)
+
+        ## === Check harvest performance == ##
 
         # Strategy want should increase
         assert after.get("strategy.balanceOf") == before.get("strategy.balanceOf")
@@ -137,7 +145,8 @@ class StrategyResolver(StrategyCoreResolver):
             "sett.pricePerFullShare"
         )
 
-        # 80% of collected cvxCrv is deposited on helper vaults
+
+        # (100% - performanceFee) of collected cvxCrv is deposited on helper vaults
         cvx_crv_helper_vault_delta = after.balances(
             "cvxCrv", "cvxCrvHelperVault"
         ) - before.balances("cvxCrv", "cvxCrvHelperVault")
@@ -145,79 +154,143 @@ class StrategyResolver(StrategyCoreResolver):
             "cvxCrv", "cvxCrvRewardsPool"
         ) - before.balances("cvxCrv", "cvxCrvRewardsPool")
 
-        ## We earned at least 80% of the delta (because we get some extra stuff)
-        assert cvx_crv_helper_vault_delta > cvx_crv_pool_delta * 0.8
+        ## We earned at least (100% - performanceFee) of the delta (because we get some extra stuff)
+        assert cvx_crv_helper_vault_delta > cvx_crv_pool_delta * (1 - totalPerformanceFee)
 
-        # Check that helper vault shares were distributed correctly:
-        cvxCrvHelperVault = SettV4.at(convex_registry.cvxCrvHelperVault)
+        ## bcvxCrv is sent to Tree, just check balance increased
+        assert after.balances("bCvxCrv", "badgerTree") > before.balances(
+            "bCvxCrv", "badgerTree"
+        )
 
         ## bveCVX is sent to Tree, just check balance increased
         assert after.balances("bveCVX", "badgerTree") > before.balances(
             "bveCVX", "badgerTree"
         )
 
-        ## bveCVX is sent to Governance, just check balanceIncresed
-        assert after.balances("bveCVX", "governanceRewards") > before.balances(
-            "bveCVX", "governanceRewards"
+        # (100% - totalPerformanceFee) of cvxCrvHelperVault shares were distributed through the tree
+        actual_tree_bcvx_crv_delta = after.balances(
+            "bCvxCrv", "badgerTree"
+        ) - before.balances("bCvxCrv", "badgerTree")
+
+        actual_governance_bcvx_crv_delta = after.balances(
+                "bCvxCrv", "governanceRewards"
+        ) - before.balances("bCvxCrv", "governanceRewards")
+
+        actual_strategist_bcvx_crv_delta = after.balances(
+            "bCvxCrv", "strategist"
+        ) - before.balances("bCvxCrv", "strategist")
+
+        total_bcvx_crv_delta = (
+            actual_tree_bcvx_crv_delta +
+            actual_governance_bcvx_crv_delta +
+            actual_strategist_bcvx_crv_delta
         )
 
-        ## Strategist Perf fee is set to 0, no funds have moved
-        assert after.balances("bveCVX", "strategist") == before.balances(
-            "bveCVX", "strategist"
+        assert approx(
+            actual_tree_bcvx_crv_delta,
+            total_bcvx_crv_delta * (1 - totalPerformanceFee),
+            1
         )
 
-        # 80% of cvxCrvHelperVault shares were distributed through the tree
-        actual_cvx_crv_helper_tree = (
-            (
-                after.balances("cvxCrv", "cvxCrvHelperVault")
-                - before.balances("cvxCrv", "cvxCrvHelperVault")
-            )
-            * (cvxCrvHelperVault.getPricePerFullShare() / 1e18)
-            * 0.8
-        )
-        actual_tree_cvx_crv_delta = after.balances(
-            "cvxCrv", "badgerTree"
-        ) - before.balances("cvxCrv", "badgerTree")
-
-        assert actual_cvx_crv_helper_tree > actual_tree_cvx_crv_delta
-
-        # 20% of cvxCrvHelperVault shares were sent to governance
-        estimated_governance_cvx_crv = (
-            (
-                after.balances("cvxCrv", "cvxCrvHelperVault")
-                - before.balances("cvxCrv", "cvxCrvHelperVault")
-            )
-            * (cvxCrvHelperVault.getPricePerFullShare() / 1e18)
-            * 0.2
-        )
-
-        actual_governance_change = after.balances(
-            "cvxCrv", "governanceRewards"
-        ) - before.balances("cvxCrv", "governanceRewards")
-        assert estimated_governance_cvx_crv > actual_governance_change
-
-        # 20% of Total bcvxCRV is charged as governance fee
-        total_bcvxCrv = actual_governance_change + actual_tree_cvx_crv_delta
-        assert approx(total_bcvxCrv * 0.2, actual_governance_change, 1)
-
-
-        # 20% of Total bveCVX is charged as governance fee
-        actual_tree_bvecvx_delta = after.balances(
+        # (100% - totalPerformanceFee) of bveCVX shares were distributed through the tree
+        actual_tree_bveCVX_delta = after.balances(
             "bveCVX", "badgerTree"
         ) - before.balances("bveCVX", "badgerTree")
 
-        actual_governance_change = after.balances(
-            "bveCVX", "governanceRewards"
+        actual_governance_bveCVX_delta = after.balances(
+                "bveCVX", "governanceRewards"
         ) - before.balances("bveCVX", "governanceRewards")
 
-        total_bveCVX = actual_governance_change + actual_tree_bvecvx_delta
-        assert approx(total_bveCVX * 0.2, actual_governance_change, 1)
+        actual_strategist_bveCVX_delta = after.balances(
+            "bveCVX", "strategist"
+        ) - before.balances("bveCVX", "strategist")
 
-        # 0% of want should be transferred to governance
+        total_bveCVX_delta = (
+            actual_tree_bveCVX_delta +
+            actual_governance_bveCVX_delta +
+            actual_strategist_bveCVX_delta
+        )
+
+        assert approx(
+            actual_tree_bveCVX_delta,
+            total_bveCVX_delta * (1 - totalPerformanceFee),
+            1
+        )
+
+
+        ## === Check Proper Fees == ##
+
+        ## bcvxCrv and bveCVX are sent to Governance if performanceFeeGovernance not 0
+        if govPerformanceFee > 0:
+            assert after.balances("bCvxCrv", "governanceRewards") > before.balances(
+                "bCvxCrv", "governanceRewards"
+            )
+            assert after.balances("bveCVX", "governanceRewards") > before.balances(
+                "bveCVX", "governanceRewards"
+            )
+            # govPerformanceFee % of Total bcvxCRV and bveCVX are charged
+            assert approx(
+                actual_governance_bcvx_crv_delta, 
+                total_bcvx_crv_delta * govPerformanceFee,
+                1
+            )
+
+            assert approx(
+                actual_governance_bveCVX_delta, 
+                total_bveCVX_delta * govPerformanceFee,
+                1
+            )
+        else:
+            assert after.balances("bCvxCrv", "governanceRewards") == before.balances(
+                "bCvxCrv", "governanceRewards"
+            )
+            assert after.balances("bveCVX", "governanceRewards") == before.balances(
+                "bveCVX", "governanceRewards"
+            )
+
+        ## bveCVX is sent to Strategist if performanceFeeStrategist not 0
+        if stratPerformanceFee > 0:
+            assert after.balances("bCvxCrv", "strategist") > before.balances(
+                "bCvxCrv", "strategist"
+            )
+            assert after.balances("bveCVX", "strategist") > before.balances(
+                "bveCVX", "strategist"
+            )
+            # stratPerformanceFee % of Total bcvxCRV and bveCVX are charged
+            assert approx(
+                actual_strategist_bcvx_crv_delta, 
+                total_bcvx_crv_delta * stratPerformanceFee,
+                1
+            )
+
+            assert approx(
+                actual_strategist_bveCVX_delta, 
+                total_bveCVX_delta * stratPerformanceFee,
+                1
+            )
+        else:
+            assert after.balances("bCvxCrv", "strategist") == before.balances(
+                "bCvxCrv", "strategist"
+            )
+            assert after.balances("bveCVX", "strategist") == before.balances(
+                "bveCVX", "strategist"
+            )
+
+
+        # 0% of want should be transferred to governance (No autocompounding)
         actual_governance_change = after.balances(
             "want", "governanceRewards"
         ) - before.balances("want", "governanceRewards")
         assert actual_governance_change == 0
+
+
+        # 0% of want should be transferred to strategist (No autocompounding)
+        actual_strategist_change = after.balances(
+            "want", "strategist"
+        ) - before.balances("want", "strategist")
+        assert actual_strategist_change == 0
+
+
 
     def confirm_tend(self, before, after, tx):
         self.confirm_tend_events(before, after, tx)
