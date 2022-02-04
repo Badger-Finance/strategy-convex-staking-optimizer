@@ -155,7 +155,7 @@ class StrategyResolver(StrategyCoreResolver):
         ) - before.balances("cvxCrv", "cvxCrvRewardsPool")
 
         ## We earned at least (100% - performanceFee) of the delta (because we get some extra stuff)
-        assert cvx_crv_helper_vault_delta > cvx_crv_pool_delta * (1 - totalPerformanceFee)
+        assert cvx_crv_helper_vault_delta > abs(cvx_crv_pool_delta) * (1 - totalPerformanceFee)
 
         ## bcvxCrv is sent to Tree, just check balance increased
         assert after.balances("bCvxCrv", "badgerTree") > before.balances(
