@@ -16,16 +16,6 @@ from conftest import deploy
   See test_strategy_permissions, for tests at the permissions level
 """
 
-def test_proper_fees():
-    """
-    Per the settings, governance takes 20% perf fee
-    And strategist 0
-    Let's do a check on the events to prove that's the case
-    """
-    assert True
-
-    ## TODO: Custom Test to check for proper funds distribution during harvest event
-
 @pytest.mark.parametrize(
     "sett_id",
     sett_config.native,
@@ -75,7 +65,7 @@ def test_are_you_trying(sett_id):
             harvest.events["PerformanceFeeGovernance"][0]["amount"]
             + harvest.events["TreeDistribution"][0]["amount"]
         )
-        * 0.2,
+        * (sett_config.native[sett_id].params.performanceFeeGovernance / 10000),
         harvest.events["PerformanceFeeGovernance"][0]["amount"],
         1,
     )

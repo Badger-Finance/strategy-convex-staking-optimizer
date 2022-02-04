@@ -159,7 +159,7 @@ def deploy_vaults_and_strategies(
         ],
         (
             params.curvePool.swap,
-            params.curvePool.wbtcPosition,
+            params.curvePool.lpComponentPosition,
             params.curvePool.numElements,
         ),
     ]
