@@ -14,6 +14,7 @@ def generate_test_assets(account, path, amount):
 
     for address in path:
         asset = interface.IERC20(address)
+        asset.approve(router.address, 0, {"from": account})
         asset.approve(router.address, MaxUint256, {"from": account})
 
     # Buy path[n-1] token with "amount" of path[0] token
@@ -80,6 +81,7 @@ def generate_curve_LP_assets(account, amount, sett_config):
 
     else:
         swap = interface.ICurveFi(poolInfo.swap)
+        lpComponent.approve(poolInfo.swap, 0, {"from": account})
         lpComponent.approve(poolInfo.swap, MaxUint256, {"from": account})
         amounts = [0] * poolInfo.numElements
         amounts[poolInfo.lpComponentPosition] = depositAmount
