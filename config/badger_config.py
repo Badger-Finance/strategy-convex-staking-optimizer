@@ -20,7 +20,7 @@ sett_config = DotMap(
                 withdrawalFee=10,
                 curvePool=DotMap(
                     swap=registry.curve.pools.renCrv.swap,
-                    wbtcPosition=1,
+                    lpComponentPosition=1,
                     numElements=2,
                 ),
                 cvxHelperVault=convex.cvxHelperVault,
@@ -39,7 +39,7 @@ sett_config = DotMap(
                 withdrawalFee=10,
                 curvePool=DotMap(
                     swap=registry.curve.pools.sbtcCrv.swap,
-                    wbtcPosition=1,
+                    lpComponentPosition=1,
                     numElements=3,
                 ),
                 cvxHelperVault=convex.cvxHelperVault,
@@ -58,7 +58,7 @@ sett_config = DotMap(
                 withdrawalFee=10,
                 curvePool=DotMap(
                     swap=registry.curve.pools.tbtcCrv.swap,
-                    wbtcPosition=2,
+                    lpComponentPosition=2,
                     numElements=4,
                 ),
                 cvxHelperVault=convex.cvxHelperVault,
@@ -77,7 +77,7 @@ sett_config = DotMap(
                 withdrawalFee=10,
                 curvePool=DotMap(
                     swap=registry.curve.pools.hbtcCrv.swap,
-                    wbtcPosition=1,
+                    lpComponentPosition=1,
                     numElements=2,
                 ),
                 cvxHelperVault=convex.cvxHelperVault,
@@ -96,7 +96,7 @@ sett_config = DotMap(
                 withdrawalFee=10,
                 curvePool=DotMap(
                     swap=registry.curve.pools.obtcCrv.swap,
-                    wbtcPosition=2,
+                    lpComponentPosition=2,
                     numElements=4,
                 ),
                 cvxHelperVault=convex.cvxHelperVault,
@@ -115,7 +115,7 @@ sett_config = DotMap(
                 withdrawalFee=10,
                 curvePool=DotMap(
                     swap=registry.curve.pools.pbtcCrv.swap,
-                    wbtcPosition=2,
+                    lpComponentPosition=2,
                     numElements=4,
                 ),
                 cvxHelperVault=convex.cvxHelperVault,
@@ -134,7 +134,7 @@ sett_config = DotMap(
                 withdrawalFee=10,
                 curvePool=DotMap(
                     swap=registry.curve.pools.bbtcCrv.swap,
-                    wbtcPosition=2,
+                    lpComponentPosition=2,
                     numElements=4,
                 ),
                 cvxHelperVault=convex.cvxHelperVault,
@@ -153,7 +153,7 @@ sett_config = DotMap(
                 withdrawalFee=10,
                 curvePool=DotMap(
                     swap=registry.curve.pools.triCryptoDos.swap,
-                    wbtcPosition=1,
+                    lpComponentPosition=1,
                     numElements=3,
                 ),
                 cvxHelperVault=convex.cvxHelperVault,
@@ -172,7 +172,25 @@ sett_config = DotMap(
                 withdrawalFee=10,
                 curvePool=DotMap(
                     swap=registry.curve.pools.ibbtcCrv.swap,
-                    ibbtcPosition=0,
+                    lpComponentPosition=0,
+                    numElements=4,
+                ),
+                cvxHelperVault=convex.cvxHelperVault,
+                cvxCrvHelperVault=convex.cvxCrvHelperVault,
+            ),
+        ),
+        convexUstWhCrv=DotMap(
+            strategyName="StrategyConvexStakingOptimizer",
+            params=DotMap(
+                want=pools.ustWhCrv.token,
+                pid=curve.pids.ustWhCrv,
+                lpComponent=registry.tokens.usdc,
+                performanceFeeStrategist=0,
+                performanceFeeGovernance=2000,
+                withdrawalFee=10,
+                curvePool=DotMap(
+                    swap=registry.curve.pools.ustWhCrv.swap,
+                    lpComponentPosition=2,
                     numElements=4,
                 ),
                 cvxHelperVault=convex.cvxHelperVault,
