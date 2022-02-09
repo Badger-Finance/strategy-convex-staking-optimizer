@@ -79,6 +79,19 @@ def generate_curve_LP_assets(account, amount, sett_config):
             {"from": account}
         )
 
+    elif sett_config.params.want == tokens.ustWhCrv:
+        zap = interface.ICurveFi(poolInfo.swap)
+        lpComponent.approve(zap, 0, {"from": account})
+        lpComponent.approve(zap, MaxUint256, {"from": account})
+        amounts = [0] * poolInfo.numElements
+        amounts[poolInfo.lpComponentPosition] = depositAmount
+        zap.add_liquidity[f'address,uint[{poolInfo.numElements}],uint'](
+            sett_config.params.want,
+            amounts,
+            0,
+            {"from": account}
+        )
+
     else:
         swap = interface.ICurveFi(poolInfo.swap)
         lpComponent.approve(poolInfo.swap, 0, {"from": account})

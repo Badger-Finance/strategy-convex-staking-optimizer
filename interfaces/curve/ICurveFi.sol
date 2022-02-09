@@ -22,6 +22,13 @@ interface ICurveFi {
         uint256 min_mint_amount
     ) external;
 
+    function add_liquidity(
+        // zap_3pool
+        address _pool,
+        uint256[4] calldata amounts,
+        uint256 min_mint_amount
+    ) external;
+
     function get_dy(
         int128 i,
         int128 j,

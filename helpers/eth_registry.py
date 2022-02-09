@@ -69,15 +69,10 @@ curve_registry = DotMap(
             swap="0xbba4b444FD10302251d9F5797E763b0d912286A1", # ibBTC
             gauge="0x346C7BB1A7a6A30c8e81c14e90FC2f0FBddc54d8",
         ),
-        cvxEthCrv=DotMap(
-            token="0x3A283D9c08E8b55966afb64C515f5143cf907611",
-            swap="0xB576491F1E6e5E62f1d8F26062Ee822B40B0E0d4", 
-            gauge="0x7E1444BA99dcdFfE8fBdb42C02F0005D14f13BE1",
-        ),
-        crvCvxCrv=DotMap(
-            token="0x9D0464996170c6B9e75eED71c68B99dDEDf279e8",
-            swap="0x9D0464996170c6B9e75eED71c68B99dDEDf279e8", # Factory pool
-            gauge="0x903dA6213a5A12B61c821598154EfAd98C3B20E4",
+        ustWhCrv=DotMap(
+            token="0xCEAF7747579696A2F0bb206a14210e3c9e6fB269",
+            swap="0xA79828DF1850E8a3A3064576f380D90aECDD3359", # zap_3pool
+            gauge="0xb0f5d00e5916c8b8981e99191A1458704B587b2b",
         ),
     ),
     pids=DotMap(
@@ -91,8 +86,7 @@ curve_registry = DotMap(
         triCrypto=37,
         triCryptoDos=38,
         ibbtcCrv=53,
-        cvxEthCrv=64,
-        crvCvxCrv=41,
+        ustWhCrv=59,
     ),
 )
 
@@ -116,7 +110,9 @@ tokens = DotMap(
     pnt="0x89Ab32156e46F46D02ade3FEcbe5Fc4243B9AAeD",
     bor="0x3c9d6c1C73b31c837832c72E04D3152f051fc1A9",
     wibBTC="0x8751d4196027d4e6da63716fa7786b5174f04c15",
-    ibbtcCrv="0xFbdCA68601f835b27790D98bbb8eC7f05FDEaA9B"
+    ibbtcCrv="0xFbdCA68601f835b27790D98bbb8eC7f05FDEaA9B",
+    ustWhCrv="0xCEAF7747579696A2F0bb206a14210e3c9e6fB269",
+    threePool = "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7",
 )
 
 whales = DotMap(
