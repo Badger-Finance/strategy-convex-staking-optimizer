@@ -179,6 +179,24 @@ sett_config = DotMap(
                 cvxCrvHelperVault=convex.cvxCrvHelperVault,
             ),
         ),
+        convexBadgerCrv=DotMap(
+            strategyName="StrategyConvexStakingOptimizer",
+            params=DotMap(
+                want=pools.badgerCrv.token,
+                pid=curve.pids.badgerCrv,
+                lpComponent=registry.tokens.wbtc,
+                performanceFeeStrategist=0,
+                performanceFeeGovernance=2000,
+                withdrawalFee=10,
+                curvePool=DotMap(
+                    swap=registry.curve.pools.badgerCrv.swap,
+                    wbtcPosition=1,
+                    numElements=2,
+                ),
+                cvxHelperVault=convex.cvxHelperVault,
+                cvxCrvHelperVault=convex.cvxCrvHelperVault,
+            ),
+        ),
     ),
     helper=DotMap(
         cvx=DotMap(
