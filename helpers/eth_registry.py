@@ -69,6 +69,11 @@ curve_registry = DotMap(
             swap="0xbba4b444FD10302251d9F5797E763b0d912286A1", # ibBTC
             gauge="0x346C7BB1A7a6A30c8e81c14e90FC2f0FBddc54d8",
         ),
+        badgerCrv=DotMap(
+            token="0x137469B55D1f15651BA46A89D0588e97dD0B6562",
+            swap="0x50f3752289e1456BfA505afd37B241bca23e685d",
+            gauge="0x02246583870b36Be0fEf2819E1d3A771d6C07546",
+        ),
     ),
     pids=DotMap(
         renCrv=6,
@@ -81,6 +86,7 @@ curve_registry = DotMap(
         triCrypto=37,
         triCryptoDos=38,
         ibbtcCrv=53,
+        badgerCrv=74
     ),
 )
 
@@ -104,7 +110,8 @@ tokens = DotMap(
     pnt="0x89Ab32156e46F46D02ade3FEcbe5Fc4243B9AAeD",
     bor="0x3c9d6c1C73b31c837832c72E04D3152f051fc1A9",
     wibBTC="0x8751d4196027d4e6da63716fa7786b5174f04c15",
-    ibbtcCrv="0xFbdCA68601f835b27790D98bbb8eC7f05FDEaA9B"
+    ibbtcCrv="0xFbdCA68601f835b27790D98bbb8eC7f05FDEaA9B",
+    badgerCrv="0x137469B55D1f15651BA46A89D0588e97dD0B6562"
 )
 
 whales = DotMap(
