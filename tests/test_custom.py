@@ -166,7 +166,7 @@ def test_fee_configs(sett_id):
     assert harvest.events["PerformanceFeeStrategist"][0]["amount"] > 0
     assert harvest.events["PerformanceFeeStrategist"][1]["amount"] > 0
 
-    # Both fees are equal
+# Both fees are equal
     assert (
         harvest.events["PerformanceFeeGovernance"][0]["amount"]
     ) == (

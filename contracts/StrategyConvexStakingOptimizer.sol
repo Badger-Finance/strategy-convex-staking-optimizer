@@ -17,6 +17,9 @@ import "interfaces/badger/IController.sol";
 
 import "interfaces/badger/ISettV4.sol";
 
+import "interfaces/curve/ICurveExchange.sol";
+
+
 import "interfaces/convex/IBooster.sol";
 import "interfaces/convex/CrvDepositor.sol";
 import "interfaces/convex/IBaseRewardsPool.sol";
@@ -95,22 +98,26 @@ contract StrategyConvexStakingOptimizer is
     address public constant threeCrv =
         0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490;
 
-    IERC20Upgradeable public constant wbtcToken =
-        IERC20Upgradeable(0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599);
+    address public constant fxs = 0x3432B6A60D23Ca0dFCa7761B7ab56459D9C964D0;
+    address public constant cvxFxs = 0xFEEf77d3f69374f66429C91d732A244f074bdf74;
+
     IERC20Upgradeable public constant crvToken =
         IERC20Upgradeable(0xD533a949740bb3306d119CC777fa900bA034cd52);
     IERC20Upgradeable public constant cvxToken =
         IERC20Upgradeable(0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B);
     IERC20Upgradeable public constant cvxCrvToken =
         IERC20Upgradeable(0x62B9c7356A2Dc64a1969e19C23e4f579F9810Aa7);
-    IERC20Upgradeable public constant usdcToken =
-        IERC20Upgradeable(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
-    IERC20Upgradeable public constant threeCrvToken =
-        IERC20Upgradeable(0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490);
     IERC20Upgradeable public constant bveCVX =
         IERC20Upgradeable(0xfd05D3C7fe2924020620A8bE4961bBaA747e6305);
+    IERC20Upgradeable public constant fxsToken =
+    IERC20Upgradeable(0xfd05D3C7fe2924020620A8bE4961bBaA747e6305);
+    IERC20Upgradeable public constant cvxFxsToken =
+        IERC20Upgradeable(0xFEEf77d3f69374f66429C91d732A244f074bdf74);
+    IERC20Upgradeable public constant crvFxsCvxFxsToken =
+    IERC20Upgradeable(0xF3A43307DcAFa93275993862Aae628fCB50dC768);
 
-    // ===== Convex Registry =====
+
+// ===== Convex Registry =====
     CrvDepositor public constant crvDepositor =
         CrvDepositor(0x8014595F2AB54cD7c604B00E9fb932176fDc86Ae); // Convert CRV -> cvxCRV
     IBooster public constant booster =
@@ -118,6 +125,8 @@ contract StrategyConvexStakingOptimizer is
     IBaseRewardsPool public baseRewardsPool;
     IBaseRewardsPool public constant cvxCrvRewardsPool =
         IBaseRewardsPool(0x3Fe65692bfCD0e6CF84cB1E7d24108E434A7587e);
+    IBaseRewardsPool public constant cvxFxsRewardsPool =
+        IBaseRewardsPool(0xf27AFAD0142393e4b3E5510aBc5fe3743Ad669Cb);
     ICvxRewardsPool public constant cvxRewardsPool =
         ICvxRewardsPool(0xCF50b810E57Ac33B91dCF525C6ddd9881B139332);
     address public constant threeCrvSwap =
@@ -146,6 +155,7 @@ contract StrategyConvexStakingOptimizer is
 
     uint256 public stableSwapSlippageTolerance;
     uint256 public constant crvCvxCrvPoolIndex = 2;
+    uint256 public constant cvxFxsFxsPoolIndex = 72; // crv pool index
     // Minimum 3Crv harvested to perform a profitable swap on it
     uint256 public minThreeCrvHarvest;
 
@@ -460,6 +470,17 @@ contract StrategyConvexStakingOptimizer is
             );
         }
 
+        // 3a. Deposit FXS into cvxFXS/FXS pool (this should result in more pool tokens in the strategy increasing ppfs)
+        uint256 fxsBalance = fxsToken.balanceOf(address(this));
+        if (fxsBalance > 0) {
+            uint256 minCvxFxsOut = 0;  // TODO: Saj wrote some logic for SOLIDLY that stakes or swaps depending on price.  That would be better to use here.
+            // Add liquidity for cvxFXS/FXS pool by depositing FXS
+            ICurveExchange(cvxFxsFxsPoolIndex).add_liquidity(
+                [IERC20Upgradeable(fxs).balanceOf(address(this)), 0],
+                minCvxFxsOut
+            );
+        }
+
         // 4. Deposit cvxCRV rewards into helper vault and distribute
         uint256 cvxCrvToDistribute = cvxCrvToken.balanceOf(address(this));
         if (cvxCrvToDistribute > 0) {
@@ -541,6 +562,7 @@ contract StrategyConvexStakingOptimizer is
                 block.timestamp
             );
         }
+
 
         // 5. Swap CVX for bveCVX and distribute
         uint256 cvxToDistribute = cvxToken.balanceOf(address(this));
