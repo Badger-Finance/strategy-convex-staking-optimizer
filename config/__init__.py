@@ -21,8 +21,8 @@ DEFAULT_PERFORMANCE_FEE = 0
 DEFAULT_WITHDRAWAL_FEE = 1
 
 CURVE_POOL_CONFIG = [
-    "0xF3A43307DcAFa93275993862Aae628fCB50dC768",  # Swap Contract
-    1,  # WBTC position
+    "0xd658A338613198204DCa1143Ac3F01A722b5d94A",  # FXS/cvxFXS Swap Contract
+    1,  # WBTC (or FXS)  position
     2,  # Num of Elements
 ]
 
