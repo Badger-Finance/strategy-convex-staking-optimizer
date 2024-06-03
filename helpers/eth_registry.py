@@ -11,6 +11,7 @@ multichain_registry = DotMap(eth_address="0xC564EE9f21Ed8A2d8E7e76c085740d5e4c5F
 convex_registry = DotMap(
     cvxHelperVault="0x53c8e199eb2cb7c01543c137078a038937a68e40",
     cvxCrvHelperVault="0x2B5455aac8d64C14786c3a29858E43b5945819C0",
+    VirtualBalanceRewardPool="0xAAf75a94394F6D06E01CcE62e2545CeFFBFA1E2D",
 )
 
 curve_registry = DotMap(
